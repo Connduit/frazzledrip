@@ -1,3 +1,7 @@
+#define private public
+#define protected public
+
+
 #include "test.h" // TODO: not getting the includes from here for some reason?
 #include "ClientTest.h"
 #include "Client.h"
