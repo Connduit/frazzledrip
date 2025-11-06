@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <sstream> // NOTE: must be included before private/protected public defines
 #include <iostream>
+#include <cassert>
 
 #define private public
 #define protected public
@@ -14,9 +15,7 @@
 #include "TransportLayer.h"
 
 
-#include <cassert>
-#include <iostream>
-
+Client* ClientTest::client_ = 0;
 
 ClientTest::ClientTest()
 {
