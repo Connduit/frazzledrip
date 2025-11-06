@@ -8,6 +8,22 @@
 #include <iostream>
 #pragma comment(lib, "ws2_32.lib")
 
+TransportLayer::TransportLayer(
+		MessageHandler& handler,
+		SerializerUniquePtr serializer,
+		EncoderUniquePtr encoder,
+		EncryptorUniquePtr encryptor,
+		SerializerType serializerType,
+		EncoderType encoderType,
+		EncryptorType encryptorType)
+		:
+		messageHandler_(handler)
+{
+	serializer_ = serializer ? std::move(serializer) : ComponentFactory::create(serializerType);
+	encoder_ = encoder ? std::move(encoder) : ComponentFactory::create(encoderType);
+	encryptor_ = encryptor ? std::move(encryptor) : ComponentFactory::create(encryptorType);
+}
+
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
     //auto serialized = serializer_.serialize(msg);
