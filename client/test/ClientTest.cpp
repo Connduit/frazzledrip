@@ -1,3 +1,7 @@
+#include <iomanip>
+#include <sstream> // NOTE: must be included before private/protected public defines
+#include <iostream>
+
 #define private public
 #define protected public
 
@@ -130,14 +134,13 @@ std::vector<uint8_t> ClientTest::string2byte(const std::string inMsg)
 
 std::string ClientTest::byte2string(const std::vector<uint8_t> inMsg)
 {
-	return std::string(inMsg.begin(), inMsg.end());
-}
+	//return std::string(inMsg.begin(), inMsg.end());
+	std::ostringstream oss;
+	oss << std::uppercase;
 
-void ClientTest::printVector(const std::vector<uint8_t>& vec)
-{
-	for (auto b : vec)
+	for (uint8_t b : inMsg)
 	{
-		std::cout << static_cast<int>(b) << " ";
+		oss << std::hex << std::setw(2) << std::setfill('0') << (int)b << " ";		
 	}
-	std::cout << std::endl;
+	return oss.str();
 }
