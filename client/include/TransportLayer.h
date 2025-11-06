@@ -1,4 +1,3 @@
-﻿// TODO: rename to ExternalMessage something?
 /*
  * TransportLayer.h
  *
