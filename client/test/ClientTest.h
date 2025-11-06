@@ -23,12 +23,12 @@ public:
 	bool testEncrypter(std::vector<uint8_t>& inMsg, std::vector<uint8_t>& outMsg, XorEncryptor& encryptor);
 	bool testAll();
 
+
+protected:
+	static Client* client_;
+private:
 	std::vector<uint8_t> string2byte(const std::string inMsg);
 	std::string byte2string(const std::vector<uint8_t> inMsg);
-	void printVector(const std::vector<uint8_t>& vec);
-
-private:
-	Client* client_;
 };
 
 #endif
