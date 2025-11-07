@@ -48,13 +48,6 @@ Client::Client(TransportLayerType transportType, const std::string& server, cons
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }
 
-// Constructor with custom transporter (for testing)
-Client::Client(TransportLayerUniquePtr transporter) :
-	transportLayer_(std::move(transporter))
-{
-	//messageHandler_.setTransportLayer(*transportLayer_);
-}
-
 
 
 

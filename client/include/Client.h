@@ -18,7 +18,6 @@ public:
     //Client(std::string server, std::string port); 
     //Client(TCPTransportLayer transportLayer, std::string server, std::string port); 
     Client(TransportLayerType transportType, const std::string& server, const std::string& port); 
-    Client(TransportLayerUniquePtr transportLayer);
 
     bool run();
 private:
