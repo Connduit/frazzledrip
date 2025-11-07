@@ -71,8 +71,6 @@ Client::Client(TransportLayerType transportType, const std::string& server, cons
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }*/
 
-<<<<<<< HEAD
-=======
 // Constructor with custom transporter (for testing)
 /*
 Client::Client(TransportLayerUniquePtr transporter) :
@@ -81,7 +79,6 @@ Client::Client(TransportLayerUniquePtr transporter) :
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }*/
 
->>>>>>> dev-atwork
 
 
 
