@@ -31,23 +31,57 @@ Client::Client(TCPtransportLayer transportLayer, std::string server, std::string
 
 
 // TODO: delete?
-Client::Client() : 
-	transportLayer_(TransportLayerFactory::create(
+Client::Client() :
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportLayerFactory::create(
 		messageHandler_,
 		"10.0.0.48",
 		"4444",
-		TransportLayerType::TCP))
+		TransportLayerType::TCP,
+		SerializerType::BINARY
+		EncoderType::BASE64,
+		EncryptorType::XOR
+	)
+)
 {
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }
 
+Client::Client() :
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportLayerFactory::create(
+		messageHandler_,
+		server,
+		port,
+		transportLayerType::TCP,
+		serializerType::BINARY
+		encoderType::BASE64,
+		encryptorType::XOR
+	)
+)
+{}
+
 // Constructor with specific transport type
+/*
 Client::Client(TransportLayerType transportType, const std::string& server, const std::string& port) :
 	transportLayer_(TransportLayerFactory::create(messageHandler_, server, port, transportType))
 {
 	//messageHandler_.setTransportLayer(*transportLayer_);
-}
+}*/
 
+<<<<<<< HEAD
+=======
+// Constructor with custom transporter (for testing)
+/*
+Client::Client(TransportLayerUniquePtr transporter) :
+	transportLayer_(std::move(transporter))
+{
+	//messageHandler_.setTransportLayer(*transportLayer_);
+}*/
+
+>>>>>>> dev-atwork
 
 
 

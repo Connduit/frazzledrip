@@ -22,6 +22,9 @@
 class ComponentFactory
 {
 public:
+	static SerializerUniquePtr create(SerializerType type); // TODO: mark as explicit
+	static EncoderUniquePtr create(EncoderType type); // TODO: mark as explicit
+	static EncryptorUniquePtr create(EncryptorType type); // TODO: mark as explicit
 private:
 };
 
@@ -33,7 +36,10 @@ public:
 			MessageHandler& messageHandler, 
 			const std::string& host, 
 			const std::string& port, 
-			TransportLayerType type);
+			TransportLayerType type,
+			SerializerType serializerType,
+			EncoderType encoderType,
+			EncryptorType encryptorType);
 private:
 };
 

@@ -1,12 +1,28 @@
 #include "TransportLayer.h"
 #include "MessageTypes.h"
 #include "MessageHandler.h"
-
+//
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 #include <iostream>
 #pragma comment(lib, "ws2_32.lib")
+
+TransportLayer::TransportLayer(
+		MessageHandler& handler,
+		SerializerUniquePtr serializer,
+		EncoderUniquePtr encoder,
+		EncryptorUniquePtr encryptor,
+		SerializerType serializerType,
+		EncoderType encoderType,
+		EncryptorType encryptorType)
+		:
+		messageHandler_(handler)
+{
+	serializer_ = serializer ? std::move(serializer) : ComponentFactory::create(serializerType);
+	encoder_ = encoder ? std::move(encoder) : ComponentFactory::create(encoderType);
+	encryptor_ = encryptor ? std::move(encryptor) : ComponentFactory::create(encryptorType);
+}
 
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
@@ -59,8 +75,27 @@ uint32_t TransportLayer::generateId()
 
 
 //TCPTransportLayer::TCPTransportLayer(MessageHandler* hdlr, const std::string& server, uint16_t port)
-TCPTransportLayer::TCPTransportLayer(MessageHandler& messageHandler, const std::string& server, std::string port)
-    : TransportLayer(messageHandler), server_(server), port_(port)
+TCPTransportLayer::TCPTransportLayer(
+		MessageHandler& messageHandler, 
+		const std::string& server, 
+		const std::string& port,
+		SerializerUniquePtr serializer,
+		EncoderUniquePtr encoder,
+		EncryptorUniquePtr encryptor,
+		SerializerType serializerType,
+		EncoderType encoderType,
+		EncryptorType encryptorType)
+    	: 
+		TransportLayer(
+			messageHandler,
+			std::move(serializer),
+			std::move(encoder),
+			std::move(encryptor),
+			serializerType,
+			encoderType,
+			encryptorType),
+		server_(server), 
+		port_(port)
 {
     initializeWinsock();
 }

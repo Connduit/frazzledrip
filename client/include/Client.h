@@ -17,7 +17,15 @@ public:
     Client();
     //Client(std::string server, std::string port); 
     //Client(TCPTransportLayer transportLayer, std::string server, std::string port); 
-    Client(TransportLayerType transportType, const std::string& server, const std::string& port); 
+    //Client(TransportLayerType transportType, const std::string& server, const std::string& port); 
+    //Client(TransportLayerUniquePtr transportLayer);
+
+	Client(const std::string& server,
+		   const std::string& port,
+		   TransportType transportType,
+		   SerializerType serializerType,
+		   EncoderType encoderType,
+		   EncryptorType encryptorType);
 
     bool run();
 private:

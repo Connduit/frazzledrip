@@ -1,4 +1,3 @@
-﻿// TODO: rename to ExternalMessage something?
 /*
  * TransportLayer.h
  *
@@ -41,7 +40,14 @@ class TransportLayer
 public:
 	// constructor
 	//explicit TransportLayer(MessageHandler* handler) : messageHandler_(handler) {}
-	explicit TransportLayer(MessageHandler& handler) : messageHandler_(handler) {}
+	explicit TransportLayer(
+				MessageHandler& handler,
+				SerializerUniquePtr serializer,
+				EncoderUniquePtr encoder,
+				EncryptorUniquePtr encryptor,
+				SerializerType serializerType,
+				EncoderType encoderType,
+				EncryptorType encryptorType);
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
 	virtual bool connect() = 0;
@@ -85,7 +91,17 @@ class TCPTransportLayer : public TransportLayer
 public:
 	//TCPTransporter(const std::string& server, uint16_t port) : server_(server), port_(port) {}
 	//TCPTransporter(MessageHandler* messageHandler, const std::string& server, uint16_t port);
-	TCPTransportLayer(MessageHandler& messageHandler, const std::string& server, std::string port);
+	explicit TCPTransportLayer(
+				MessageHandler& messageHandler, 
+				const std::string& server, 
+				const std::string& port,
+				SerializerUniquePtr serializer = nullptr,
+				EncoderUniquePtr encoder = nullptr,
+				EncryptorUniquePtr encryptor = nullptr,
+				SerializerType serializerType = SerializerType::BINARY,
+				EncoderType encoderType = EncoderType::BASE64,
+				EncryptorType encryptorType = EncryptorType::XOR);
+
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server
