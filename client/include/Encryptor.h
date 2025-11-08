@@ -28,15 +28,24 @@ int aes128_encrypt(data, key, result)
 #include <vector>
 #include <string>
 
+
+
+#include <memory>
+
+
 // TODO: move this struct somewhere else?
-typedef struct {
+typedef struct
+{
 	unsigned char ciphertext[1024];
 	unsigned char tag[16];  // Authentication tag
 	int ciphertext_len;
 } encrypted_message;
 
-
-#include <memory>
+typedef enum
+{
+	XOR,
+	AES
+} EncryptorType;
 
 
 class Encryptor

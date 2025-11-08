@@ -2,11 +2,11 @@
 #define CLIENT_H
 
 
-#include "TransportLayerTypes.h"
+//#include "TransportLayerTypes.h"
 #include "C2Profile.h"
 #include "MessageHandler.h"
 #include "TransportLayer.h"
-#include "../common/logging.h"
+//#include "../common/logging.h"
 
 #include <memory>
 
@@ -22,7 +22,7 @@ public:
 
 	Client(const std::string& server,
 		   const std::string& port,
-		   TransportType transportType,
+           TransportLayerType transportType,
 		   SerializerType serializerType,
 		   EncoderType encoderType,
 		   EncryptorType encryptorType);
@@ -30,7 +30,7 @@ public:
     bool run();
 private:
 
-    TransportLayerUniquePtr transportLayer_; 
+    TransportLayerUniquePtr transportLayerPtr_;
     //TCPTransportLayer transportLayer_; // NOTE: hardcode transport type?, TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
     MessageHandler messageHandler_;
 	// ApiResolver apiResolver_;

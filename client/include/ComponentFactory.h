@@ -13,7 +13,7 @@
 #include "Encoder.h"
 #include "Encryptor.h"
 #include "Serializer.h"
-#include "TransportLayerTypes.h"
+//#include "TransportLayerTypes.h"
 #include "TransportLayer.h"
 
 

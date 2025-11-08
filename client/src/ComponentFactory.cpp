@@ -1,5 +1,7 @@
 #include "ComponentFactory.h"
 
+#include <iostream>
+
 SerializerUniquePtr ComponentFactory::create(SerializerType type)
 {
 	switch (type)
@@ -18,7 +20,7 @@ EncoderUniquePtr ComponentFactory::create(EncoderType type)
 	switch (type)
 	{
 	case EncoderType::BASE64:
-		return std::make_unique<Base64>();
+		return std::make_unique<B64Encoder>();
 	case EncoderType::HEX:
 		// return std::make_unique<HEX_TODO>();
 	default:
@@ -31,7 +33,7 @@ EncryptorUniquePtr ComponentFactory::create(EncryptorType type)
 	switch (type)
 	{
 	case EncryptorType::XOR:
-		return std::make_unique<XOR>();
+		return std::make_unique<XorEncryptor>();
 	case EncryptorType::AES:
 		// return std::make_unique<AES_TODO>();
 	default:
