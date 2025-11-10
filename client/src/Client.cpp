@@ -47,6 +47,27 @@ Client::Client() :
 {
 	//messageHandler_.setTransportLayer(*transportLayer_);
 }
+
+Client::Client(
+	const std::string& server,
+	const std::string& port,
+	TransportType transportType,
+	SerializerType serializerType,
+	EncoderType encoderType,
+	EncryptorType encryptorType)
+	:
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportFactory::create(
+			messageHandler_,
+			server,
+			port,
+			transportType,
+			serializerType,
+			encoderType,
+			encryptorType)
+	)
+{}
 /*
 Client::Client() :
 	messageHandler_(),
