@@ -22,18 +22,19 @@ var (
 
 // Message types matching your C++ enum exactly
 const (
-	MESSAGE_DEFAULT            = 0
-	MESSAGE_HANDSHAKE          = 1
-	MESSAGE_HEARTBEAT          = 2
-	MESSAGE_SYS_INFO           = 3
-	MESSAGE_COMMAND_RESULT     = 4
-	MESSAGE_DATA_EXFIL         = 5
-	MESSAGE_UPLOAD_FILE        = 6
-	MESSAGE_EXECUTE_COMMAND    = 7 // Server -> Client: run command via system()
-	MESSAGE_EXECUTE_SHELL_CODE = 8
-	MESSAGE_DOWNLOAD_FILE      = 9
-	MESSAGE_CONFIG_UPDATE      = 10
-	MESSAGE_ERROR_REPORT       = 11
+	MESSAGE_NONE               = 0
+	MESSAGE_DEFAULT            = 1
+	MESSAGE_HANDSHAKE          = 2
+	MESSAGE_HEARTBEAT          = 3
+	MESSAGE_SYS_INFO           = 4
+	MESSAGE_COMMAND_RESULT     = 5
+	MESSAGE_DATA_EXFIL         = 6
+	MESSAGE_UPLOAD_FILE        = 7
+	MESSAGE_EXECUTE_COMMAND    = 8
+	MESSAGE_EXECUTE_SHELL_CODE = 9
+	MESSAGE_DOWNLOAD_FILE      = 10
+	MESSAGE_CONFIG_UPDATE      = 11
+	MESSAGE_ERROR_REPORT       = 12
 )
 
 // MessageHeader matches your C++ #pragma pack(1) struct

@@ -34,6 +34,16 @@
 
 class MessageHandler;
 
+typedef enum
+{
+	//NONE,
+	TCP,
+	//UDP,
+	//HTTP,
+	//HTTPS,
+	//DNS
+} TransportLayerType; // TODO: rename to TransportType?
+
 // TODO: rename to TransportLayer
 class TransportLayer
 {
@@ -63,10 +73,11 @@ public:
 	InternalMessage receiveMessage();
 
 	void beacon();
+
+	void testMessage();
 protected:
 	// default subsystems
 	MessageHandler& messageHandler_;
-	//MessageHandler& messageHandler_;
 	SerializerUniquePtr serializer_;
 	EncoderUniquePtr encoder_;
 	EncryptorUniquePtr encryptor_;
@@ -133,6 +144,7 @@ private:
 
 
 };
+/*
 
 // Handles HTTPS headers, TLS, cookies, etc.
 class HTTPSTransportLayer : public TransportLayer
@@ -148,7 +160,7 @@ class DNSTransportLayer : public TransportLayer
 
 public:
 private:
-};
+};*/
 
 typedef std::unique_ptr<TransportLayer> TransportLayerUniquePtr;
 

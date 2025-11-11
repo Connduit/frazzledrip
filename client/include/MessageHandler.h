@@ -24,11 +24,16 @@
 
 class TransportLayer;
 
+
+// TODO: buffer overflow in messagehandler... which is bleeding into transportlayer variable stored in messagehandler?
 class MessageHandler
 {
 public:
 	//MessageHandler(C2Profile& config) {}; // TODO:
-	MessageHandler() : transportLayer_(nullptr) {}
+	//MessageHandler() : transportLayer_(nullptr) {}
+	MessageHandler();
+	~MessageHandler();
+
     
     bool sendMessage(); // overload this function?
     bool recvMessage(); // overload this function?

