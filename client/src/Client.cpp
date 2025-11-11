@@ -51,6 +51,7 @@ Client::Client() :
 	std::cout << "inside default constructor for client" << std::endl;
 }
 
+<<<<<<< HEAD
 
 Client::Client(
 	const std::string& host,
@@ -60,6 +61,30 @@ Client::Client(
 	EncoderType encoderType, 
 	EncryptorType encryptorType)
 	:
+=======
+Client::Client(
+	const std::string& server,
+	const std::string& port,
+	TransportType transportType,
+	SerializerType serializerType,
+	EncoderType encoderType,
+	EncryptorType encryptorType)
+	:
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportFactory::create(
+			messageHandler_,
+			server,
+			port,
+			transportType,
+			serializerType,
+			encoderType,
+			encryptorType)
+	)
+{}
+/*
+Client::Client() :
+>>>>>>> 57908ee250d5f635af889a6bc389567a4b68d2ad
 	messageHandler_(),
 	transportLayerPtr_(
 		TransportLayerFactory::create(
