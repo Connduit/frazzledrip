@@ -27,12 +27,14 @@ public:
 		   EncoderType encoderType,
 		   EncryptorType encryptorType);
 
+    ~Client();
+
     bool run();
 private:
-
+    MessageHandler messageHandler_;
     TransportLayerUniquePtr transportLayerPtr_;
     //TCPTransportLayer transportLayer_; // NOTE: hardcode transport type?, TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
-    MessageHandler messageHandler_;
+
 	// ApiResolver apiResolver_;
 
 

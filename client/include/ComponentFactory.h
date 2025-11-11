@@ -36,7 +36,7 @@ public:
 			MessageHandler& messageHandler, 
 			const std::string& host, 
 			const std::string& port, 
-			TransportLayerType type,
+			TransportLayerType transportType,
 			SerializerType serializerType,
 			EncoderType encoderType,
 			EncryptorType encryptorType);

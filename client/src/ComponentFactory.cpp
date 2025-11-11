@@ -54,6 +54,7 @@ TransportLayerUniquePtr TransportLayerFactory::create(
 	auto serializer = ComponentFactory::create(serializerType);
 	auto encoder = ComponentFactory::create(encoderType);
 	auto encryptor = ComponentFactory::create(encryptorType);
+
 	
 	switch (type)
 	{

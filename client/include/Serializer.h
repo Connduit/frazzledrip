@@ -29,8 +29,8 @@ private:
 class BinarySerializer : public Serializer
 {
 public:
-    RawByteBuffer serialize(const InternalMessage& msg);
-	InternalMessage deserialize(const RawByteBuffer& msg);
+    RawByteBuffer serialize(const InternalMessage& msg) override;
+	InternalMessage deserialize(const RawByteBuffer& msg) override;
 private:
 
 

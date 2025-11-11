@@ -10,6 +10,7 @@
 #include "test.h" // TODO: not getting the includes from here for some reason?
 #include "ClientTest.h"
 #include "Client.h"
+#include "ComponentFactory.h"
 
 #include "MessageHandler.h"
 #include "TransportLayer.h"
@@ -29,6 +30,11 @@ ClientTest::~ClientTest()
 
 bool ClientTest::testAll()
 {
+
+	//testFactoryDirectly();
+	testTransportLayer();
+	std::cout << "================================" << std::endl;
+
 	XorEncryptor encryptor("testKey");
 	B64Encoder encoder;
 	BinarySerializer serializer;
@@ -60,8 +66,8 @@ bool ClientTest::testAll()
 	// Serialize
 	std::vector<uint8_t> serializerOutMsg;
 	testSerializer(inMsg, serializerOutMsg, serializer);
-	//std::cout << "Serializer" << std::endl;
-	printVector(serializerOutMsg);
+	std::cout << "Serializer: " << byte2string(serializerOutMsg) << std::endl;
+	//printVector(serializerOutMsg);
 	//std::cout << std::endl;
 
 	/*
@@ -101,8 +107,61 @@ bool ClientTest::testAll()
 	return false;
 }
 
+void ClientTest::testTransportLayer()
+{
+	std::cout << "=== Testing TransportLayer ===" << std::endl;
 
+	// Create a MessageHandler that definitely stays alive
+	MessageHandler handler;
 
+	// Create transport layer through factory
+	auto transport = TransportLayerFactory::create(
+		handler, "localhost", "4444",
+		TransportLayerType::TCP,
+		SerializerType::BINARY,
+		EncoderType::BASE64,
+		EncryptorType::XOR
+	);
+
+	if (transport)
+	{
+		std::cout << "Transport layer created successfully" << std::endl;
+
+		InternalMessage testMsg;
+		testMsg.header.messageType = MessageType::NONE;
+		testMsg.header.dataSize = 0;
+
+		std::cout << "About to call sendMessage..." << std::endl;
+		transport->sendMessage(testMsg);  // Does it crash here?
+		std::cout << "sendMessage completed" << std::endl;
+	}
+}
+
+// Simple test - does the factory work in isolation?
+void ClientTest::testFactoryDirectly()
+{
+	std::cout << "Testing factory directly..." << std::endl;
+
+	// Test 1: Create serializer directly
+	std::cout << "Creating serializer directly..." << std::endl;
+	BinarySerializer directSerializer;
+	InternalMessage testMsg;
+	testMsg.header.messageType = MessageType::NONE;
+	testMsg.header.dataSize = 0;
+	auto result1 = directSerializer.serialize(testMsg);
+	std::cout << "Direct creation: SUCCESS" << std::endl;
+
+	// Test 2: Create through factory  
+	std::cout << "Creating serializer through factory..." << std::endl;
+	auto factorySerializer = ComponentFactory::create(SerializerType::BINARY);
+	std::cout << "Factory returned: " << (factorySerializer != nullptr) << std::endl;
+	if (factorySerializer)
+	{
+		std::cout << "About to call serialize on factory serializer..." << std::endl;
+		auto result2 = factorySerializer->serialize(testMsg);  // Does it crash here?
+		std::cout << "Factory creation: SUCCESS" << std::endl;
+	}
+}
 
 
 bool ClientTest::testSerializer(InternalMessage& inMsg, std::vector<uint8_t>& outMsg, BinarySerializer& serializer)
