@@ -51,28 +51,17 @@ Client::Client() :
 	std::cout << "inside default constructor for client" << std::endl;
 }
 
-<<<<<<< HEAD
-
-Client::Client(
-	const std::string& host,
-	const std::string& port, 
-	TransportLayerType transportType, 
-	SerializerType serializerType, 
-	EncoderType encoderType, 
-	EncryptorType encryptorType)
-	:
-=======
 Client::Client(
 	const std::string& server,
 	const std::string& port,
-	TransportType transportType,
+	TransportLayerType transportType,
 	SerializerType serializerType,
 	EncoderType encoderType,
 	EncryptorType encryptorType)
 	:
 	messageHandler_(),
 	transportLayerPtr_(
-		TransportFactory::create(
+		TransportLayerFactory::create(
 			messageHandler_,
 			server,
 			port,
@@ -101,7 +90,7 @@ Client::Client() :
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
 	std::cout << "inside parameter constructor for client" << std::endl;
 }
-
+*/
 Client::~Client()
 {
 	std::cout << "Client being deconstructed" << std::endl;

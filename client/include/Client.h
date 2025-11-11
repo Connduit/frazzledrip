@@ -31,18 +31,13 @@ public:
 
     bool run();
 private:
-<<<<<<< HEAD
     MessageHandler messageHandler_;
     TransportLayerUniquePtr transportLayerPtr_;
-=======
 
-
->>>>>>> 57908ee250d5f635af889a6bc389567a4b68d2ad
     //TCPTransportLayer transportLayer_; // NOTE: hardcode transport type?, TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
 
 	// ApiResolver apiResolver_;
 
-    TransportLayerUniquePtr transportLayerPtr_;
     //C2Profile& config_; // TODO: eventually have 
 
     // TODO: Eventually have multiple transporters if i need to connect to multiple servers.
