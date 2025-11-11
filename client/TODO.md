@@ -13,6 +13,7 @@
 - add "const" to functions and vars that need it
 - change function signature to return by parameter instead of return by value
 - switch from child classes to config file? config needs to be evaulated beforing compiling tho
+- use templates instead of parent/child classes? it's harder to re
 
 ### Class and Ownership Hierarchy
 		
