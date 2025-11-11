@@ -29,29 +29,8 @@ TransportLayer::TransportLayer(
 
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
-    // TODO: serializer_ memory is corrupted somehow?
-    /*
-    auto tempSerializer = ComponentFactory::create(SerializerType::BINARY);
-    if (!tempSerializer) return false;
-
-    
-    auto serialized = tempSerializer->serialize(msg);
-    std::cout << "done serializing... calling send()" << std::endl;
-    return send(serialized);*/
-
-
-
-    //auto serialized = serializer_.serialize(msg);
-    //auto encoded = encoder_.encode(serialized);
-    //auto encrypted = encryptor_.encrypt(encoded);
-    //return send(encrypted);
-    std::cout << "inside sendmessage of transport layer" << std::endl;
-
     auto serialized = serializer_->serialize(msg);
-    std::cout << "msg was serialized" << std::endl;
     return send(serialized);
-
-
 }
 
 InternalMessage TransportLayer::receiveMessage()
