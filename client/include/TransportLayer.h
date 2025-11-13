@@ -77,7 +77,7 @@ public:
 	void testMessage();
 protected:
 	// default subsystems
-	MessageHandler& messageHandler_;
+	MessageHandler& messageHandler_; // TODO: change to const?
 	SerializerUniquePtr serializer_;
 	EncoderUniquePtr encoder_;
 	EncryptorUniquePtr encryptor_;
