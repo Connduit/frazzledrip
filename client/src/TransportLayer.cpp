@@ -29,29 +29,8 @@ TransportLayer::TransportLayer(
 
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
-    // TODO: serializer_ memory is corrupted somehow?
-    /*
-    auto tempSerializer = ComponentFactory::create(SerializerType::BINARY);
-    if (!tempSerializer) return false;
-
-    
-    auto serialized = tempSerializer->serialize(msg);
-    std::cout << "done serializing... calling send()" << std::endl;
-    return send(serialized);*/
-
-
-
-    //auto serialized = serializer_.serialize(msg);
-    //auto encoded = encoder_.encode(serialized);
-    //auto encrypted = encryptor_.encrypt(encoded);
-    //return send(encrypted);
-    std::cout << "inside sendmessage of transport layer" << std::endl;
-
     auto serialized = serializer_->serialize(msg);
-    std::cout << "msg was serialized" << std::endl;
     return send(serialized);
-
-
 }
 
 InternalMessage TransportLayer::receiveMessage()
@@ -79,18 +58,7 @@ void TransportLayer::beacon()
     {
         messageHandler_.processMessage(incoming); // change to not use ptr?
     }
-}
-
-void TransportLayer::testMessage()
-{
-    InternalMessage msg;
-    std::string smsg = "Hello, World!";
-    msg.data = std::vector<uint8_t>(smsg.begin(), smsg.end());
-    msg.header.messageType = MessageType::COMMAND_RESULT;
-    msg.header.messageId = 420;
-    msg.header.dataSize = msg.data.size();
-    std::cout << "sending hello world message" << std::endl;
-    sendMessage(msg);
+    std::cout << "outside beacon" << std::endl;
 }
 
 InternalMessage TransportLayer::createHeartbeat()
@@ -172,7 +140,6 @@ bool TCPTransportLayer::send(const std::vector<uint8_t>& data)
     
     return ::send(socket_, (const char*)data.data(), data.size(), 0) > 0;
     */
-    std::cout << "TCPTransportLayer::send called, data size: " << data.size() << std::endl;
 
     if (!connected_ && !connect())
     {
@@ -180,9 +147,7 @@ bool TCPTransportLayer::send(const std::vector<uint8_t>& data)
         return false;
     }
 
-    std::cout << "About to call ::send()" << std::endl;
     int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
-    std::cout << "::send returned: " << result << std::endl;
 
     return result > 0;
 

