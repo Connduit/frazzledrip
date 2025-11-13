@@ -41,6 +41,7 @@ public:
 			EncoderType encoderType,
 			EncryptorType encryptorType);
 private:
+	// const MessageHandler& messageHandler_;
 };
 
 
