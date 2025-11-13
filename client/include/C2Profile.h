@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <memory>
 
+/*
 typedef enum
 {
 	TCP,
@@ -20,6 +21,7 @@ typedef enum
     JSON
 
 } SerializationType;
+*/
 
 class C2Profile
 {
@@ -32,7 +34,7 @@ public:
     // === NETWORK CONFIG ===
     char server_host[256];      // C2 server IP/domain
     uint16_t server_port;       // C2 server port
-    TransportType transport;    // TCP, HTTP, HTTPS, DNS, etc.
+    //TransportType transport;    // TCP, HTTP, HTTPS, DNS, etc.
     uint32_t beacon_interval;   // Check-in interval (ms)
     uint32_t jitter;           // Random delay to avoid patterns
     
@@ -70,7 +72,7 @@ public:
 
     // === MY STUFF ===
     bool compressData;
-    SerializationType serializationType;
+    //SerializationType serializationType;
 
 	bool loadConfig();
 

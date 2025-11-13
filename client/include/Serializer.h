@@ -8,12 +8,20 @@
 #include <vector>
 #include <memory>
 
+
+typedef enum
+{
+    BINARY,
+    JSON
+} SerializerType;
+
+
 class Serializer
 {
 public:
 	virtual ~Serializer() = default;
-	virtual std::vector<uint8_t> serialize(const InternalMessage& msg) = 0;
-	virtual InternalMessage deserialize(const std::vector<uint8_t>& data) = 0;
+	virtual RawByteBuffer serialize(const InternalMessage& msg) = 0;
+	virtual InternalMessage deserialize(const RawByteBuffer& data) = 0;
 private:
 };
 
@@ -21,20 +29,20 @@ private:
 class BinarySerializer : public Serializer
 {
 public:
-	std::vector<uint8_t> serialize(const InternalMessage& msg);
-	InternalMessage deserialize(const std::vector<uint8_t>& msg);
+    RawByteBuffer serialize(const InternalMessage& msg) override;
+	InternalMessage deserialize(const RawByteBuffer& msg) override;
 private:
 
 
     template<typename T>
-    void append_bytes(std::vector<uint8_t>& buffer, const T& value)
+    void append_bytes(RawByteBuffer& buffer, const T& value)
     {
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&value);
         buffer.insert(buffer.end(), bytes, bytes + sizeof(T));
     }
 
     template<typename T>
-    T read_bytes(const std::vector<uint8_t>& data, size_t& offset)
+    T read_bytes(const RawByteBuffer& data, size_t& offset)
     {
         T value;
         memcpy(&value, data.data() + offset, sizeof(T));

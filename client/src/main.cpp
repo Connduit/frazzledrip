@@ -4,11 +4,7 @@ int main()
 {
 	//Config config = loadConfig();
     //Client client(config);
-    //tcpStager.run("172.18.245.234", "4444");
-    //tcpStager.run("10.0.0.86", "4444");
-	//Client client;
-	//
-	//Compressor compressor; 
+
 
 	Client client;
 	client.run();

@@ -14,7 +14,7 @@
 
 #include "C2Profile.h"
 #include "MessageTypes.h"
-#include "Transporter.h"
+#include "TransportLayer.h"
 
 #include <string>
 #include <vector>
@@ -22,13 +22,18 @@
 // #include <memory> // included by C2Profile
 
 
-class Transporter;
+class TransportLayer;
 
+
+// TODO: buffer overflow in messagehandler... which is bleeding into transportlayer variable stored in messagehandler?
 class MessageHandler
 {
 public:
 	//MessageHandler(C2Profile& config) {}; // TODO:
-	MessageHandler() : transporter_(nullptr) {}
+	//MessageHandler() : transportLayer_(nullptr) {}
+	MessageHandler();
+	~MessageHandler();
+
     
     bool sendMessage(); // overload this function?
     bool recvMessage(); // overload this function?
@@ -52,7 +57,7 @@ public:
 	// Iterate through all messages in the queue and send to the server
 	void sendQueuedMessages();
 
-	void setTransporter(Transporter& transporter);
+	void setTransportLayer(TransportLayer& transportLayer);
 
 
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
@@ -68,7 +73,7 @@ private:
 
 	// TODO: MessageHandler should have references to all transporters? 
 	// std::vector<Transporter*> transporters_;
-	Transporter* transporter_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
+	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
 
 
 };

@@ -14,11 +14,11 @@ bool C2Profile::getEncryptionAlgorithm() // TODO: change return type
 {
 	return true;
 }*/
-bool C2Profile::loadConfig()
+//bool C2Profile::loadConfig()
+	/*
 {
 	//C2Profile config = {0};
 
-	/*
 	uint8_t DEFAULT_CRYPTO_KEY[32] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -42,9 +42,10 @@ bool C2Profile::loadConfig()
 	*/
 
 
+	/*
 	this->compressData = false;
 	this->serializationType = BASE64;
 
 
 	return false;
-}
+}*/

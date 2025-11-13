@@ -8,18 +8,15 @@ std::vector<uint8_t> BinarySerializer::serialize(const InternalMessage& msg)
 	std::vector<uint8_t> serialized;
 	//serialized.clear();
 
-	// Serialize header (fixed size due to #pragma pack(1))
 	const uint8_t* header_bytes = reinterpret_cast<const uint8_t*>(&msg.header);
 	serialized.insert(serialized.end(), header_bytes, header_bytes + sizeof(MessageHeader));
-
-	// Serialize payload data
 	serialized.insert(serialized.end(), msg.data.begin(), msg.data.end());
-
 	return serialized;
+
 
 }
 
-InternalMessage BinarySerializer::deserialize(const std::vector<uint8_t>& data)
+InternalMessage BinarySerializer::deserialize(const RawByteBuffer& data)
 {
 	if (data.size() < sizeof(MessageHeader))
 	{

