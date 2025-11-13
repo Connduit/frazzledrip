@@ -52,12 +52,25 @@ Client::Client(
 			encoderType,
 			encryptorType)
 	)
+	/*
+	, messageHandler_()
+	, transportLayerFactory_()
+	*/
 {
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
 }
 
 Client::~Client()
 {
+	if (messageHandler_)
+	{
+		delete messageHandler_;
+	}
+
+	if (transportLayerFactory_)
+	{
+		delete transportLayerFactory_;
+	}
 }
 
 bool Client::run()
@@ -104,4 +117,10 @@ bool Client::run()
 	}
 
 	return false;
+}
+
+void Client::setup()
+{
+	messageHandler_ = new MessageHandler();
+	transportLayerFactory_ = new TransportLayerFactory(*messageHandler_);
 }
