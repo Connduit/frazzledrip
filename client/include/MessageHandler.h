@@ -49,6 +49,7 @@ public:
 	bool uploadFile(std::vector<uint8_t>& data);
 	bool updateConfig(std::vector<uint8_t>& data);
 	bool handleServerError(std::vector<uint8_t>& data);
+	bool systemInfo(InternalMessage& msg);
 
 	// Processes an InternalMessage and use the messageHandler_ based on the InternalMessage's messageType
 	void processMessage(InternalMessage& msg);

