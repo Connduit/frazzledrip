@@ -14,6 +14,8 @@
 
 #include "MessageHandler.h"
 #include "TransportLayer.h"
+#include "TCPTransportLayer.h"
+
 
 
 Client* ClientTest::client_ = 0;
