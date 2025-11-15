@@ -22,7 +22,7 @@ public:
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server
-	bool send(const std::vector<uint8_t>& data);
+	bool send(const RawByteBuffer& data);
 
 	// Creates socket and attempts to connect to it
 	// Returns true on success
@@ -30,7 +30,7 @@ public:
 
 	// Receives raw buffer from server
 	// Returns raw buffer as a std::vector<uint8_t>
-	std::vector<uint8_t> receive();
+	RawByteBuffer receive();
 
 	// Getter to see if we've connected to the server
 	bool isConnected() { return connected_; }

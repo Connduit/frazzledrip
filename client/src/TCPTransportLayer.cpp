@@ -62,7 +62,7 @@ bool TCPTransportLayer::initializeWinsock()
 
 
 
-bool TCPTransportLayer::send(const std::vector<uint8_t>& data)
+bool TCPTransportLayer::send(const RawByteBuffer& data)
 {
     /*
     if (!connected_ && !connect()) return false;
@@ -138,11 +138,11 @@ bool TCPTransportLayer::connect()
     return true;
 }
 
-std::vector<uint8_t> TCPTransportLayer::receive()
+RawByteBuffer TCPTransportLayer::receive()
 {
     if (!connected_) return {};
 
-    std::vector<uint8_t> buffer(4096);
+    RawByteBuffer buffer(4096);
     int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
     if (received <= 0)
     {

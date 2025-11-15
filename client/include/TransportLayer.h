@@ -61,8 +61,8 @@ public:
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
 	virtual bool connect() = 0;
-	virtual bool send(const std::vector<uint8_t>& data) = 0;
-	virtual std::vector<uint8_t> receive() = 0;
+	virtual bool send(const RawByteBuffer& data) = 0;
+	virtual RawByteBuffer receive() = 0;
 	virtual bool isConnected() = 0;
 	//virtual void disconnect() = 0;
 
@@ -81,6 +81,9 @@ protected:
 	SerializerUniquePtr serializer_;
 	EncoderUniquePtr encoder_;
 	EncryptorUniquePtr encryptor_;
+
+
+	//TransportLayerFactory& transportLayerFactory_;
 private:
 	/*
 	std::string server;

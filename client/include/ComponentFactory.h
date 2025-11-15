@@ -32,6 +32,9 @@ private:
 class TransportLayerFactory
 {
 public:
+	TransportLayerFactory() : messageHandler_() {}
+	TransportLayerFactory(MessageHandler& messageHandler);
+
 	static TransportLayerUniquePtr create(
 			//MessageHandler* messageHandler, 
 			MessageHandler& messageHandler, 
@@ -42,7 +45,8 @@ public:
 			EncoderType encoderType,
 			EncryptorType encryptorType);
 private:
-	// const MessageHandler& messageHandler_;
+	MessageHandler messageHandler_; // TODO: change to reference?
+	//const MessageHandler& messageHandler_;
 };
 
 

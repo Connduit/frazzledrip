@@ -73,6 +73,15 @@ Client::~Client()
 	{
 		delete transportLayerFactory_;
 	}*/
+
+	/*
+	delete messageHandlerPtr_;
+	messageHandlerPtr_ = 0;
+
+	delete transportLayerFactory_;
+	transportLayerFactory_ = 0;
+	*/
+
 }
 
 bool Client::run()
@@ -106,15 +115,40 @@ bool Client::run()
 		}
 		Sleep(5000);
 	}
-
-
 	return false;
 }
 
-/*
-void Client::setup()
+
+
+void Client::setupComponents()
 {
-	messageHandler_ = new MessageHandler();
-	transportLayerFactory_ = new TransportLayerFactory(*messageHandler_);
+	//messageHandlerPtr_ = new MessageHandler();
+	//transportLayerFactory_ = new TransportLayerFactory(*messageHandlerPtr_);
+	// TODO: factory needs to be passed to somewhere else? maybe the transportlayer itself?
+	//transportLayer_ = new TransportLayer(*transportLayerFactory_); // TODO: ?
+
+
+	// template<class TransportLayerType> class TransportLayerFactory
+	// Arch::OwningPtr<TransportLayerType> createTransportLayer();
+	// Arch::OwningPtr<TransportLayerType> createTransportLayer(const TransportId?);
 }
-*/
+
+
+void Client::setupTasks()
+{
+	// TODO: make an object called task? or individual object called runTask that calls the logic inside Client.run() ?
+}
+
+/* let tasks (things listening for events to be risen) know 
+ * that subsystem is transitioning to RUNNING
+ * void prepareToRun(): 
+ * 
+ *
+ * */
+
+
+/* NOTES:
+ * typedef TransportLayerFactory<TCP> TCPFactory?
+ * typedef ComponentFactory<ComponentType> ComponentTypeFactory
+ *
+ * */

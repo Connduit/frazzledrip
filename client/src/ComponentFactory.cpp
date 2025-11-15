@@ -2,6 +2,12 @@
 
 #include <iostream>
 
+TransportLayerFactory::TransportLayerFactory(MessageHandler& messageHandler)
+{
+	std::cout << "TransportLayerFactory constructor" << std::endl;
+
+}
+
 SerializerUniquePtr ComponentFactory::create(SerializerType type)
 {
 	switch (type)

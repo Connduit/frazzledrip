@@ -80,7 +80,7 @@ typedef struct InternalMessage
 
 	MessageHeader header; // the header... always use custom header? no need for tlv... MessageType enum should be defined in header
 	//MessageData payload; // the actual payload
-	std::vector<uint8_t> data; 
+	RawByteBuffer data; 
 } InternalMessage;
 #pragma pack(pop)
 

