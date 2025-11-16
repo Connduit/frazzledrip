@@ -26,7 +26,7 @@ EncoderUniquePtr ComponentFactory::create(EncoderType type)
 	switch (type)
 	{
 	case EncoderType::BASE64:
-		return std::make_unique<B64Encoder>();
+		return std::make_unique<Base64Encoder>();
 	case EncoderType::HEX:
 		// return std::make_unique<HEX_TODO>();
 	default:

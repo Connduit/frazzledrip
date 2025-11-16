@@ -38,7 +38,7 @@ bool ClientTest::testAll()
 	std::cout << "================================" << std::endl;
 
 	XorEncryptor encryptor("testKey");
-	B64Encoder encoder;
+	Base64Encoder encoder;
 	BinarySerializer serializer;
 	C2Profile config;
 
@@ -172,7 +172,7 @@ bool ClientTest::testSerializer(InternalMessage& inMsg, std::vector<uint8_t>& ou
 	return false;
 }
 
-bool ClientTest::testEncoder(std::vector<uint8_t>& inMsg, std::vector<uint8_t>& outMsg, B64Encoder& encoder)
+bool ClientTest::testEncoder(std::vector<uint8_t>& inMsg, std::vector<uint8_t>& outMsg, Base64Encoder& encoder)
 //bool ClientTest::testEncoder(std::vector<uint8_t>& inMsg, std::string& outMsg , B64Encoder& encoder)
 {
 	outMsg = encoder.encode(inMsg);
