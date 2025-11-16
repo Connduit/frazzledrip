@@ -9,6 +9,8 @@
 
 /*  (OWNS execution components) */
 
+// TODO: rename class/file to CommandDispatcher?
+
 #ifndef MESSAGE_HANDLER_H
 #define MESSAGE_HANDLER_H
 
@@ -24,8 +26,6 @@
 
 class TransportLayer;
 
-
-// TODO: buffer overflow in messagehandler... which is bleeding into transportlayer variable stored in messagehandler?
 class MessageHandler
 {
 public:

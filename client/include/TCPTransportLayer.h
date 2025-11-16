@@ -8,17 +8,18 @@ class TCPTransportLayer : public TransportLayer
 public:
 	//TCPTransporter(const std::string& server, uint16_t port) : server_(server), port_(port) {}
 	//TCPTransporter(MessageHandler* messageHandler, const std::string& server, uint16_t port);
-	explicit TCPTransportLayer(
-		MessageHandler& messageHandler,
-		const std::string& server,
-		const std::string& port,
-		SerializerUniquePtr serializer = nullptr,
-		EncoderUniquePtr encoder = nullptr,
-		EncryptorUniquePtr encryptor = nullptr,
-		SerializerType serializerType = SerializerType::BINARY,
-		EncoderType encoderType = EncoderType::BASE64,
-		EncryptorType encryptorType = EncryptorType::XOR);
+	// explicit TCPTransportLayer(
+	//     MessageHandler& messageHandler,
+	//     const std::string& server,
+	//     const std::string& port,
+	//     SerializerUniquePtr serializer = nullptr,
+	//     EncoderUniquePtr encoder = nullptr,
+	//     EncryptorUniquePtr encryptor = nullptr,
+	//     SerializerType serializerType = SerializerType::BINARY,
+	//     EncoderType encoderType = EncoderType::BASE64,
+	//     EncryptorType encryptorType = EncryptorType::XOR);
 
+	TCPTransportLayer();
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server

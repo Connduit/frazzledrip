@@ -50,14 +50,18 @@ class TransportLayer
 public:
 	// constructor
 	//explicit TransportLayer(MessageHandler* handler) : messageHandler_(handler) {}
-	explicit TransportLayer(
-				MessageHandler& handler,
-				SerializerUniquePtr serializer,
-				EncoderUniquePtr encoder,
-				EncryptorUniquePtr encryptor,
-				SerializerType serializerType,
-				EncoderType encoderType,
-				EncryptorType encryptorType);
+	// explicit TransportLayer(
+	//             MessageHandler& handler,
+	//             SerializerUniquePtr serializer,
+	//             EncoderUniquePtr encoder,
+	//             EncryptorUniquePtr encryptor,
+	//             SerializerType serializerType,
+	//             EncoderType encoderType,
+	//             EncryptorType encryptorType);
+	
+
+	TransportLayer() {}
+
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
 	virtual bool connect() = 0;
@@ -77,7 +81,7 @@ public:
 	void testMessage();
 protected:
 	// default subsystems
-	MessageHandler& messageHandler_; // TODO: change to const?
+	MessageHandler messageHandler_; // TODO: change to const?
 	SerializerUniquePtr serializer_;
 	EncoderUniquePtr encoder_;
 	EncryptorUniquePtr encryptor_;

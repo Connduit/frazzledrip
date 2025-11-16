@@ -6,30 +6,33 @@
 #include <iostream>
 
 //TCPTransportLayer::TCPTransportLayer(MessageHandler* hdlr, const std::string& server, uint16_t port)
-TCPTransportLayer::TCPTransportLayer(
-    MessageHandler& messageHandler,
-    const std::string& server,
-    const std::string& port,
-    SerializerUniquePtr serializer,
-    EncoderUniquePtr encoder,
-    EncryptorUniquePtr encryptor,
-    SerializerType serializerType,
-    EncoderType encoderType,
-    EncryptorType encryptorType)
-    :
-    TransportLayer(
-        messageHandler,
-        std::move(serializer),
-        std::move(encoder),
-        std::move(encryptor),
-        serializerType,
-        encoderType,
-        encryptorType),
-    server_(server),
-    port_(port)
-{
-    initializeWinsock();
-}
+// TCPTransportLayer::TCPTransportLayer(
+//     MessageHandler& messageHandler,
+//     const std::string& server,
+//     const std::string& port,
+//     SerializerUniquePtr serializer,
+//     EncoderUniquePtr encoder,
+//     EncryptorUniquePtr encryptor,
+//     SerializerType serializerType,
+//     EncoderType encoderType,
+//     EncryptorType encryptorType)
+//     :
+//     TransportLayer(
+//         messageHandler,
+//         std::move(serializer),
+//         std::move(encoder),
+//         std::move(encryptor),
+//         serializerType,
+//         encoderType,
+//         encryptorType),
+//     server_(server),
+//     port_(port)
+// {
+//     initializeWinsock();
+// }
+
+TCPTransportLayer::TCPTransportLayer()
+{}
 
 TCPTransportLayer::~TCPTransportLayer()
 {

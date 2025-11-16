@@ -1,7 +1,28 @@
 #include "ComponentFactory.h"
+#include "TransportLayer.h"
+#include "TCPTransportLayer.h"
 
 #include <iostream>
 
+
+TransportLayer* TransportLayerFactory::create(TransportLayerType type)
+{
+
+	switch (type)
+	{
+	case TransportLayerType::TCP:
+		return new TCPTransportLayer();
+		break;
+	default:
+		// throw error
+		//break;
+		std::cout << "throw error" << std::endl;
+		return nullptr;
+	}
+}
+
+
+/*
 TransportLayerFactory::TransportLayerFactory(MessageHandler& messageHandler)
 {
 	std::cout << "TransportLayerFactory constructor" << std::endl;
@@ -74,16 +95,14 @@ TransportLayerUniquePtr TransportLayerFactory::create(
 					std::move(serializer),
 					std::move(encoder),
 					std::move(encryptor));
-			/*
-			   case UDP:
-			   return std::make_unique<UDPTransportLayer>(messageHandler, host, port);
-			   case HTTP:
-			   return std::make_unique<HTTPTransportLayer>(messageHandler, host, port);
-			   case HTTPS:
-			   return std::make_unique<HTTPSTransportLayer>(messageHandler, host, port);
-			   case DNS:
-			   return std::make_unique<DNSTransportLayer>(messageHandler, host, port);
-			   */
+			   // case UDP:
+			   // return std::make_unique<UDPTransportLayer>(messageHandler, host, port);
+			   // case HTTP:
+			   // return std::make_unique<HTTPTransportLayer>(messageHandler, host, port);
+			   // case HTTPS:
+			   // return std::make_unique<HTTPSTransportLayer>(messageHandler, host, port);
+			   // case DNS:
+			   // return std::make_unique<DNSTransportLayer>(messageHandler, host, port);
 		default:
 			// throw error
 			//break;
@@ -91,4 +110,4 @@ TransportLayerUniquePtr TransportLayerFactory::create(
 			return nullptr;
 
 	}
-}
+}*/

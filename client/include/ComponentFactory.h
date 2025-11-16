@@ -20,32 +20,34 @@
 
 #include <memory>
 
-class ComponentFactory
-{
-public:
-	static SerializerUniquePtr create(SerializerType type); // TODO: mark as explicit
-	static EncoderUniquePtr create(EncoderType type); // TODO: mark as explicit
-	static EncryptorUniquePtr create(EncryptorType type); // TODO: mark as explicit
-private:
-};
+// class ComponentFactory
+// {
+// public:
+//     static SerializerUniquePtr create(SerializerType type); // TODO: mark as explicit
+//     static EncoderUniquePtr create(EncoderType type); // TODO: mark as explicit
+//     static EncryptorUniquePtr create(EncryptorType type); // TODO: mark as explicit
+// private:
+// };
 
 class TransportLayerFactory
 {
 public:
-	TransportLayerFactory() : messageHandler_() {}
-	TransportLayerFactory(MessageHandler& messageHandler);
+	//TransportLayerFactory() : messageHandler_() {}
+	//TransportLayerFactory(MessageHandler& messageHandler);
 
-	static TransportLayerUniquePtr create(
-			//MessageHandler* messageHandler, 
-			MessageHandler& messageHandler, 
-			const std::string& host, 
-			const std::string& port, 
-			TransportLayerType transportType,
-			SerializerType serializerType,
-			EncoderType encoderType,
-			EncryptorType encryptorType);
+	static TransportLayer* create(TransportLayerType type);
+
+	// static TransportLayerUniquePtr create(
+	//         //MessageHandler* messageHandler,
+	//         MessageHandler& messageHandler,
+	//         const std::string& host,
+	//         const std::string& port,
+	//         TransportLayerType transportType,
+	//         SerializerType serializerType,
+	//         EncoderType encoderType,
+	//         EncryptorType encryptorType);
 private:
-	MessageHandler messageHandler_; // TODO: change to reference?
+	//MessageHandler messageHandler_; // TODO: change to reference?
 	//const MessageHandler& messageHandler_;
 };
 
@@ -62,55 +64,7 @@ class MessageSystemFactory {
 		// Wire them together properly
 		return std::make_unique<MessageSystem>(encoder, compressor, network);
 	}
-};
-
-
-
-
-// Individual factories (Factory Pattern)
-class EncryptorFactory {   };
-class EncoderFactory { };
-class TransportFactory {  };
-
-// Component factory that uses them (Component Factory)
-class MessageClientFactory 
-{
-public:
-	static std::unique_ptr<MessageClient> create(const ClientConfig& config) 
-	{
-		return std::make_unique<MessageClient>(
-					EncryptorFactory::create(config.encryptor),
-					EncoderFactory::create(config.encoder),
-					TransportFactory::create(config.transport)
-					);
-	}
-};
-*/
-
-/*
-class EncryptorFactory
-{
-public:
-private:
-};
-class EncoderFactory
-{
-public:
-private:
-};
-class SerializerFactory
-{
-public:
-private:
-};
-class CompressorFactory
-{   
-};
-class TransportFactory
-{   
-};
-*/
-
-
-
+};*/
 #endif
+
+
