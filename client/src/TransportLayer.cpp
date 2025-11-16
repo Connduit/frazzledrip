@@ -58,7 +58,6 @@ void TransportLayer::beacon()
     {
         messageHandler_.processMessage(incoming); // change to not use ptr?
     }
-    std::cout << "outside beacon" << std::endl;
 }
 
 InternalMessage TransportLayer::createHeartbeat()

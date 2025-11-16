@@ -27,11 +27,11 @@
 // if i want to rewrite this with the input length unknown, will have to use strlen... 
 // hopefully by then ill have my own strlen func written
 //char* B64Encoder::encode(const unsigned char* data, size_t input_len)
-std::vector<uint8_t> B64Encoder::encode(std::vector<uint8_t>& msg)
+RawByteBuffer Base64Encoder::encode(RawByteBuffer& msg)
 {
 
 
-	std::vector<uint8_t> encoded;
+	RawByteBuffer encoded;
 	size_t i = 0;
 
 	while (i < msg.size())
@@ -76,9 +76,9 @@ std::vector<uint8_t> B64Encoder::encode(std::vector<uint8_t>& msg)
 //const char b64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"; // default_table
 
 // TODO: pretty code water way of encoding
-std::vector<uint8_t> B64Encoder::decode(std::vector<uint8_t>& msg)
+RawByteBuffer Base64Encoder::decode(RawByteBuffer& msg)
 {
-	std::vector<uint8_t> decoded;
+	RawByteBuffer decoded;
 	size_t i = 0;
 
 	// Build reverse lookup table

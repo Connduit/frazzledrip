@@ -80,7 +80,5 @@ typedef struct
  *
  * */
 
-int generateReconMessage(ReconMessage* msg);
-
 
 #endif

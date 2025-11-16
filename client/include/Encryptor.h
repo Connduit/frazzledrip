@@ -20,6 +20,8 @@ int aes128_encrypt(data, key, result)
 
 // NOTE: for now just use openssl headers for encryption
 
+
+#include "MessageTypes.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h> // RSA
@@ -96,17 +98,17 @@ class XorEncryptor : public Encryptor
 {
 public:
 	XorEncryptor() : XorEncryptor("DEFAULT_KEY") {}
-	XorEncryptor(const std::vector<uint8_t>& key) : key_(key) {} // TODO: is const needed?
+	XorEncryptor(const RawByteBuffer& key) : key_(key) {} // TODO: is const needed?
 	XorEncryptor(const std::string& key) : key_(key.begin(), key.end()) {}
 	//bool encrypt(std::vector<uint8_t>& data, std::vector<uint8_t>& cipher);
 	//bool decrypt(std::vector<uint8_t>& cipher, std::vector<uint8_t>& data);
-	std::vector<uint8_t> encrypt(std::vector<uint8_t>& msg);
-	std::vector<uint8_t> decrypt(std::vector<uint8_t>& cipher);
+	RawByteBuffer encrypt(RawByteBuffer& msg);
+	RawByteBuffer decrypt(RawByteBuffer& cipher);
 private:
 	// void initializeDefaultKey();
 
 	//const std::vector<uint8_t> key_; // change to reference?
-	const std::vector<uint8_t> key_; // change to reference?
+	const RawByteBuffer key_; // change to reference?
 };
 
 typedef std::unique_ptr<Encryptor> EncryptorUniquePtr;

@@ -1,5 +1,7 @@
 /* MessageTypes.h */
 // TODO: reorganize order of data types in this file so they're easier to find?
+
+// TODO: rename this file to CommonTypes.h ?
 #ifndef MESSAGE_TYPES_H
 #define MESSAGE_TYPES_H
 

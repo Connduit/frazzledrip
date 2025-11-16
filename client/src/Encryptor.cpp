@@ -236,9 +236,9 @@ bool RsaEncryptor::decrypt(EVP_PKEY* private_key,
 
 
 
-std::vector<uint8_t> XorEncryptor::encrypt(std::vector<uint8_t>& msg)
+RawByteBuffer XorEncryptor::encrypt(RawByteBuffer& msg)
 {
-	std::vector<uint8_t> encrypted(msg.size());
+	RawByteBuffer encrypted(msg.size());
 	for (size_t i = 0; i < msg.size(); i++)
 	{
 		encrypted[i] = msg[i] ^ key_[i % key_.size()];
@@ -246,7 +246,7 @@ std::vector<uint8_t> XorEncryptor::encrypt(std::vector<uint8_t>& msg)
 	return encrypted;
 }
 
-std::vector<uint8_t> XorEncryptor::decrypt(std::vector<uint8_t>& cipher)
+RawByteBuffer XorEncryptor::decrypt(RawByteBuffer& cipher)
 {
 	return encrypt(cipher); // XOR is symmetric
 }

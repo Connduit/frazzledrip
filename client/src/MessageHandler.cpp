@@ -194,7 +194,7 @@ bool MessageHandler::handleServerError(RawByteBuffer& data)
 	return false;
 }
 
-/*
+
 bool MessageHandler::systemInfo(InternalMessage& msg)
 {
 	std::cout << "systemInfo" << std::endl; 
@@ -292,12 +292,12 @@ bool MessageHandler::systemInfo(InternalMessage& msg)
 	bool sendResult = transportLayer_->sendMessage(outMsg); 
 	return sendResult; 
 
-}*/
+}
 
 // TODO: something about this function corruprts the memory
 void MessageHandler::processMessage(InternalMessage& msg)
 {
-	//systemInfo(msg);
+	systemInfo(msg);
 	switch (msg.header.messageType)
 	{
 	case MessageType::EXECUTE_COMMAND:

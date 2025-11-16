@@ -2,6 +2,8 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
+#include "MessageTypes.h"
+
 #include <string>
 #include <cstdint>
 #include <memory>
@@ -23,16 +25,17 @@ public:
 	//virtual bool encode() = 0;
 	//virtual bool decode() = 0;
 	virtual ~Encoder() = default;
-	virtual std::vector<uint8_t> encode(std::vector<uint8_t>& data) = 0;
+	virtual RawByteBuffer encode(RawByteBuffer& data) = 0;
+	virtual RawByteBuffer decode(RawByteBuffer& data) = 0;
 private:
 };
 
 
-class B64Encoder : public Encoder
+class Base64Encoder : public Encoder
 {
 public:
-	std::vector<uint8_t> encode(std::vector<uint8_t>& msg); // override
-	std::vector<uint8_t> decode(std::vector<uint8_t>& msg);
+	RawByteBuffer encode(RawByteBuffer& msg); // override
+	RawByteBuffer decode(RawByteBuffer& msg);
 private:
 	static constexpr uint8_t base64_chars[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
