@@ -39,7 +39,7 @@ TCPTransportLayer::TCPTransportLayer() :
 }
 
 TCPTransportLayer::TCPTransportLayer(MessageHandler* messageHandler) :
-    TransportLayer(messageHandler_)
+    TransportLayer(messageHandler)
 {
     initializeWinsock();
 }
