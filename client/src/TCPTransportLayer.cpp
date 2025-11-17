@@ -31,8 +31,18 @@
 //     initializeWinsock();
 // }
 
-TCPTransportLayer::TCPTransportLayer()
-{}
+
+TCPTransportLayer::TCPTransportLayer() :
+    TransportLayer(messageHandler_)
+{
+    initializeWinsock();
+}
+
+TCPTransportLayer::TCPTransportLayer(MessageHandler* messageHandler) :
+    TransportLayer(messageHandler_)
+{
+    initializeWinsock();
+}
 
 TCPTransportLayer::~TCPTransportLayer()
 {

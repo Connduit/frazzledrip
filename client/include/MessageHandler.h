@@ -18,6 +18,9 @@
 #include "MessageTypes.h"
 #include "TransportLayer.h"
 
+#include "Encoder.h"
+#include "Serializer.h"
+
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -31,7 +34,7 @@ class MessageHandler
 public:
 	//MessageHandler(C2Profile& config) {}; // TODO:
 	//MessageHandler() : transportLayer_(nullptr) {}
-	MessageHandler();
+	MessageHandler(TransportLayer* transportLayer);
 	~MessageHandler();
 
     
@@ -62,6 +65,10 @@ public:
 
 
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
+
+	// TODO: make wrapper function/methods for these object's functions so i can define them as private vars instead of public? 
+	SerializerUniquePtr serializer_;
+	EncoderUniquePtr encoder_;
 private:
 	RawByteBuffer string2byte(std::string& inMsg);
 	std::string byte2string(RawByteBuffer& inMsg);
@@ -76,6 +83,9 @@ private:
 	// std::vector<Transporter*> transporters_;
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
 
+
+	//SerializerUniquePtr serializer_;
+	//EncoderUniquePtr encoder_;
 
 };
 

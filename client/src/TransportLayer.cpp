@@ -27,24 +27,32 @@
 //
 // }
 
+TransportLayer::TransportLayer(MessageHandler* messageHandler) :
+    messageHandler_(messageHandler)
+{ }
+
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
-    auto serialized = serializer_->serialize(msg);
+    //auto serialized = serializer_->serialize(msg);
+    auto serialized = messageHandler_->serializer_->serialize(msg);
     return send(serialized);
 }
 
-InternalMessage TransportLayer::receiveMessage()
+//InternalMessage TransportLayer::receiveMessage()
+RawByteBuffer TransportLayer::receiveMessage()
 {
     auto data = receive();
     if (data.empty()) 
 	{
-		return InternalMessage();
+		//return InternalMessage();
+        return {};
 	}
 
     //auto decrypted = encryptor_.decrypt(data);
     //auto decoded = encoder_.decode(decrypted);
     //return serializer_.deserialize(decoded);
-    return serializer_->deserialize(data);
+    return data;
+    //return serializer_->deserialize(data);
 }
 
 void TransportLayer::beacon()
@@ -54,9 +62,12 @@ void TransportLayer::beacon()
 
 
     auto incoming = receiveMessage();
-    if (incoming.header.messageType != DEFAULT)
+    //auto incoming = encoder_->decode(incoming);
+    incoming = messageHandler_->encoder_->decode(incoming);
+    InternalMessage internalMessage = messageHandler_->serializer_->deserialize(incoming);
+    if (internalMessage.header.messageType != DEFAULT)
     {
-        messageHandler_.processMessage(incoming); // change to not use ptr?
+        messageHandler_->processMessage(internalMessage); // change to not use ptr?
     }
 }
 

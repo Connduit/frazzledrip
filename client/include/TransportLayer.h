@@ -49,18 +49,8 @@ class TransportLayer
 {
 public:
 	// constructor
-	//explicit TransportLayer(MessageHandler* handler) : messageHandler_(handler) {}
-	// explicit TransportLayer(
-	//             MessageHandler& handler,
-	//             SerializerUniquePtr serializer,
-	//             EncoderUniquePtr encoder,
-	//             EncryptorUniquePtr encryptor,
-	//             SerializerType serializerType,
-	//             EncoderType encoderType,
-	//             EncryptorType encryptorType);
-	
 
-	TransportLayer() {}
+	TransportLayer(MessageHandler* messageHandler);
 
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
@@ -74,16 +64,14 @@ public:
 	bool sendMessage(const InternalMessage& msg);
 
 	// Process raw bytes from server and convert them into an InternalMessage
-	InternalMessage receiveMessage();
+	//InternalMessage receiveMessage();
+	RawByteBuffer receiveMessage();
 
 	void beacon();
 
-	void testMessage();
 protected:
 	// default subsystems
-	MessageHandler messageHandler_; // TODO: change to const?
-	SerializerUniquePtr serializer_;
-	EncoderUniquePtr encoder_;
+	MessageHandler* messageHandler_; // TODO: change to const?
 	EncryptorUniquePtr encryptor_;
 
 

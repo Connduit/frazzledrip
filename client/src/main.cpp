@@ -7,6 +7,8 @@ int main()
 
 
 	ClientComponent clientComponent;
+	clientComponent.createClientSubsystem();
+	clientComponent.startClientSubsystem();
 	
 
 

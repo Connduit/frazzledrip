@@ -10,11 +10,13 @@ public:
     ClientComponent();
     ~ClientComponent();
 
-private:
 	void loadConfig();
 	void createClientSubsystem();
+	void startClientSubsystem();
+private:
 
-	ClientSubsystem clientSubsystem_;
+	ClientSubsystem* clientSubsystem_;
+	// ClientConfig* config_;
 
 };
 

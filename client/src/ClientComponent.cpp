@@ -2,7 +2,7 @@
 
 ClientComponent::ClientComponent()
 {
-	createClientSubsystem();
+	createClientSubsystem(); // TODO: should take in a config arguement
 }
 
 ClientComponent::~ClientComponent()
@@ -10,11 +10,21 @@ ClientComponent::~ClientComponent()
 	if (clientSubsystem_)
 	{
 		delete clientSubsystem_;
-		clientSubsystem_ = 0;
+		//clientSubsystem_ = 0;
 	}
 }
 
-ClientComponent::createClientSubsystem()
+void ClientComponent::loadConfig()
+{
+}
+
+void ClientComponent::createClientSubsystem()
 {
 	clientSubsystem_ = new ClientSubsystem();
 }
+
+void ClientComponent::startClientSubsystem()
+{
+	clientSubsystem_->run();
+}
+

@@ -20,6 +20,7 @@ public:
 	//     EncryptorType encryptorType = EncryptorType::XOR);
 
 	TCPTransportLayer();
+	TCPTransportLayer(MessageHandler* messageHandler);
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server

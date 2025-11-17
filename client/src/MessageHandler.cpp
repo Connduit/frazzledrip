@@ -16,10 +16,16 @@
 
 
 
+/*
 MessageHandler::MessageHandler()
 	: transportLayer_(nullptr)
 {
 	// debug statement
+}*/
+
+MessageHandler::MessageHandler(TransportLayer* transportLayer) :
+	transportLayer_(transportLayer)
+{
 }
 
 MessageHandler::~MessageHandler()

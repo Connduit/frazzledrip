@@ -56,8 +56,8 @@ public:
 	// constructor
 	// deconstructor
 	// TODO: child classes need to take in the same parameters
-	//virtual bool encrypt() = 0;
-	//virtual bool decrypt() = 0;
+	//virtual RawByteBuffer encrypt() = 0;
+	//virtual RawByteBuffer decrypt() = 0;
 	//virtual ~Encryptor() = default; // TODO: what does default do?
 private:
 };
