@@ -3,6 +3,10 @@
 
 #include "TransportLayer.h"
 
+
+#include <thread>
+#include <atomic>
+
 class TCPTransportLayer : public TransportLayer
 {
 public:
@@ -20,7 +24,9 @@ public:
 	//     EncryptorType encryptorType = EncryptorType::XOR);
 
 	TCPTransportLayer();
-	TCPTransportLayer(MessageHandler* messageHandler);
+	TCPTransportLayer(Encryptor* encryptor);
+	//TCPTransportLayer(MessageHandler* messageHandler);
+	//TCPTransportLayer(MessageHandler* messageHandler, Encryptor* encryptor);
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server
@@ -37,6 +43,11 @@ public:
 	// Getter to see if we've connected to the server
 	bool isConnected() { return connected_; }
 
+	void run();
+
+	// call this function manually in main loop instead of using threads
+	void update();
+
 private:
 	// Initializes WSADATA by being called through the constructor 
 	bool initializeWinsock();
@@ -49,6 +60,7 @@ private:
 	//std::string port_;
 	SOCKET socket_ = INVALID_SOCKET;
 	bool connected_ = false;
+	//std::atomic<bool> connected_;
 
 
 };

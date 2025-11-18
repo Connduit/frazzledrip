@@ -33,10 +33,15 @@ class MessageHandler
 {
 public:
 	//MessageHandler(C2Profile& config) {}; // TODO:
-	//MessageHandler() : transportLayer_(nullptr) {}
-	MessageHandler(TransportLayer* transportLayer);
+	//MessageHandler() : transportLayer_(nullptr) {} // TODO: uncomment... should be still allowed to do client logic (like if messages are queued) even if we're disconnected from the server
+	//MessageHandler(TransportLayer* transportLayer);
+	MessageHandler(TransportLayer* transportLayer, Serializer* serializer, Encoder* encoder);
+
 	~MessageHandler();
 
+	void start();
+
+	void handle(RawByteBuffer& data); // TODO: change rawbytebuffer to const? 
     
     bool sendMessage(); // overload this function?
     bool recvMessage(); // overload this function?
@@ -67,8 +72,10 @@ public:
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
 
 	// TODO: make wrapper function/methods for these object's functions so i can define them as private vars instead of public? 
-	SerializerUniquePtr serializer_;
-	EncoderUniquePtr encoder_;
+	Serializer* serializer_;
+	Encoder* encoder_;
+	//SerializerUniquePtr serializer_;
+	//EncoderUniquePtr encoder_;
 private:
 	RawByteBuffer string2byte(std::string& inMsg);
 	std::string byte2string(RawByteBuffer& inMsg);

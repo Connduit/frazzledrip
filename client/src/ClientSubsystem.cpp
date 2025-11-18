@@ -33,13 +33,20 @@ ClientSubsystem::~ClientSubsystem()
 void ClientSubsystem::setupMessaging()
 {
 
-	transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP);
-	messageHandler_ = new MessageHandler(transportLayer_);
+	//transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP);
+	transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP, encryptor_);
+	// TODO: check that serializer and encoder are not null first?
+	messageHandler_ = new MessageHandler(transportLayer_, serializer_, encoder_);
 }
 
+// rename to setupCallbacks ? 
 void ClientSubsystem::setupEvents()
 {
-
+	transportLayer_->setReceiveCallback([this](RawByteBuffer& bytes)
+		{
+			messageHandler_->handle(bytes);
+		}
+	);
 }
 
 void ClientSubsystem::setupTasks()
@@ -59,7 +66,7 @@ void ClientSubsystem::setupSubcomponents()
 	encryptor_ = new XorEncryptor();
 }
 
-void ClientSubsystem::run()
+void ClientSubsystem::run() // TODO: rename to start??
 {	
 	//Config* config = loadConfig();
 	//Config config = loadConfig();
@@ -77,6 +84,12 @@ void ClientSubsystem::run()
 
 	*/
 	//std::cout << "ClientSubsystem::run()" << std::endl;
+
+	// transportLayer_->connect();
+	// std::thread t([this] { transportLayer_->run(); });
+	// t.detach();
+
+	/*
 	while (true)
 	{
 		if (!transportLayer_->isConnected())
@@ -89,5 +102,12 @@ void ClientSubsystem::run()
 			transportLayer_->beacon();
 		}
 		Sleep(5000);
+	}*/
+
+	while (true)
+	{
+		transportLayer_->update(); // this just receives messages from server
+
+		transportLayer_->beacon();
 	}
 }

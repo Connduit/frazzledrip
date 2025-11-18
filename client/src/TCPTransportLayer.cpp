@@ -1,4 +1,4 @@
-#include "TCPTransportLayer.h"
+﻿#include "TCPTransportLayer.h"
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -32,6 +32,7 @@
 // }
 
 
+/*
 TCPTransportLayer::TCPTransportLayer() :
     TransportLayer(messageHandler_)
 {
@@ -39,8 +40,32 @@ TCPTransportLayer::TCPTransportLayer() :
 }
 
 TCPTransportLayer::TCPTransportLayer(MessageHandler* messageHandler) :
-    TransportLayer(messageHandler)
+    TransportLayer(messageHandler_)
 {
+    initializeWinsock();
+}
+
+TCPTransportLayer::TCPTransportLayer(
+    MessageHandler* messageHandler,
+    Encryptor* encryptor) 
+    :
+    TransportLayer(messageHandler_)
+{
+    initializeWinsock();
+}*/
+
+// TODO: this constructor shouldn't ever be hit? i also think it's just wrong
+TCPTransportLayer::TCPTransportLayer() :
+    TransportLayer(encryptor_)
+{
+    //connected_ = false;
+    initializeWinsock();
+}
+
+TCPTransportLayer::TCPTransportLayer(Encryptor* encryptor) :
+    TransportLayer(encryptor)
+{
+    //connected_ = false;
     initializeWinsock();
 }
 
@@ -164,4 +189,52 @@ RawByteBuffer TCPTransportLayer::receive()
     }
     buffer.resize(received);
     return buffer;
+}
+
+void TCPTransportLayer::run()
+{
+    while (connected_)
+    {
+        RawByteBuffer buffer(4096);
+        int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
+
+        if (received <= 0)
+        {
+            connected_ = false;
+            break;
+        }
+
+        buffer.resize(received);
+
+        if (receiveCallback_)
+        {
+            receiveCallback_(buffer);   // 🔥 Fire callback!
+        }
+    }
+}
+
+void TCPTransportLayer::update()
+{
+	if (!connected_)
+		return;
+
+	u_long bytesAvailable = 0;
+	ioctlsocket(socket_, FIONREAD, &bytesAvailable);
+
+	if (bytesAvailable == 0)
+		return;
+
+	RawByteBuffer buffer(bytesAvailable);
+	int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
+
+	if (received <= 0)
+	{
+		connected_ = false;
+		return;
+	}
+
+	buffer.resize(received);
+
+	if (receiveCallback_)
+		receiveCallback_(buffer);
 }

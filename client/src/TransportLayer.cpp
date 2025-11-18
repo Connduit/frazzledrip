@@ -1,4 +1,4 @@
-#include "TransportLayer.h"
+﻿#include "TransportLayer.h"
 #include "MessageTypes.h"
 #include "MessageHandler.h"
 #include "ComponentFactory.h"
@@ -27,9 +27,26 @@
 //
 // }
 
+/*
 TransportLayer::TransportLayer(MessageHandler* messageHandler) :
-    messageHandler_(messageHandler)
+    messageHandler_(messageHandler),
+    encryptor_(nullptr)
 { }
+
+TransportLayer::TransportLayer(
+    MessageHandler* messageHandler, 
+    Encryptor* encryptor)
+    :
+    messageHandler_(messageHandler),
+    encryptor_(encryptor)
+{
+}*/
+
+
+TransportLayer::TransportLayer(Encryptor* encryptor) :
+    encryptor_(encryptor)
+{
+}
 
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {

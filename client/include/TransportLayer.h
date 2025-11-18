@@ -30,6 +30,8 @@
 #include <string>
 #include <winsock2.h>
 
+#include <functional>
+
 //#include <ws2tcpip.h>
 
 class MessageHandler;
@@ -48,9 +50,14 @@ typedef enum
 class TransportLayer
 {
 public:
-	// constructor
+	using ReceiveCallback = std::function<void(RawByteBuffer&)>;
+	void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+	virtual void update() = 0;
 
-	TransportLayer(MessageHandler* messageHandler);
+	// constructor
+	TransportLayer(Encryptor* encryptor);
+	//TransportLayer(MessageHandler* messageHandler);
+	//TransportLayer(MessageHandler* messageHandler, Encryptor* encryptor);
 
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
@@ -71,9 +78,10 @@ public:
 
 protected:
 	// default subsystems
-	MessageHandler* messageHandler_; // TODO: change to const?
-	EncryptorUniquePtr encryptor_;
-
+	//MessageHandler* messageHandler_; // TODO: change to const?
+	//EncryptorUniquePtr encryptor_;
+	Encryptor* encryptor_;
+	ReceiveCallback receiveCallback_;
 
 	//TransportLayerFactory& transportLayerFactory_;
 private:

@@ -23,14 +23,35 @@ MessageHandler::MessageHandler()
 	// debug statement
 }*/
 
+/*
 MessageHandler::MessageHandler(TransportLayer* transportLayer) :
 	transportLayer_(transportLayer)
+{
+}*/
+
+MessageHandler::MessageHandler(
+	TransportLayer* transportLayer, 
+	Serializer* serializer, 
+	Encoder* encoder)
+	:
+	transportLayer_(transportLayer),
+	serializer_(serializer),
+	encoder_(encoder)
 {
 }
 
 MessageHandler::~MessageHandler()
 {
 	// debug statement
+}
+
+void MessageHandler::start()
+{
+	transportLayer_->beacon();
+}
+
+void MessageHandler::handle(RawByteBuffer& data)
+{
 }
 
 bool MessageHandler::executeCommand(RawByteBuffer& data)

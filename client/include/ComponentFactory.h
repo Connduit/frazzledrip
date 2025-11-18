@@ -36,6 +36,7 @@ public:
 	//TransportLayerFactory(MessageHandler& messageHandler);
 
 	static TransportLayer* create(TransportLayerType type);
+	static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
 
 	// static TransportLayerUniquePtr create(
 	//         //MessageHandler* messageHandler,

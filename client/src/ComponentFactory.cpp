@@ -5,6 +5,22 @@
 #include <iostream>
 
 
+TransportLayer* TransportLayerFactory::create(TransportLayerType type, Encryptor* encryptor)
+{
+
+	switch (type)
+	{
+	case TransportLayerType::TCP:
+		return new TCPTransportLayer();
+		break;
+	default:
+		// throw error
+		//break;
+		std::cout << "throw error" << std::endl;
+		return nullptr;
+	}
+}
+
 TransportLayer* TransportLayerFactory::create(TransportLayerType type)
 {
 
