@@ -7,6 +7,8 @@
  *
  */
 
+// TODO: rename to message parser? and only to message parsing in here? also add call backs to dispatcher
+
 /*  (OWNS execution components) */
 
 // TODO: rename class/file to CommandDispatcher?
