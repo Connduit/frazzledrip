@@ -37,6 +37,9 @@ void ClientSubsystem::setupMessaging()
 	transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP, encryptor_);
 	// TODO: check that serializer and encoder are not null first?
 	messageHandler_ = new MessageHandler(transportLayer_, serializer_, encoder_);
+
+	dispatcher_ = new Dispatcher();
+	controller_ = new Controller();
 }
 
 // rename to setupCallbacks ? 
@@ -47,6 +50,21 @@ void ClientSubsystem::setupEvents()
 			messageHandler_->handle(bytes);
 		}
 	);
+
+	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
+	{
+			messageHandler_->handle(msg);
+	});
+
+	messageHandler_->setOnMessage([&](const InternalMessage& msg)
+	{
+			dispatcher_->dispatch(msg);
+	});
+
+	dispatcher_->registerHandler(MessageType::TODO, [&](const InternalMessage& msg)
+		{
+			controller_->handleTODO(msg);
+		});
 }
 
 void ClientSubsystem::setupTasks()
@@ -107,6 +125,9 @@ void ClientSubsystem::run() // TODO: rename to start??
 	while (true)
 	{
 		transportLayer_->update(); // this just receives messages from server
+
+		// TODO:
+		// transportLayer_->receive(); ?
 
 		transportLayer_->beacon();
 	}
