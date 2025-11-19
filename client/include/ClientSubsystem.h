@@ -25,6 +25,9 @@ private:
 	TransportLayer* transportLayer_;
 	MessageHandler* messageHandler_;
 
+	ClientDispatcher* dispatcher_;
+	ClientController* controller_;
+
 	Serializer* serializer_;
 	Encoder* encoder_;
 	Encryptor* encryptor_;
