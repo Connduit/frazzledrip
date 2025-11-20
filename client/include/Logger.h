@@ -23,9 +23,10 @@ public:
         instance().openFile(filename);
     }
 
-    static void log(LogLevel level, const std::string& msg)
+    static void log(LogLevel level, const std::string& msg,
+                    const char* file, int line)
     {
-        instance().write(level, msg);
+        instance().write(level, msg, file, line);
     }
 
 private:
@@ -44,7 +45,7 @@ private:
         fileEnabled_ = file_.is_open();
 
         if (!fileEnabled_)
-            std::cerr << "[Logger] Failed to open file: " << filename << "\n";
+            std::cerr << "[Logger] Failed to open log file: " << filename << "\n";
     }
 
     const char* levelToString(LogLevel lvl)
@@ -63,13 +64,20 @@ private:
     {
         std::time_t now = std::time(nullptr);
         char buf[32];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S",
+                      std::localtime(&now));
         return buf;
     }
 
-    void write(LogLevel level, const std::string& msg)
+    void write(LogLevel level,
+               const std::string& msg,
+               const char* file, int line)
     {
-        std::string out = "[" + timestamp() + "][" + levelToString(level) + "] " + msg;
+        std::string out =
+            "[" + timestamp() + "]"
+            "[" + levelToString(level) + "] "
+            + msg +
+            "  (" + file + ":" + std::to_string(line) + ")";
 
         if (fileEnabled_)
         {
@@ -84,16 +92,16 @@ private:
 };
 
 // ------------------------------------------------------------
-// Convenience Macros
+// LOG MACROS — now include file + line
 // ------------------------------------------------------------
-#define LOG_DEBUG(msg)   Logger::log(LogLevel::Debug,   msg)
-#define LOG_INFO(msg)    Logger::log(LogLevel::Info,    msg)
-#define LOG_WARN(msg)    Logger::log(LogLevel::Warning, msg)
-#define LOG_ERROR(msg)   Logger::log(LogLevel::Error,   msg)
+#define LOG_DEBUG(msg)   Logger::log(LogLevel::Debug,   msg, __FILE__, __LINE__)
+#define LOG_INFO(msg)    Logger::log(LogLevel::Info,    msg, __FILE__, __LINE__)
+#define LOG_WARN(msg)    Logger::log(LogLevel::Warning, msg, __FILE__, __LINE__)
+#define LOG_ERROR(msg)   Logger::log(LogLevel::Error,   msg, __FILE__, __LINE__)
 
 #else
 // ------------------------------------------------------------
-// Release mode: logger does nothing
+// Release mode — everything compiles to nothing
 // ------------------------------------------------------------
 enum class LogLevel { Debug, Info, Warning, Error };
 
@@ -101,7 +109,7 @@ class Logger
 {
 public:
     static void setLogFile(const std::string&) {}
-    static void log(LogLevel, const std::string&) {}
+    static void log(LogLevel, const std::string&, const char*, int) {}
 };
 
 #define LOG_DEBUG(msg)
@@ -109,4 +117,4 @@ public:
 #define LOG_WARN(msg)
 #define LOG_ERROR(msg)
 
-#endif  // _DEBUG
+#endif // _DEBUG
