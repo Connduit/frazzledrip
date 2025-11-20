@@ -85,7 +85,7 @@ private:
 	SOCKET socket = INVALID_SOCKET;
 	bool connected = false;
 	*/
-	InternalMessage createHeartbeat();
+	//InternalMessage createHeartbeat();
 
 	// TODO: delete?
 	uint32_t generateId();
