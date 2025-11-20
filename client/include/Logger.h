@@ -12,6 +12,7 @@
 
 #ifdef _DEBUG
 
+// TODO: add thread-safety / multithreaded capability
 class Logger
 {
 public:
