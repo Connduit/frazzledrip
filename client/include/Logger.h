@@ -7,8 +7,10 @@
 #include <string>
 #include <ctime>
 #include <iomanip>
+#include <cstdarg>   // va_list, va_start, va_end
+#include <cstdio>    // std::vsnprintf
 
-#ifdef _DEBUG   // Entire logger only exists in debug mode
+#ifdef _DEBUG
 
 class Logger
 {
@@ -22,61 +24,58 @@ public:
         Critical
     };
 
-    // Singleton accessor
     static Logger& instance();
 
-    // Set output stream (default = std::cout)
     void setOutput(std::ostream* out);
+    void setMinLevel(Level level);
 
-    // Log function
-    void log(Level level,
-             const std::string& msg,
-             const char* file,
-             int line);
+    // printf-style variadic function
+    void logf(Level level, const char* file, int line,
+              const char* fmt, ...);
 
 private:
     Logger();
+
+    // internal implementation that receives final formatted string
+    void logImpl(Level level,
+                 const std::string& formatted,
+                 const char* file,
+                 int line);
+
     std::ostream* output_;
     std::ofstream fileStream_;
+    Level minLevel_;
 
     const char* levelToString(Level level) const;
     std::string currentTimestamp() const;
 };
 
-// Logging macros
-#define LOG_TRACE(msg) Logger::instance().log(Logger::Level::Trace, msg, __FILE__, __LINE__)
-#define LOG_DEBUG(msg) Logger::instance().log(Logger::Level::Debug, msg, __FILE__, __LINE__)
-#define LOG_INFO(msg)  Logger::instance().log(Logger::Level::Info,  msg, __FILE__, __LINE__)
-#define LOG_WARN(msg)  Logger::instance().log(Logger::Level::Warn,  msg, __FILE__, __LINE__)
-#define LOG_ERROR(msg) Logger::instance().log(Logger::Level::Error, msg, __FILE__, __LINE__)
-#define LOG_CRITICAL(msg) Logger::instance().log(Logger::Level::Critical, msg, __FILE__, __LINE__)
+// Macros redirect into logf()
+#define LOG_TRACE(fmt, ...) Logger::instance().logf(Logger::Level::Trace, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) Logger::instance().logf(Logger::Level::Debug, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)  Logger::instance().logf(Logger::Level::Info,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)  Logger::instance().logf(Logger::Level::Warn,  __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) Logger::instance().logf(Logger::Level::Error, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_CRITICAL(fmt, ...) Logger::instance().logf(Logger::Level::Critical, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
-#else   // If NOT _DEBUG — remove all logging
+#else
 
+// Release build — all no-ops
 class Logger
 {
 public:
     enum class Level { Trace, Debug, Info, Warn, Error, Critical };
-
-    static inline Logger& instance() {
-        static Logger dummy;
-        return dummy;
-    }
-
+    static Logger& instance() { static Logger dummy; return dummy; }
     void setOutput(std::ostream*) {}
-    void log(Level, const std::string&, const char*, int) {}
-
-private:
-    Logger() = default;
+    void setMinLevel(Level) {}
+    void logf(Level, const char*, int, const char*, ...) {}
 };
-
-// Define macros to nothing
-#define LOG_TRACE(msg)
-#define LOG_DEBUG(msg)
-#define LOG_INFO(msg)
-#define LOG_WARN(msg)
-#define LOG_ERROR(msg)
-#define LOG_CRITICAL(msg)
+#define LOG_TRACE(fmt, ...)
+#define LOG_DEBUG(fmt, ...)
+#define LOG_INFO(fmt, ...)
+#define LOG_WARN(fmt, ...)
+#define LOG_ERROR(fmt, ...)
+#define LOG_CRITICAL(fmt, ...)
 
 #endif // _DEBUG
 
