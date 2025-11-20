@@ -26,14 +26,19 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
 // #include <memory> // included by C2Profile
-
 
 class TransportLayer;
 
 class MessageHandler
 {
 public:
+	
+	using ReceiveCallback = std::function<void(const InternalMessage&)>;
+	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+
+
 	//MessageHandler(C2Profile& config) {}; // TODO:
 	//MessageHandler() : transportLayer_(nullptr) {} // TODO: uncomment... should be still allowed to do client logic (like if messages are queued) even if we're disconnected from the server
 	//MessageHandler(TransportLayer* transportLayer);
@@ -43,7 +48,8 @@ public:
 
 	void start();
 
-	void handle(RawByteBuffer& data); // TODO: change rawbytebuffer to const? 
+	void handle(const RawByteBuffer& data); // TODO: change rawbytebuffer to const? 
+	void handle(const InternalMessage& msg);
     
     bool sendMessage(); // overload this function?
     bool recvMessage(); // overload this function?
@@ -59,7 +65,9 @@ public:
 	bool uploadFile(RawByteBuffer& data);
 	bool updateConfig(RawByteBuffer& data);
 	bool handleServerError(RawByteBuffer& data);
-	bool systemInfo(InternalMessage& msg);
+	//bool systemInfo(InternalMessage& msg); // TODO: uncomment when on windows
+
+
 
 	// Processes an InternalMessage and use the messageHandler_ based on the InternalMessage's messageType
 	void processMessage(InternalMessage& msg);
@@ -68,7 +76,6 @@ public:
 	// Iterate through all messages in the queue and send to the server
 	void sendQueuedMessages();
 
-	void setTransportLayer(TransportLayer& transportLayer);
 
 
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
@@ -92,6 +99,7 @@ private:
 	// std::vector<Transporter*> transporters_;
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
 
+	ReceiveCallback receiveCallback_;
 
 	//SerializerUniquePtr serializer_;
 	//EncoderUniquePtr encoder_;

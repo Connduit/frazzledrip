@@ -45,11 +45,12 @@ void ClientSubsystem::setupMessaging()
 // rename to setupCallbacks ? 
 void ClientSubsystem::setupEvents()
 {
+	/*
 	transportLayer_->setReceiveCallback([this](RawByteBuffer& bytes)
 		{
 			messageHandler_->handle(bytes);
 		}
-	);
+	);*/
 
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
@@ -61,9 +62,9 @@ void ClientSubsystem::setupEvents()
 			dispatcher_->dispatch(msg);
 	});
 
-	dispatcher_->registerHandler(MessageType::TODO, [&](const InternalMessage& msg)
+	dispatcher_->registerHandler(MessageType::DEFAULT, [&](const InternalMessage& msg)
 		{
-			controller_->handleTODO(msg);
+			controller_->handleDefault(msg);
 		});
 }
 

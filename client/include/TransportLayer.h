@@ -10,8 +10,6 @@
 /*
 ├── TransportLayer (OWNS connection + processing)
 │   ├── ConnectionManager (OWNS socket/network)
-│   ├── BinarySerializer
-│   ├── Base64Encoder
 │   └── XOREncryptor
 */
 
@@ -34,8 +32,6 @@
 
 //#include <ws2tcpip.h>
 
-class MessageHandler;
-
 typedef enum
 {
 	//NONE,
@@ -46,12 +42,12 @@ typedef enum
 	//DNS
 } TransportLayerType; // TODO: rename to TransportType?
 
-// TODO: rename to TransportLayer
 class TransportLayer
 {
 public:
-	using ReceiveCallback = std::function<void(RawByteBuffer&)>;
-	void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+	using ReceiveCallback = std::function<void(const RawByteBuffer&)>;
+	//void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
 	virtual void update() = 0;
 
 	// constructor

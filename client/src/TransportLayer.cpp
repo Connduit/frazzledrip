@@ -9,39 +9,6 @@
 #include <iostream>
 #pragma comment(lib, "ws2_32.lib")
 
-// TransportLayer::TransportLayer(
-//         MessageHandler& handler,
-//         SerializerUniquePtr serializer,
-//         EncoderUniquePtr encoder,
-//         EncryptorUniquePtr encryptor,
-//         SerializerType serializerType,
-//         EncoderType encoderType,
-//         EncryptorType encryptorType)
-//         :
-//         messageHandler_(handler)
-// {
-//
-//     serializer_ = serializer ? std::move(serializer) : ComponentFactory::create(serializerType);
-//     encoder_ = encoder ? std::move(encoder) : ComponentFactory::create(encoderType);
-//     encryptor_ = encryptor ? std::move(encryptor) : ComponentFactory::create(encryptorType);
-//
-// }
-
-/*
-TransportLayer::TransportLayer(MessageHandler* messageHandler) :
-    messageHandler_(messageHandler),
-    encryptor_(nullptr)
-{ }
-
-TransportLayer::TransportLayer(
-    MessageHandler* messageHandler, 
-    Encryptor* encryptor)
-    :
-    messageHandler_(messageHandler),
-    encryptor_(encryptor)
-{
-}*/
-
 
 TransportLayer::TransportLayer(Encryptor* encryptor) :
     encryptor_(encryptor)
@@ -51,8 +18,10 @@ TransportLayer::TransportLayer(Encryptor* encryptor) :
 bool TransportLayer::sendMessage(const InternalMessage& msg)
 {
     //auto serialized = serializer_->serialize(msg);
-    auto serialized = messageHandler_->serializer_->serialize(msg);
-    return send(serialized);
+    //auto serialized = messageHandler_->serializer_->serialize(msg);
+    //return send(serialized);
+	// TODO: 
+	return false;
 }
 
 //InternalMessage TransportLayer::receiveMessage()
@@ -78,14 +47,15 @@ void TransportLayer::beacon()
     //sendMessage(heartbeat);
 
 
+	// TODO: 
     auto incoming = receiveMessage();
     //auto incoming = encoder_->decode(incoming);
-    incoming = messageHandler_->encoder_->decode(incoming);
-    InternalMessage internalMessage = messageHandler_->serializer_->deserialize(incoming);
-    if (internalMessage.header.messageType != DEFAULT)
-    {
-        messageHandler_->processMessage(internalMessage); // change to not use ptr?
-    }
+    // incoming = messageHandler_->encoder_->decode(incoming);
+    // InternalMessage internalMessage = messageHandler_->serializer_->deserialize(incoming);
+    // if (internalMessage.header.messageType != DEFAULT)
+    // {
+    //     messageHandler_->processMessage(internalMessage); // change to not use ptr?
+    // }
 }
 
 InternalMessage TransportLayer::createHeartbeat()

@@ -3,6 +3,8 @@
 
 #include "TransportLayer.h"
 #include "MessageHandler.h"
+#include "Dispatcher.h"
+#include "Controller.h"
 
 // TODO: rename to ClientController? 
 class ClientSubsystem
@@ -25,8 +27,8 @@ private:
 	TransportLayer* transportLayer_;
 	MessageHandler* messageHandler_;
 
-	ClientDispatcher* dispatcher_;
-	ClientController* controller_;
+	Dispatcher* dispatcher_;
+	Controller* controller_;
 
 	Serializer* serializer_;
 	Encoder* encoder_;
