@@ -5,13 +5,14 @@
 #include "MessageParser.h"
 #include "Dispatcher.h"
 #include "Controller.h"
+#Include "Config.h"
 
 // TODO: rename to ClientController? 
 class ClientSubsystem
 {
 public:
     ClientSubsystem();
-    // ClientSubsystem(ClientConfig config); // TODO: 
+    // ClientSubsystem(Config& config); // TODO: 
     ~ClientSubsystem();
 
 	void run();
@@ -33,6 +34,8 @@ private:
 	Serializer* serializer_;
 	Encoder* encoder_;
 	Encryptor* encryptor_;
+
+Config& config_;
 
 };
 #endif
