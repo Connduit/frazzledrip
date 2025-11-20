@@ -17,10 +17,10 @@ ClientSubsystem::ClientSubsystem()
 
 ClientSubsystem::~ClientSubsystem()
 {
-	if (messageHandler_)
+	if (messageParser_)
 	{
-		delete messageHandler_;
-		//messageHandler_ = 0;
+		delete messageParser_;
+		//messageParser_ = 0;
 	}
 
 	if (transportLayer_)
@@ -36,7 +36,7 @@ void ClientSubsystem::setupMessaging()
 	//transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP);
 	transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP, encryptor_);
 	// TODO: check that serializer and encoder are not null first?
-	messageHandler_ = new MessageHandler(transportLayer_, serializer_, encoder_);
+	messageParser_ = new MessageParser(transportLayer_, serializer_, encoder_);
 
 	dispatcher_ = new Dispatcher();
 	controller_ = new Controller();
@@ -48,16 +48,16 @@ void ClientSubsystem::setupEvents()
 	/*
 	transportLayer_->setReceiveCallback([this](RawByteBuffer& bytes)
 		{
-			messageHandler_->handle(bytes);
+			messageParser_->handle(bytes);
 		}
 	);*/
 
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
-			messageHandler_->handle(msg);
+			messageParser_->handle(msg);
 	});
 
-	messageHandler_->setOnMessage([&](const InternalMessage& msg)
+	messageParser_->setOnMessage([&](const InternalMessage& msg)
 	{
 			dispatcher_->dispatch(msg);
 	});

@@ -1,5 +1,5 @@
 /* 
- * MessageHandler.h 
+ * MessageParser.h 
  *
  * Purpose: Responsible for handling internal messages (InternalMessage)
  *
@@ -13,8 +13,8 @@
 
 // TODO: rename class/file to CommandDispatcher?
 
-#ifndef MESSAGE_HANDLER_H
-#define MESSAGE_HANDLER_H
+#ifndef MESSAGE_PARSER_H
+#define MESSAGE_PARSER_H
 
 #include "C2Profile.h"
 #include "MessageTypes.h"
@@ -31,7 +31,7 @@
 
 class TransportLayer;
 
-class MessageHandler
+class MessageParser
 {
 public:
 	
@@ -39,12 +39,12 @@ public:
 	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
 
 
-	//MessageHandler(C2Profile& config) {}; // TODO:
-	//MessageHandler() : transportLayer_(nullptr) {} // TODO: uncomment... should be still allowed to do client logic (like if messages are queued) even if we're disconnected from the server
-	//MessageHandler(TransportLayer* transportLayer);
-	MessageHandler(TransportLayer* transportLayer, Serializer* serializer, Encoder* encoder);
+	//MessageParser(C2Profile& config) {}; // TODO:
+	//MessageParser() : transportLayer_(nullptr) {} // TODO: uncomment... should be still allowed to do client logic (like if messages are queued) even if we're disconnected from the server
+	//MessageParser(TransportLayer* transportLayer);
+	MessageParser(TransportLayer* transportLayer, Serializer* serializer, Encoder* encoder);
 
-	~MessageHandler();
+	~MessageParser();
 
 	void start();
 
@@ -90,12 +90,12 @@ private:
 	std::string byte2string(RawByteBuffer& inMsg);
 
 	//C2Profile& config_;
-	// Connections connection_ // MessageHandler should own/control socket/connections?
+	// Connections connection_ // MessageParser should own/control socket/connections?
 
 	//std::queue<InternalMessage> outgoing_queue;
 	//std::mutex queue_mutex; // TODO: add thread logic too?
 
-	// TODO: MessageHandler should have references to all transporters? 
+	// TODO: MessageParser should have references to all transporters? 
 	// std::vector<Transporter*> transporters_;
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
 
@@ -107,6 +107,6 @@ private:
 };
 
 
-typedef std::unique_ptr<MessageHandler> MessageHandlerPtr;
+typedef std::unique_ptr<MessageParser> MessageParserPtr;
 
 #endif

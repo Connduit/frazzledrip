@@ -1,6 +1,6 @@
 ﻿#include "TransportLayer.h"
 #include "MessageTypes.h"
-#include "MessageHandler.h"
+#include "MessageParser.h"
 #include "ComponentFactory.h"
 //
 #include <winsock2.h>

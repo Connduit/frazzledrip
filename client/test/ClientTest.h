@@ -7,7 +7,7 @@
 #include "Encryptor.h"
 #include "Serializer.h"
 
-#include "Client.h"
+#include "ClientSubsystem.h"
 #include "MessageTypes.h"
 
 #include <string>
@@ -27,7 +27,7 @@ public:
 
 
 protected:
-	static Client* client_;
+	static ClientSubsystem* client_;
 private:
 	std::vector<uint8_t> string2byte(const std::string inMsg);
 	std::string byte2string(const std::vector<uint8_t> inMsg);

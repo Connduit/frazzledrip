@@ -16,7 +16,7 @@
 #ifndef TRANSPORT_LAYER_H
 #define TRANSPORT_LAYER_H
 
-#include "MessageHandler.h"
+#include "MessageParser.h"
 #include "Serializer.h"
 #include "Encryptor.h"
 #include "Encoder.h"
@@ -52,8 +52,6 @@ public:
 
 	// constructor
 	TransportLayer(Encryptor* encryptor);
-	//TransportLayer(MessageHandler* messageHandler);
-	//TransportLayer(MessageHandler* messageHandler, Encryptor* encryptor);
 
 	// deconstructor
 	virtual ~TransportLayer() = default; // TODO: what does default do?
@@ -74,7 +72,7 @@ public:
 
 protected:
 	// default subsystems
-	//MessageHandler* messageHandler_; // TODO: change to const?
+	//MessageParser* messageHandler_; // TODO: change to const?
 	//EncryptorUniquePtr encryptor_;
 	Encryptor* encryptor_;
 	ReceiveCallback receiveCallback_;

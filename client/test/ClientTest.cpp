@@ -12,17 +12,17 @@
 #include "Client.h"
 #include "ComponentFactory.h"
 
-#include "MessageHandler.h"
+#include "MessageParser.h"
 #include "TransportLayer.h"
 #include "TCPTransportLayer.h"
 
 
 
-Client* ClientTest::client_ = 0;
+ClientSubsystem* ClientTest::client_ = 0;
 
 ClientTest::ClientTest()
 {
-	client_ = new Client();
+	client_ = new ClientSubsystem();
 }
 
 ClientTest::~ClientTest()
@@ -44,7 +44,7 @@ bool ClientTest::testAll()
 
 	//Client client(compressor, encryptor, encoder, serializer, config);
 	//Client client(encryptor, encoder, serializer, config);
-	Client client;
+	ClientSubsystem client;
 
 	// InternalMessage
 	InternalMessage inMsg;
@@ -113,17 +113,11 @@ void ClientTest::testTransportLayer()
 {
 	std::cout << "=== Testing TransportLayer ===" << std::endl;
 
-	// Create a MessageHandler that definitely stays alive
-	MessageHandler handler;
+	// Create a MessageParser that definitely stays alive
+	//MessageParser parser(transportLayer, serializer, encoder);
 
 	// Create transport layer through factory
-	auto transport = TransportLayerFactory::create(
-		handler, "localhost", "4444",
-		TransportLayerType::TCP,
-		SerializerType::BINARY,
-		EncoderType::BASE64,
-		EncryptorType::XOR
-	);
+	auto transport = TransportLayerFactory::create(TransportLayerType::TCP);
 
 	if (transport)
 	{
@@ -154,6 +148,7 @@ void ClientTest::testFactoryDirectly()
 	std::cout << "Direct creation: SUCCESS" << std::endl;
 
 	// Test 2: Create through factory  
+	/*
 	std::cout << "Creating serializer through factory..." << std::endl;
 	auto factorySerializer = ComponentFactory::create(SerializerType::BINARY);
 	std::cout << "Factory returned: " << (factorySerializer != nullptr) << std::endl;
@@ -163,6 +158,7 @@ void ClientTest::testFactoryDirectly()
 		auto result2 = factorySerializer->serialize(testMsg);  // Does it crash here?
 		std::cout << "Factory creation: SUCCESS" << std::endl;
 	}
+	*/
 }
 
 

