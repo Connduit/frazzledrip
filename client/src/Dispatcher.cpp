@@ -3,21 +3,19 @@
 
 void Dispatcher::registerHandler(MessageType type, Handler handler)
 {
-	handlers_[type] = handler;
+	handlers_[type] = std::move(handler);
 }
 
 void Dispatcher::dispatch(const InternalMessage& msg)
 {
 	std::cout << "Dispatcher::dispatch()" << std::endl;
-	/*
-	 * TODO: use iterator instead
-	 * for (int i = 0; i < handlers_.size(); ++i)
-	 * {
-	 * 		if (handlers_[msg.header_.messageType])
-	 * 		{
-	 * 			handlers[i]->handle(); ?
-	 * 		}
-	 *
-	 * }
-	 * */
+	auto it = handlers_.find(msg.header_.messageType_);
+	if (it != handlers_.end())
+	{
+		it->second(msg);
+	}
+	else
+	{
+		std::cout << "No handlers found for the given messageType: " << msg.header_.messageType_ << std::endl;
+	}
 }
