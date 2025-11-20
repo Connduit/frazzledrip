@@ -1,120 +1,83 @@
-#pragma once
-
-#ifdef _DEBUG
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <ctime>
+#include <iomanip>
 
-enum class LogLevel
-{
-    Debug,
-    Info,
-    Warning,
-    Error
-};
+#ifdef _DEBUG   // Entire logger only exists in debug mode
 
 class Logger
 {
 public:
-    static void setLogFile(const std::string& filename)
-    {
-        instance().openFile(filename);
-    }
+    enum class Level {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+        Critical
+    };
 
-    static void log(LogLevel level, const std::string& msg,
-                    const char* file, int line)
-    {
-        instance().write(level, msg, file, line);
-    }
+    // Singleton accessor
+    static Logger& instance();
+
+    // Set output stream (default = std::cout)
+    void setOutput(std::ostream* out);
+
+    // Log function
+    void log(Level level,
+             const std::string& msg,
+             const char* file,
+             int line);
 
 private:
-    std::ofstream file_;
-    bool fileEnabled_ = false;
+    Logger();
+    std::ostream* output_;
+    std::ofstream fileStream_;
 
-    static Logger& instance()
-    {
-        static Logger inst;
-        return inst;
-    }
-
-    void openFile(const std::string& filename)
-    {
-        file_.open(filename, std::ios::out | std::ios::app);
-        fileEnabled_ = file_.is_open();
-
-        if (!fileEnabled_)
-            std::cerr << "[Logger] Failed to open log file: " << filename << "\n";
-    }
-
-    const char* levelToString(LogLevel lvl)
-    {
-        switch (lvl)
-        {
-            case LogLevel::Debug:   return "DEBUG";
-            case LogLevel::Info:    return "INFO";
-            case LogLevel::Warning: return "WARN";
-            case LogLevel::Error:   return "ERROR";
-            default:                return "UNKNOWN";
-        }
-    }
-
-    std::string timestamp()
-    {
-        std::time_t now = std::time(nullptr);
-        char buf[32];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S",
-                      std::localtime(&now));
-        return buf;
-    }
-
-    void write(LogLevel level,
-               const std::string& msg,
-               const char* file, int line)
-    {
-        std::string out =
-            "[" + timestamp() + "]"
-            "[" + levelToString(level) + "] "
-            + msg +
-            "  (" + file + ":" + std::to_string(line) + ")";
-
-        if (fileEnabled_)
-        {
-            file_ << out << "\n";
-            file_.flush();
-        }
-        else
-        {
-            std::cout << out << std::endl;
-        }
-    }
+    const char* levelToString(Level level) const;
+    std::string currentTimestamp() const;
 };
 
-// ------------------------------------------------------------
-// LOG MACROS — now include file + line
-// ------------------------------------------------------------
-#define LOG_DEBUG(msg)   Logger::log(LogLevel::Debug,   msg, __FILE__, __LINE__)
-#define LOG_INFO(msg)    Logger::log(LogLevel::Info,    msg, __FILE__, __LINE__)
-#define LOG_WARN(msg)    Logger::log(LogLevel::Warning, msg, __FILE__, __LINE__)
-#define LOG_ERROR(msg)   Logger::log(LogLevel::Error,   msg, __FILE__, __LINE__)
+// Logging macros
+#define LOG_TRACE(msg) Logger::instance().log(Logger::Level::Trace, msg, __FILE__, __LINE__)
+#define LOG_DEBUG(msg) Logger::instance().log(Logger::Level::Debug, msg, __FILE__, __LINE__)
+#define LOG_INFO(msg)  Logger::instance().log(Logger::Level::Info,  msg, __FILE__, __LINE__)
+#define LOG_WARN(msg)  Logger::instance().log(Logger::Level::Warn,  msg, __FILE__, __LINE__)
+#define LOG_ERROR(msg) Logger::instance().log(Logger::Level::Error, msg, __FILE__, __LINE__)
+#define LOG_CRITICAL(msg) Logger::instance().log(Logger::Level::Critical, msg, __FILE__, __LINE__)
 
-#else
-// ------------------------------------------------------------
-// Release mode — everything compiles to nothing
-// ------------------------------------------------------------
-enum class LogLevel { Debug, Info, Warning, Error };
+#else   // If NOT _DEBUG — remove all logging
 
 class Logger
 {
 public:
-    static void setLogFile(const std::string&) {}
-    static void log(LogLevel, const std::string&, const char*, int) {}
+    enum class Level { Trace, Debug, Info, Warn, Error, Critical };
+
+    static inline Logger& instance() {
+        static Logger dummy;
+        return dummy;
+    }
+
+    void setOutput(std::ostream*) {}
+    void log(Level, const std::string&, const char*, int) {}
+
+private:
+    Logger() = default;
 };
 
+// Define macros to nothing
+#define LOG_TRACE(msg)
 #define LOG_DEBUG(msg)
 #define LOG_INFO(msg)
 #define LOG_WARN(msg)
 #define LOG_ERROR(msg)
+#define LOG_CRITICAL(msg)
 
 #endif // _DEBUG
+
+#endif // LOGGER_H
