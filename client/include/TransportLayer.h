@@ -54,30 +54,27 @@ public:
 	TransportLayer(Encryptor* encryptor);
 
 	// deconstructor
-	virtual ~TransportLayer() = default; // TODO: what does default do?
-	virtual bool connect() = 0;
+	virtual ~TransportLayer() = default;
+	virtual bool connect() = 0; // wrapper for ::connect? 
 	virtual bool send(const RawByteBuffer& data) = 0;
 	virtual RawByteBuffer receive() = 0;
 	virtual bool isConnected() = 0;
 	//virtual void disconnect() = 0;
 
 	// Process InternalMessage and convert it into raw bytes beforing sending it to the server
-	bool sendMessage(const InternalMessage& msg);
+	// wrapper for ::send ? 
+	bool sendMessage(const RawByteBuffer& msg); // TODO: conversion shouldn't be happening here: 
 
 	// Process raw bytes from server and convert them into an InternalMessage
-	//InternalMessage receiveMessage();
-	RawByteBuffer receiveMessage();
+	RawByteBuffer receiveMessage(); // wrapper for ::recv? 
 
 	void beacon();
 
 protected:
 	// default subsystems
-	//MessageParser* messageHandler_; // TODO: change to const?
-	//EncryptorUniquePtr encryptor_;
 	Encryptor* encryptor_;
 	ReceiveCallback receiveCallback_;
 
-	//TransportLayerFactory& transportLayerFactory_;
 private:
 	/*
 	std::string server;
@@ -85,10 +82,7 @@ private:
 	SOCKET socket = INVALID_SOCKET;
 	bool connected = false;
 	*/
-	//InternalMessage createHeartbeat();
 
-	// TODO: delete?
-	uint32_t generateId();
 
 };
 
