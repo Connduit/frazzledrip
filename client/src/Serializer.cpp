@@ -8,7 +8,7 @@ std::vector<uint8_t> BinarySerializer::serialize(const InternalMessage& msg)
 	std::vector<uint8_t> serialized;
 	//serialized.clear();
 
-	const uint8_t* header_bytes = reinterpret_cast<const uint8_t*>(&msg.header);
+	const uint8_t* header_bytes = reinterpret_cast<const uint8_t*>(&msg.header_);
 	serialized.insert(serialized.end(), header_bytes, header_bytes + sizeof(MessageHeader));
 	serialized.insert(serialized.end(), msg.data.begin(), msg.data.end());
 	return serialized;
@@ -34,9 +34,13 @@ InternalMessage BinarySerializer::deserialize(const RawByteBuffer& data)
 	{
 		msg.data.assign(data.begin() + sizeof(MessageHeader), data.end());
 	}
+	else
+	{
+		std::cout << "RawByteBuffer failed validation" << std::endl;
+	}
 
 	// Verify data size matches header
-	if (msg.header.dataSize != msg.data.size())
+	if (msg.header_.dataSize_ != msg.data_.size())
 	{
 		//throw std::runtime_error("Data size mismatch");
 		std::cout << "data size doesn't match header" << std::endl;
