@@ -56,9 +56,11 @@ public:
 	// constructor
 	// deconstructor
 	// TODO: child classes need to take in the same parameters
-	//virtual RawByteBuffer encrypt() = 0;
-	//virtual RawByteBuffer decrypt() = 0;
-	//virtual ~Encryptor() = default; // TODO: what does default do?
+	virtual ~Encryptor() = default;
+	// will have to change parameters for encrypt/decrypt after implementing AES
+	virtual RawByteBuffer encrypt(RawByteBuffer& plaintext) = 0;
+	virtual RawByteBuffer decrypt(RawByteBuffer& cipher) = 0;
+
 private:
 };
 
@@ -100,8 +102,6 @@ public:
 	XorEncryptor() : XorEncryptor("DEFAULT_KEY") {}
 	XorEncryptor(const RawByteBuffer& key) : key_(key) {} // TODO: is const needed?
 	XorEncryptor(const std::string& key) : key_(key.begin(), key.end()) {}
-	//bool encrypt(std::vector<uint8_t>& data, std::vector<uint8_t>& cipher);
-	//bool decrypt(std::vector<uint8_t>& cipher, std::vector<uint8_t>& data);
 	RawByteBuffer encrypt(RawByteBuffer& msg);
 	RawByteBuffer decrypt(RawByteBuffer& cipher);
 private:
