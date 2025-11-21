@@ -4,10 +4,21 @@
 #include <iostream>
 
 
-// TODO: rename to ClientController? 
+/*
 ClientSubsystem::ClientSubsystem()
 {
 	// loadConfig?
+	// enable debugging messages (depending on config?)
+	setupSubcomponents();
+	setupMessaging();
+	// setupEvents();
+	// setupTasks();
+}
+*/
+
+ClientSubsystem::ClientSubsystem(Config& config) : config_(config)
+{
+	// do config? 
 	// enable debugging messages (depending on config?)
 	setupSubcomponents();
 	setupMessaging();
