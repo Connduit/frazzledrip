@@ -20,36 +20,21 @@
 
 #include <memory>
 
-// class ComponentFactory
-// {
-// public:
-//     static SerializerUniquePtr create(SerializerType type); // TODO: mark as explicit
-//     static EncoderUniquePtr create(EncoderType type); // TODO: mark as explicit
-//     static EncryptorUniquePtr create(EncryptorType type); // TODO: mark as explicit
-// private:
-// };
+class ComponentFactory
+{
+public:
+	static Serializer* create(SerializerType type); // TODO: mark as explicit
+    static Encoder* create(EncoderType type); // TODO: mark as explicit
+    static Encryptor* create(EncryptorType type); // TODO: mark as explicit
+private:
+};
 
 class TransportLayerFactory
 {
 public:
-	//TransportLayerFactory() : messageHandler_() {}
-	//TransportLayerFactory(MessageHandler& messageHandler);
-
-	static TransportLayer* create(TransportLayerType type);
+	//static TransportLayer* create(TransportLayerType type);
 	static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
-
-	// static TransportLayerUniquePtr create(
-	//         //MessageHandler* messageHandler,
-	//         MessageHandler& messageHandler,
-	//         const std::string& host,
-	//         const std::string& port,
-	//         TransportLayerType transportType,
-	//         SerializerType serializerType,
-	//         EncoderType encoderType,
-	//         EncryptorType encryptorType);
 private:
-	//MessageHandler messageHandler_; // TODO: change to reference?
-	//const MessageHandler& messageHandler_;
 };
 
 
