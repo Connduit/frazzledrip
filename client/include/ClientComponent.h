@@ -2,7 +2,7 @@
 #define CLIENT_COMPONENT_H
 
 #include "ClientSubsystem.h"
-
+#include "Config.h"
 
 class ClientComponent
 {
@@ -16,7 +16,7 @@ public:
 private:
 
 	ClientSubsystem* clientSubsystem_;
-	// ClientConfig* config_;
+	Config config_;
 
 };
 
