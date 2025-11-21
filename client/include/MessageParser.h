@@ -17,18 +17,19 @@
 #define MESSAGE_PARSER_H
 
 #include "MessageTypes.h"
-#include "TransportLayer.h"
-
 #include "Encoder.h"
 #include "Serializer.h"
+
+#include "TransportLayer.h"
+
+
 
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <functional>
-// #include <memory> // included by C2Profile
+#include <memory>
 
-class TransportLayer;
 
 class MessageParser
 {
@@ -39,8 +40,6 @@ public:
 
 
 	//MessageParser(C2Profile& config) {}; // TODO:
-	//MessageParser() : transportLayer_(nullptr) {} // TODO: uncomment... should be still allowed to do client logic (like if messages are queued) even if we're disconnected from the server
-	//MessageParser(TransportLayer* transportLayer);
 	MessageParser(TransportLayer* transportLayer, Serializer* serializer, Encoder* encoder);
 
 	~MessageParser();
@@ -48,7 +47,7 @@ public:
 	void start();
 
 	void handle(const RawByteBuffer& data); // TODO: change rawbytebuffer to const? 
-	void handle(const InternalMessage& msg);
+	//void handle(const InternalMessage& msg);
     
     bool sendMessage(); // overload this function?
     bool recvMessage(); // overload this function?
@@ -85,23 +84,14 @@ public:
 	//SerializerUniquePtr serializer_;
 	//EncoderUniquePtr encoder_;
 private:
+	// TODO: move these to a utils file 
 	RawByteBuffer string2byte(std::string& inMsg);
 	std::string byte2string(RawByteBuffer& inMsg);
 
-	//C2Profile& config_;
-	// Connections connection_ // MessageParser should own/control socket/connections?
 
-	//std::queue<InternalMessage> outgoing_queue;
-	//std::mutex queue_mutex; // TODO: add thread logic too?
-
-	// TODO: MessageParser should have references to all transporters? 
-	// std::vector<Transporter*> transporters_;
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
 
 	ReceiveCallback receiveCallback_;
-
-	//SerializerUniquePtr serializer_;
-	//EncoderUniquePtr encoder_;
 
 };
 
