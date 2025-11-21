@@ -32,23 +32,7 @@ public:
     RawByteBuffer serialize(const InternalMessage& msg) override;
 	InternalMessage deserialize(const RawByteBuffer& msg) override;
 private:
-
-
-    template<typename T>
-    void append_bytes(RawByteBuffer& buffer, const T& value)
-    {
-        const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&value);
-        buffer.insert(buffer.end(), bytes, bytes + sizeof(T));
-    }
-
-    template<typename T>
-    T read_bytes(const RawByteBuffer& data, size_t& offset)
-    {
-        T value;
-        memcpy(&value, data.data() + offset, sizeof(T));
-        return value;
-    }
-
+	// NOTE: might be useful later? 
     uint16_t calculate_checksum(const std::vector<uint8_t>& data)
     {
         uint16_t checksum = 0;
