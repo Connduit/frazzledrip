@@ -71,11 +71,6 @@ public:
 	void processMessage(InternalMessage& msg);
 
 
-	// Iterate through all messages in the queue and send to the server
-	void sendQueuedMessages();
-
-
-
 	//bool handleTCP(uint8_t* rawData, size_t rawDataLength, InternalMessage* resultMsg);
 
 	// TODO: make wrapper function/methods for these object's functions so i can define them as private vars instead of public? 
