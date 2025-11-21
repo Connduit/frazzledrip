@@ -1,6 +1,5 @@
 /* MessageParser.cpp */
 
-#include "C2Profile.h"
 #include "MessageParser.h"
 #include "MessageTypes.h"
 #include "MessagePublisher.h"
