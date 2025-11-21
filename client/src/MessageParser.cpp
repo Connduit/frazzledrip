@@ -15,19 +15,6 @@
 
 
 
-/*
-MessageParser::MessageParser()
-	: transportLayer_(nullptr)
-{
-	// debug statement
-}*/
-
-/*
-MessageParser::MessageParser(TransportLayer* transportLayer) :
-	transportLayer_(transportLayer)
-{
-}*/
-
 MessageParser::MessageParser(
 	TransportLayer* transportLayer, 
 	Serializer* serializer, 
@@ -326,7 +313,7 @@ bool MessageParser::handleServerError(RawByteBuffer& data)
 //
 // }
 
-// TODO: something about this function corruprts the memory
+
 void MessageParser::processMessage(InternalMessage& msg)
 {
 	//systemInfo(msg);
@@ -358,15 +345,10 @@ void MessageParser::processMessage(InternalMessage& msg)
 		handleServerError(msg.data);
 		break;
 	default:
-		std::cout << "default case, MessageType = " << msg.header.messageType << std::endl;
+		std::cout << "default case, MessageType = " << msg.header_.messageType_ << std::endl;
 	}
 }
 
-
-void MessageParser::sendQueuedMessages()
-{
-	std::cout << "sendQueuedMessages... not implemented" << std::endl;
-}
 
 RawByteBuffer MessageParser::string2byte(std::string& inMsg)
 {
