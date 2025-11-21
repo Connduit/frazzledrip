@@ -1,8 +1,7 @@
 #include "ClientComponent.h"
 
-ClientComponent::ClientComponent()
+ClientComponent::ClientComponent() : config_()
 {
-	createClientSubsystem(); // TODO: should take in a config arguement
 }
 
 ClientComponent::~ClientComponent()
@@ -20,7 +19,7 @@ void ClientComponent::loadConfig()
 
 void ClientComponent::createClientSubsystem()
 {
-	clientSubsystem_ = new ClientSubsystem();
+	clientSubsystem_ = new ClientSubsystem(config_);
 }
 
 void ClientComponent::startClientSubsystem()
