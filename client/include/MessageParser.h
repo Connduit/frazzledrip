@@ -16,7 +16,6 @@
 #ifndef MESSAGE_PARSER_H
 #define MESSAGE_PARSER_H
 
-#include "C2Profile.h"
 #include "MessageTypes.h"
 #include "TransportLayer.h"
 
