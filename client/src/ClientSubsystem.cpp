@@ -28,29 +28,64 @@ ClientSubsystem::ClientSubsystem(Config& config) : config_(config)
 
 ClientSubsystem::~ClientSubsystem()
 {
-	if (messageParser_)
+	if (serializer_)
 	{
-		delete messageParser_;
-		//messageParser_ = 0;
+		delete serializer_;
 	}
-
+	if (encoder_)
+	{
+		delete encoder_;
+	}
+	if (encryptor_)
+	{
+		delete encryptor_;
+	}
 	if (transportLayer_)
 	{
 		delete transportLayer_;
 		//transportLayer_ = 0;
 	}
+	if (messageParser_)
+	{
+		delete messageParser_;
+		//messageParser_ = 0;
+	}
+	if (dispatcher_)
+	{
+		delete dispatcher_;
+	}
+	if (controller_)
+	{
+		delete controller_;
+	}
+
 }
 
 void ClientSubsystem::setupMessaging()
 {
 
 	//transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP);
-	transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP, encryptor_);
+	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, encryptor_);
 	// TODO: check that serializer and encoder are not null first?
 	messageParser_ = new MessageParser(transportLayer_, serializer_, encoder_);
 
 	dispatcher_ = new Dispatcher();
 	controller_ = new Controller();
+}
+
+
+void ClientSubsystem::setupSubcomponents()
+{
+	
+	serializer_ = ComponentFactory::create(config_.serializerType_);
+	encoder_ = ComponentFactory::create(config_.encoderType_);
+	encryptor_ = ComponentFactory::create(config_.encryptorType_);
+
+	/*
+	serializer_ = new BinarySerializer();
+	encoder_ = new Base64Encoder();
+	encryptor_ = new XorEncryptor();
+	*/
 }
 
 // rename to setupCallbacks ? 
@@ -84,22 +119,9 @@ void ClientSubsystem::setupTasks()
 
 }
 
-void ClientSubsystem::setupSubcomponents()
-{
-	/*
-	serializer_ = new Serializer();
-	encoder_ = new Encoder();
-	encryptor_ = new Encryptor();
-	*/
-	serializer_ = new BinarySerializer();
-	encoder_ = new Base64Encoder();
-	encryptor_ = new XorEncryptor();
-}
 
 void ClientSubsystem::run() // TODO: rename to start??
 {	
-	//Config* config = loadConfig();
-	//Config config = loadConfig();
 
 	// 1. manually resolve apis
 	/*
