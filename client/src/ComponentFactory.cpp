@@ -7,12 +7,10 @@
 
 TransportLayer* TransportLayerFactory::create(TransportLayerType type, Encryptor* encryptor)
 {
-
 	switch (type)
 	{
 	case TransportLayerType::TCP:
-		return new TCPTransportLayer();
-		break;
+		return new TCPTransportLayer(encryptor);
 	default:
 		// throw error
 		//break;
@@ -21,36 +19,12 @@ TransportLayer* TransportLayerFactory::create(TransportLayerType type, Encryptor
 	}
 }
 
-TransportLayer* TransportLayerFactory::create(TransportLayerType type)
-{
-
-	switch (type)
-	{
-	case TransportLayerType::TCP:
-		return new TCPTransportLayer();
-		break;
-	default:
-		// throw error
-		//break;
-		std::cout << "throw error" << std::endl;
-		return nullptr;
-	}
-}
-
-
-/*
-TransportLayerFactory::TransportLayerFactory(MessageHandler& messageHandler)
-{
-	std::cout << "TransportLayerFactory constructor" << std::endl;
-
-}
-
-SerializerUniquePtr ComponentFactory::create(SerializerType type)
+Serializer* ComponentFactory::create(SerializerType type)
 {
 	switch (type)
 	{
 	case SerializerType::BINARY:
-		return std::make_unique<BinarySerializer>();
+		return new BinarySerializer();
 	case SerializerType::JSON:
 		// return std::make_unique<JSON_TODO>();
 	default:
@@ -58,12 +32,12 @@ SerializerUniquePtr ComponentFactory::create(SerializerType type)
 	}
 }
 
-EncoderUniquePtr ComponentFactory::create(EncoderType type)
+Encoder* ComponentFactory::create(EncoderType type)
 {
 	switch (type)
 	{
 	case EncoderType::BASE64:
-		return std::make_unique<Base64Encoder>();
+		return new Base64Encoder();
 	case EncoderType::HEX:
 		// return std::make_unique<HEX_TODO>();
 	default:
@@ -71,19 +45,19 @@ EncoderUniquePtr ComponentFactory::create(EncoderType type)
 	}
 }
 
-EncryptorUniquePtr ComponentFactory::create(EncryptorType type)
+Encryptor* ComponentFactory::create(EncryptorType type)
 {
 	switch (type)
 	{
 	case EncryptorType::XOR:
-		return std::make_unique<XorEncryptor>();
+		return new XorEncryptor();
 	case EncryptorType::AES:
 		// return std::make_unique<AES_TODO>();
 	default:
 		return nullptr;
 	}
 }
-
+/*
 TransportLayerUniquePtr TransportLayerFactory::create(
 		MessageHandler& messageHandler, 
 		const std::string& host, 
