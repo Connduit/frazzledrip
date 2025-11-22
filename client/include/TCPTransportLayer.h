@@ -31,7 +31,7 @@ public:
 	void run();
 
 	// call this function manually in main loop instead of using threads
-	void update();
+	// void update();
 
 private:
 	// Initializes WSADATA by being called through the constructor 

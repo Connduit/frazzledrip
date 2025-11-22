@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 
+class TransportLayer;
 
 class MessageParser
 {
@@ -47,6 +48,7 @@ public:
 	void start();
 
 	void handle(const RawByteBuffer& data); // TODO: change rawbytebuffer to const? 
+
 	//void handle(const InternalMessage& msg);
     
     bool sendMessage(); // overload this function?
@@ -64,7 +66,6 @@ public:
 	bool updateConfig(RawByteBuffer& data);
 	bool handleServerError(RawByteBuffer& data);
 	//bool systemInfo(InternalMessage& msg); // TODO: uncomment when on windows
-
 
 
 	// Processes an InternalMessage and use the messageHandler_ based on the InternalMessage's messageType

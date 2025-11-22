@@ -10,7 +10,7 @@ std::vector<uint8_t> BinarySerializer::serialize(const InternalMessage& msg)
 
 	const uint8_t* header_bytes = reinterpret_cast<const uint8_t*>(&msg.header_);
 	serialized.insert(serialized.end(), header_bytes, header_bytes + sizeof(MessageHeader));
-	serialized.insert(serialized.end(), msg.data.begin(), msg.data.end());
+	serialized.insert(serialized.end(), msg.data_.begin(), msg.data_.end());
 	return serialized;
 
 
@@ -26,13 +26,13 @@ InternalMessage BinarySerializer::deserialize(const RawByteBuffer& data)
 	InternalMessage msg;
 
 	// Deserialize header
-	memcpy(&msg.header, data.data(), sizeof(MessageHeader));
+	memcpy(&msg.header_, data.data(), sizeof(MessageHeader));
 
 	// Deserialize payload (if any)
 	size_t payload_size = data.size() - sizeof(MessageHeader);
 	if (payload_size > 0)
 	{
-		msg.data.assign(data.begin() + sizeof(MessageHeader), data.end());
+		msg.data_.assign(data.begin() + sizeof(MessageHeader), data.end());
 	}
 	else
 	{

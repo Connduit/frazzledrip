@@ -10,6 +10,8 @@ class Controller
 {
 public:
 	void handleDefault(const InternalMessage& msg);
+	void handleNone(const InternalMessage& msg);
+	void handleExecuteCommand(const InternalMessage& msg);
 private:
 };
 

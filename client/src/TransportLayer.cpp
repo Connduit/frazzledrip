@@ -15,7 +15,7 @@ TransportLayer::TransportLayer(Encryptor* encryptor) :
 {
 }
 
-bool TransportLayer::sendMessage(const InternalMessage& msg)
+bool TransportLayer::sendMessage(const RawByteBuffer& msg)
 {
     //auto serialized = serializer_->serialize(msg);
     //auto serialized = messageHandler_->serializer_->serialize(msg);
@@ -24,7 +24,7 @@ bool TransportLayer::sendMessage(const InternalMessage& msg)
 	return false;
 }
 
-//InternalMessage TransportLayer::receiveMessage()
+// TODO: rename/change to be the function that verifies/validates the recv'd data? 
 RawByteBuffer TransportLayer::receiveMessage()
 {
     auto data = receive();
@@ -57,21 +57,6 @@ void TransportLayer::beacon()
     //     messageHandler_->processMessage(internalMessage); // change to not use ptr?
     // }
 }
-
-InternalMessage TransportLayer::createHeartbeat()
-{
-    InternalMessage msg;
-    msg.header.messageType = MessageType::HEARTBEAT;
-    msg.header.messageId = generateId();
-    msg.header.dataSize = 0;
-    return msg;
-}
-
-uint32_t TransportLayer::generateId()
-{
-    return rand();
-}
-
 
 
 

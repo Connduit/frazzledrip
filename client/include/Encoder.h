@@ -26,7 +26,7 @@ public:
 	//virtual bool decode() = 0;
 	virtual ~Encoder() = default;
 	virtual RawByteBuffer encode(RawByteBuffer& data) = 0;
-	virtual RawByteBuffer decode(RawByteBuffer& data) = 0;
+	virtual RawByteBuffer decode(const RawByteBuffer& data) = 0;
 private:
 };
 
@@ -35,7 +35,7 @@ class Base64Encoder : public Encoder
 {
 public:
 	RawByteBuffer encode(RawByteBuffer& msg); // override
-	RawByteBuffer decode(RawByteBuffer& msg);
+	RawByteBuffer decode(const RawByteBuffer& msg);
 private:
 	static constexpr uint8_t base64_chars[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"

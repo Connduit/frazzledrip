@@ -48,7 +48,7 @@ public:
 	using ReceiveCallback = std::function<void(const RawByteBuffer&)>;
 	//void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
 	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
-	virtual void update() = 0;
+	//virtual void update() = 0;
 
 	// constructor
 	TransportLayer(Encryptor* encryptor);
@@ -60,6 +60,8 @@ public:
 	virtual RawByteBuffer receive() = 0;
 	virtual bool isConnected() = 0;
 	//virtual void disconnect() = 0;
+
+	virtual void run() = 0;
 
 	// Process InternalMessage and convert it into raw bytes beforing sending it to the server
 	// wrapper for ::send ? 

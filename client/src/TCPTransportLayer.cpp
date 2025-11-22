@@ -5,54 +5,7 @@
 #include <iomanip>  // for std::hex, std::setw, std::setfill
 #include <iostream>
 
-//TCPTransportLayer::TCPTransportLayer(MessageHandler* hdlr, const std::string& server, uint16_t port)
-// TCPTransportLayer::TCPTransportLayer(
-//     MessageHandler& messageHandler,
-//     const std::string& server,
-//     const std::string& port,
-//     SerializerUniquePtr serializer,
-//     EncoderUniquePtr encoder,
-//     EncryptorUniquePtr encryptor,
-//     SerializerType serializerType,
-//     EncoderType encoderType,
-//     EncryptorType encryptorType)
-//     :
-//     TransportLayer(
-//         messageHandler,
-//         std::move(serializer),
-//         std::move(encoder),
-//         std::move(encryptor),
-//         serializerType,
-//         encoderType,
-//         encryptorType),
-//     server_(server),
-//     port_(port)
-// {
-//     initializeWinsock();
-// }
 
-
-/*
-TCPTransportLayer::TCPTransportLayer() :
-    TransportLayer(messageHandler_)
-{
-    initializeWinsock();
-}
-
-TCPTransportLayer::TCPTransportLayer(MessageHandler* messageHandler) :
-    TransportLayer(messageHandler_)
-{
-    initializeWinsock();
-}
-
-TCPTransportLayer::TCPTransportLayer(
-    MessageHandler* messageHandler,
-    Encryptor* encryptor) 
-    :
-    TransportLayer(messageHandler_)
-{
-    initializeWinsock();
-}*/
 
 // TODO: this constructor shouldn't ever be hit? i also think it's just wrong
 TCPTransportLayer::TCPTransportLayer() :
@@ -193,6 +146,7 @@ RawByteBuffer TCPTransportLayer::receive()
 
 void TCPTransportLayer::run()
 {
+    std::cout << "TCPTransportLayer::run()" << std::endl;
     while (connected_)
     {
         RawByteBuffer buffer(4096);
@@ -206,15 +160,20 @@ void TCPTransportLayer::run()
 
         buffer.resize(received);
 
+        // TODO: decrypt here? 
+
         if (receiveCallback_)
         {
-            receiveCallback_(buffer);   // 🔥 Fire callback!
+            std::cout << "valid recvCB" << std::endl;
+            receiveCallback_(buffer); 
         }
     }
 }
 
+/*
 void TCPTransportLayer::update()
 {
+    std::cout << "TCPTransportLayer::update()" << std::endl;
 	if (!connected_)
 		return;
 
@@ -236,5 +195,7 @@ void TCPTransportLayer::update()
 	buffer.resize(received);
 
 	if (receiveCallback_)
-		receiveCallback_(buffer);
-}
+    {
+        receiveCallback_(buffer);
+    }
+}*/

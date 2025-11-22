@@ -76,7 +76,7 @@ RawByteBuffer Base64Encoder::encode(RawByteBuffer& msg)
 //const char b64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"; // default_table
 
 // TODO: pretty code water way of encoding
-RawByteBuffer Base64Encoder::decode(RawByteBuffer& msg)
+RawByteBuffer Base64Encoder::decode(const RawByteBuffer& msg)
 {
 	RawByteBuffer decoded;
 	size_t i = 0;

