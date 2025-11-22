@@ -16,7 +16,8 @@ ClientSubsystem::ClientSubsystem()
 }
 */
 
-ClientSubsystem::ClientSubsystem(Config& config) : config_(config)
+ClientSubsystem::ClientSubsystem(
+		Config& config) : config_(config)
 {
 	// do config? 
 	// enable debugging messages (depending on config?)
@@ -91,12 +92,14 @@ void ClientSubsystem::setupSubcomponents()
 // rename to setupCallbacks ? 
 void ClientSubsystem::setupEvents()
 {
+	// transportLayer_ calls back to MessageParser
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
 			std::cout << "transportLayer_->setOnMessage" << std::endl;
 			messageParser_->handle(msg);
 	});
 
+	// messageParser_ calls back to Dispatcher
 	messageParser_->setOnMessage([&](const InternalMessage& msg)
 	{
 			std::cout << "dispatch_->setOnMessage" << std::endl;
@@ -121,6 +124,7 @@ void ClientSubsystem::setupEvents()
 		controller_->handleNone(msg);
 	});
 
+	// dispatcher_ executes function associated with MessageType::EXECUTE_COMMAND
 	dispatcher_->registerHandler(MessageType::EXECUTE_COMMAND, [&](const InternalMessage& msg)
 	{
 		std::cout << "dispatch_->registerHandler" << std::endl;

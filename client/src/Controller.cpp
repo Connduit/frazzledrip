@@ -16,6 +16,28 @@ void Controller::handleNone(const InternalMessage& msg)
 void Controller::handleExecuteCommand(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteCommand()" << std::endl;
+
+	InternalMessage outMsg;
+	MessageHeader outHeader;
+
+	outMsg.data_ = string2byte("temp TODO message");
+
+	outHeader.messageType_ = MessageType::COMMAND_RESULT;
+	outHeader.messageId_ = 
+	outHeader.dataSize_ = outMsg.data_.size();
+
+	outMsg.header_ = outHeader;
+
+
+	// TODO: 
+	// send outMsg to outbound router/dispatcher? 
+
+
+
+
+
+
+
 	// std::cout << "executeCommand: " << byte2string(data).c_str() << std::endl;
 
 

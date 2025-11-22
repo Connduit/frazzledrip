@@ -15,7 +15,14 @@ public:
     ClientSubsystem(Config& config);
     ~ClientSubsystem();
 
+	// run/start listening?
 	void run();
+
+	// void sendResult(); // TODO: it feels like the wrong place to put this function
+
+	// TODO:
+	// void recvMessage(); 
+	// void startReceiving(); ???
 
 private:
 	void setupMessaging();
