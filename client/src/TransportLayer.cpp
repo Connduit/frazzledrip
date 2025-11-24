@@ -10,10 +10,10 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
-TransportLayer::TransportLayer(Encryptor* encryptor) :
-    encryptor_(encryptor)
-{
-}
+// TransportLayer::TransportLayer(Encryptor* encryptor) :
+//     encryptor_(encryptor)
+// {
+// }
 
 bool TransportLayer::sendMessage(const RawByteBuffer& msg)
 {

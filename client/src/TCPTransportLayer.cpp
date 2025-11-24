@@ -9,18 +9,18 @@
 
 // TODO: this constructor shouldn't ever be hit? i also think it's just wrong
 TCPTransportLayer::TCPTransportLayer() :
-    TransportLayer(encryptor_)
+    TransportLayer()
 {
     //connected_ = false;
     initializeWinsock();
 }
 
-TCPTransportLayer::TCPTransportLayer(Encryptor* encryptor) :
-    TransportLayer(encryptor)
-{
-    //connected_ = false;
-    initializeWinsock();
-}
+// TCPTransportLayer::TCPTransportLayer(Encryptor* encryptor) :
+//     TransportLayer(encryptor)
+// {
+//     //connected_ = false;
+//     initializeWinsock();
+// }
 
 TCPTransportLayer::~TCPTransportLayer()
 {

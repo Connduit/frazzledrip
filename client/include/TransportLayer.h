@@ -51,7 +51,8 @@ public:
 	//virtual void update() = 0;
 
 	// constructor
-	TransportLayer(Encryptor* encryptor);
+	//TransportLayer();
+	//TransportLayer(Encryptor* encryptor);
 
 	// deconstructor
 	virtual ~TransportLayer() = default;
@@ -74,7 +75,7 @@ public:
 
 protected:
 	// default subsystems
-	Encryptor* encryptor_;
+	//Encryptor* encryptor_;
 	ReceiveCallback receiveCallback_;
 
 private:

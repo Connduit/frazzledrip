@@ -11,7 +11,7 @@ class TCPTransportLayer : public TransportLayer
 {
 public:
 	TCPTransportLayer();
-	TCPTransportLayer(Encryptor* encryptor);
+	//TCPTransportLayer(Encryptor* encryptor);
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server

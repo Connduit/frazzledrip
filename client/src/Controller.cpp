@@ -1,4 +1,5 @@
 #include "Controller.h"
+#include "utils.h"
 
 #include <iostream>
 
@@ -29,6 +30,8 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 	outMsg.header_ = outHeader;
 
 
+	// TODO:
+	// (router) -> packer -> internalmessage -> message transformer -> transportlayer
 	// TODO: 
 	// send outMsg to outbound router/dispatcher? 
 

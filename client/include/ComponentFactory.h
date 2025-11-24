@@ -32,8 +32,8 @@ private:
 class TransportLayerFactory
 {
 public:
-	//static TransportLayer* create(TransportLayerType type);
-	static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
+	static TransportLayer* create(TransportLayerType type);
+	//static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
 private:
 };
 

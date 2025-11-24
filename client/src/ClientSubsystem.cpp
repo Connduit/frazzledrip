@@ -65,13 +65,15 @@ ClientSubsystem::~ClientSubsystem()
 void ClientSubsystem::setupMessaging()
 {
 
-	//transportLayer_ = TransportLayerFactory::create(TransportLayerType::TCP);
-	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, encryptor_);
+	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_);
 	// TODO: check that serializer and encoder are not null first?
 	messageParser_ = new MessageParser(transportLayer_, serializer_, encoder_);
 
 	dispatcher_ = new Dispatcher();
 	controller_ = new Controller();
+
+	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
+	packer_ = new Packer();
 }
 
 
@@ -97,6 +99,7 @@ void ClientSubsystem::setupEvents()
 	{
 			std::cout << "transportLayer_->setOnMessage" << std::endl;
 			messageParser_->handle(msg);
+			messageTransformer_->transform(msg);
 	});
 
 	// messageParser_ calls back to Dispatcher
