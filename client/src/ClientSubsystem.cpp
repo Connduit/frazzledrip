@@ -99,7 +99,7 @@ void ClientSubsystem::setupEvents()
 	{
 			std::cout << "transportLayer_->setOnMessage" << std::endl;
 			messageParser_->handle(msg);
-			messageTransformer_->transform(msg);
+			dispatcher_->dispatch(messageTransformer_->transform(msg));
 	});
 
 	// messageParser_ calls back to Dispatcher
