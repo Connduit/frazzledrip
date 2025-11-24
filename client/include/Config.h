@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "TransportLayer.h"
 #include "MessageTypes.h"
 
 typedef struct Config

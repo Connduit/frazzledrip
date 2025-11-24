@@ -13,10 +13,10 @@ public:
 	MessageTransformer(Serializer* serializer, Encoder* encoder, Encryptor* encryptor);
 
 	// inbound transform
-	InternalMessage transform(RawByteBuffer& msg);
+	InternalMessage transform(const RawByteBuffer& msg);
 
 	// outbound transform
-	RawByteBuffer transform(InternalMessage& msg);
+	RawByteBuffer transform(const InternalMessage& msg);
 private:
 	Serializer* serializer_;
 	Encoder* encoder_;

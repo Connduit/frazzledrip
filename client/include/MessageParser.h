@@ -80,9 +80,6 @@ public:
 	//SerializerUniquePtr serializer_;
 	//EncoderUniquePtr encoder_;
 private:
-	// TODO: move these to a utils file 
-	RawByteBuffer string2byte(std::string& inMsg);
-	std::string byte2string(RawByteBuffer& inMsg);
 
 
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization

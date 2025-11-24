@@ -5,6 +5,7 @@
 #include "MessagePublisher.h"
 #include "Recon.h"
 #include "TransportLayer.h"
+#include "utils.h"
 
 #include <iostream>
 #include <sstream>
@@ -365,18 +366,6 @@ void MessageParser::processMessage(InternalMessage& msg)
 		std::cout << "default case, MessageType = " << msg.header_.messageType_ << std::endl;
 	}
 }
-
-
-RawByteBuffer MessageParser::string2byte(std::string& inMsg)
-{
-	return RawByteBuffer(inMsg.begin(), inMsg.end());
-}
-
-std::string MessageParser::byte2string(RawByteBuffer& inMsg)
-{
-	return std::string(inMsg.begin(), inMsg.end());
-}
-
 
 
 

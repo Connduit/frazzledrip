@@ -11,7 +11,7 @@ MessageTransformer::MessageTransformer(
 {}
 
 // inbound transform
-InternalMessage MessageTransformer::transform(RawByteBuffer& msg)
+InternalMessage MessageTransformer::transform(const RawByteBuffer& msg)
 {
 	//InternalMessage inMsg;
 	auto decrypted = encryptor_->decrypt(msg);
@@ -22,7 +22,7 @@ InternalMessage MessageTransformer::transform(RawByteBuffer& msg)
 }
 
 // outbound transform
-RawByteBuffer MessageTransformer::transform(InternalMessage& msg)
+RawByteBuffer MessageTransformer::transform(const InternalMessage& msg)
 {
 	auto serialized = serializer_->serialize(msg);
 	auto encoded = encoder_->encode(serialized);
