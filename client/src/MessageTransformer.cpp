@@ -14,19 +14,19 @@ MessageTransformer::MessageTransformer(
 InternalMessage MessageTransformer::transform(const RawByteBuffer& msg)
 {
 	//InternalMessage inMsg;
-	auto decrypted = encryptor_->decrypt(msg);
-	auto decoded = encoder_->decode(decrypted);
-	auto deserialized = serializer_->deserialize(decoded);
-
-	return deserialized;
+	//auto decrypted = encryptor_->decrypt(msg);
+	//auto decoded = encoder_->decode(decrypted);
+	//auto deserialized = serializer_->deserialize(decoded);
+	//return deserialized;
+	return serializer_->deserialize(msg);
 }
 
 // outbound transform
 RawByteBuffer MessageTransformer::transform(const InternalMessage& msg)
 {
-	auto serialized = serializer_->serialize(msg);
-	auto encoded = encoder_->encode(serialized);
-	auto encrypted = encryptor_->encrypt(encoded);
-
-	return encrypted;
+	//auto serialized = serializer_->serialize(msg);
+	//auto encoded = encoder_->encode(serialized);
+	//auto encrypted = encryptor_->encrypt(encoded);
+	//return encrypted;
+	return serializer_->serialize(msg);
 }

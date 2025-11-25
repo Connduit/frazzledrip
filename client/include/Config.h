@@ -10,15 +10,17 @@ typedef struct Config
                 transportLayerType_(TransportLayerType::TCP),
                 serializerType_(SerializerType::BINARY),
                 encoderType_(EncoderType::BASE64),
-                encryptorType_(EncryptorType::XOR)
+                encryptorType_(EncryptorType::XOR),
+                server_(""), // NOTE: empty server uses localhost
+                port_("4444")
                 {}
 
-        // int server_;
-        // int port_;
         TransportLayerType transportLayerType_;
         SerializerType serializerType_;
         EncoderType encoderType_;
         EncryptorType encryptorType_;
+        std::string server_;
+        std::string port_;
        
 
 } Config;

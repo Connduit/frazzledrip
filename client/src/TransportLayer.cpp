@@ -1,6 +1,6 @@
 ﻿#include "TransportLayer.h"
 #include "MessageTypes.h"
-#include "MessageParser.h"
+#include "MessageHandler.h"
 #include "ComponentFactory.h"
 //
 #include <winsock2.h>
@@ -10,53 +10,6 @@
 #pragma comment(lib, "ws2_32.lib")
 
 
-// TransportLayer::TransportLayer(Encryptor* encryptor) :
-//     encryptor_(encryptor)
-// {
-// }
-
-bool TransportLayer::sendMessage(const RawByteBuffer& msg)
-{
-    //auto serialized = serializer_->serialize(msg);
-    //auto serialized = messageHandler_->serializer_->serialize(msg);
-    //return send(serialized);
-	// TODO: 
-	return false;
-}
-
-// TODO: rename/change to be the function that verifies/validates the recv'd data? 
-RawByteBuffer TransportLayer::receiveMessage()
-{
-    auto data = receive();
-    if (data.empty()) 
-	{
-		//return InternalMessage();
-        return {};
-	}
-
-    //auto decrypted = encryptor_.decrypt(data);
-    //auto decoded = encoder_.decode(decrypted);
-    //return serializer_.deserialize(decoded);
-    return data;
-    //return serializer_->deserialize(data);
-}
-
-void TransportLayer::beacon()
-{
-    //auto heartbeat = createHeartbeat();
-    //sendMessage(heartbeat);
-
-
-	// TODO: 
-    auto incoming = receiveMessage();
-    //auto incoming = encoder_->decode(incoming);
-    // incoming = messageHandler_->encoder_->decode(incoming);
-    // InternalMessage internalMessage = messageHandler_->serializer_->deserialize(incoming);
-    // if (internalMessage.header.messageType != DEFAULT)
-    // {
-    //     messageHandler_->processMessage(internalMessage); // change to not use ptr?
-    // }
-}
 
 
 

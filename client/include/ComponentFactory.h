@@ -33,6 +33,7 @@ class TransportLayerFactory
 {
 public:
 	static TransportLayer* create(TransportLayerType type);
+	static TransportLayer* create(TransportLayerType type, std::string& server, std::string& port);
 	//static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
 private:
 };

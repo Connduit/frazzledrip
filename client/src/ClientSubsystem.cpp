@@ -46,10 +46,10 @@ ClientSubsystem::~ClientSubsystem()
 		delete transportLayer_;
 		//transportLayer_ = 0;
 	}
-	if (messageParser_)
+	if (messageHandler_)
 	{
-		delete messageParser_;
-		//messageParser_ = 0;
+		delete messageHandler_;
+		//messageHandler_ = 0;
 	}
 	if (dispatcher_)
 	{
@@ -65,14 +65,14 @@ ClientSubsystem::~ClientSubsystem()
 void ClientSubsystem::setupMessaging()
 {
 
-	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_);
+	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, config_.server_, config_.port_);
 	// TODO: check that serializer and encoder are not null first?
-	messageParser_ = new MessageParser(transportLayer_, serializer_, encoder_);
+	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
+	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_);
 
 	dispatcher_ = new Dispatcher();
-	controller_ = new Controller();
+	controller_ = new Controller(messageHandler_);
 
-	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
 	packer_ = new Packer();
 }
 
@@ -98,12 +98,12 @@ void ClientSubsystem::setupEvents()
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
 			std::cout << "transportLayer_->setOnMessage" << std::endl;
-			messageParser_->handle(msg);
-			dispatcher_->dispatch(messageTransformer_->transform(msg));
+			messageHandler_->handle(msg);
+			//dispatcher_->dispatch(messageTransformer_->transform(msg));
 	});
 
 	// messageParser_ calls back to Dispatcher
-	messageParser_->setOnMessage([&](const InternalMessage& msg)
+	messageHandler_->setOnMessage([&](const InternalMessage& msg)
 	{
 			std::cout << "dispatch_->setOnMessage" << std::endl;
 			dispatcher_->dispatch(msg);
@@ -162,21 +162,6 @@ void ClientSubsystem::run() // TODO: rename to start??
 	// std::thread t([this] { transportLayer_->run(); });
 	// t.detach();
 
-	/*
-	while (true)
-	{
-		if (!transportLayer_->isConnected())
-		{
-			transportLayer_->connect();
-		}
-
-		if (transportLayer_->isConnected())
-		{
-			transportLayer_->beacon();
-		}
-		Sleep(5000);
-	}*/
-
 	std::cout << "ClientSubsystem::run()" << std::endl;
 
 	while (true)
@@ -188,10 +173,8 @@ void ClientSubsystem::run() // TODO: rename to start??
 
 		if (transportLayer_->isConnected())
 		{
-			transportLayer_->run();
-			//transportLayer_->update(); // this just receives messages from server
+			transportLayer_->receive();
 			// TODO:
-			// transportLayer_->receive(); ?
 			// transportLayer_->beacon();
 		}
 		Sleep(5000);

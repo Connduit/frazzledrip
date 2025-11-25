@@ -2,7 +2,7 @@
 #define CLIENT_SUBSYSTEM_H
 
 #include "TransportLayer.h"
-#include "MessageParser.h"
+#include "MessageHandler.h"
 #include "Dispatcher.h"
 #include "Controller.h"
 #include "Config.h"
@@ -35,7 +35,7 @@ private:
 	//void setupModules();
 
 	TransportLayer* transportLayer_;
-	MessageParser* messageParser_;
+	MessageHandler* messageHandler_;
 
 	Packer* packer_;
 	MessageTransformer* messageTransformer_;

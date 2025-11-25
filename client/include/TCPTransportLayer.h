@@ -11,11 +11,12 @@ class TCPTransportLayer : public TransportLayer
 {
 public:
 	TCPTransportLayer();
+	TCPTransportLayer(std::string& server, std::string& port);
 	//TCPTransportLayer(Encryptor* encryptor);
 	~TCPTransportLayer();
 
 	// Attemps to send a std::vector<uint8_t> as a raw buffer to server
-	bool send(const RawByteBuffer& data);
+	bool send(const RawByteBuffer& msg);
 
 	// Creates socket and attempts to connect to it
 	// Returns true on success
@@ -23,7 +24,7 @@ public:
 
 	// Receives raw buffer from server
 	// Returns raw buffer as a std::vector<uint8_t>
-	RawByteBuffer receive();
+	void receive();
 
 	// Getter to see if we've connected to the server
 	bool isConnected() { return connected_; }
@@ -41,8 +42,6 @@ private:
 	// TODO: move this to abstract class?
 	std::string server_;
 	std::string port_;
-	//uint16_t port_;
-	//std::string port_;
 	SOCKET socket_ = INVALID_SOCKET;
 	bool connected_ = false;
 	//std::atomic<bool> connected_;

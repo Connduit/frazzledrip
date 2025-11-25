@@ -4,13 +4,29 @@
 
 #include <iostream>
 
-
 TransportLayer* TransportLayerFactory::create(TransportLayerType type)
 {
 	switch (type)
 	{
 	case TransportLayerType::TCP:
 		return new TCPTransportLayer();
+	default:
+		// throw error
+		//break;
+		std::cout << "throw error" << std::endl;
+		return nullptr;
+	}
+}
+
+TransportLayer* TransportLayerFactory::create(
+	TransportLayerType type, 
+	std::string& server, 
+	std::string& port)
+{
+	switch (type)
+	{
+	case TransportLayerType::TCP:
+		return new TCPTransportLayer(server, port);
 	default:
 		// throw error
 		//break;

@@ -16,7 +16,7 @@
 #ifndef TRANSPORT_LAYER_H
 #define TRANSPORT_LAYER_H
 
-#include "MessageParser.h"
+#include "MessageHandler.h"
 #include "Serializer.h"
 #include "Encryptor.h"
 #include "Encoder.h"
@@ -48,7 +48,6 @@ public:
 	using ReceiveCallback = std::function<void(const RawByteBuffer&)>;
 	//void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
 	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
-	//virtual void update() = 0;
 
 	// constructor
 	//TransportLayer();
@@ -56,22 +55,17 @@ public:
 
 	// deconstructor
 	virtual ~TransportLayer() = default;
-	virtual bool connect() = 0; // wrapper for ::connect? 
-	virtual bool send(const RawByteBuffer& data) = 0;
-	virtual RawByteBuffer receive() = 0;
+
+	// TODO: might have to change parameters after adding other transportlayers besides tcp
+	virtual bool connect() = 0;
+	virtual bool send(const RawByteBuffer& msg) = 0;
+	virtual void receive() = 0;
 	virtual bool isConnected() = 0;
 	//virtual void disconnect() = 0;
 
-	virtual void run() = 0;
+	//bool sendMessage(const RawByteBuffer& msg); // TODO: conversion shouldn't be happening here: 
 
-	// Process InternalMessage and convert it into raw bytes beforing sending it to the server
-	// wrapper for ::send ? 
-	bool sendMessage(const RawByteBuffer& msg); // TODO: conversion shouldn't be happening here: 
-
-	// Process raw bytes from server and convert them into an InternalMessage
-	RawByteBuffer receiveMessage(); // wrapper for ::recv? 
-
-	void beacon();
+	//void beacon();
 
 protected:
 	// default subsystems
