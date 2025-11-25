@@ -9,7 +9,7 @@
 //#include <windef.h>
 
 // NOTE: identifier for the victim machine
-// generateId() 
+// generateId()
 
 // getComputerName()
 
@@ -31,7 +31,7 @@
 // getUserLanguage / getKeyboardLanguage / getCodePageOEM
 
 // NOTE: is the user an admin or something?
-// getPermissionLevel() 
+// getPermissionLevel()
 
 
 // getSystemInfo()
@@ -39,32 +39,32 @@
 // TODO: move this into message types?
 typedef struct
 {
-	// _OSVERSIONINFOEXW
-	DWORD dwMajorVersion;
-	DWORD dwMinorVersion;
-	DWORD dwBuildNumber;
-	BYTE wProductType;
+    // _OSVERSIONINFOEXW
+    DWORD dwMajorVersion;
+    DWORD dwMinorVersion;
+    DWORD dwBuildNumber;
+    BYTE wProductType;
 
-	DWORDLONG totalPhysicalMemory;
-	DWORDLONG availablePhysicalMemory;
+    DWORDLONG totalPhysicalMemory;
+    DWORDLONG availablePhysicalMemory;
 
-	DWORD numberOfProcessors;
-	DWORD processorArchitecture; // TODO: this should be WORD? https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/ns-sysinfoapi-system_info
+    DWORD numberOfProcessors;
+    DWORD processorArchitecture; // TODO: this should be WORD? https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/ns-sysinfoapi-system_info
 
-	// localIp
+    // localIp
 
-	//this->username      = _GetUserName();
-	//this->domain_name   = _GetDomainName();
-	//this->computer_name = _GetHostName();
-	//this->process_name  = _GetProcessName();
+    //this->username      = _GetUserName();
+    //this->domain_name   = _GetDomainName();
+    //this->computer_name = _GetHostName();
+    //this->process_name  = _GetProcessName();
 
-	//computername;
-	//username;
+    //computername;
+    //username;
 
-	//CHAR computerName[MAX_COMPUTERNAME_LENGTH + 1];
-	//CHAR userName[256];  // UNLEN + 1
-	//CHAR domainName[256]; // DNS_MAX_NAME_BUFFER_LENGTH
-	//CHAR processName[MAX_PATH];
+    //CHAR computerName[MAX_COMPUTERNAME_LENGTH + 1];
+    //CHAR userName[256];  // UNLEN + 1
+    //CHAR domainName[256]; // DNS_MAX_NAME_BUFFER_LENGTH
+    //CHAR processName[MAX_PATH];
 
 } ReconMessage;
 
@@ -79,8 +79,5 @@ typedef struct
  * GetSystemDirectoryA()
  *
  * */
-
-int generateReconMessage(ReconMessage* msg);
-
 
 #endif

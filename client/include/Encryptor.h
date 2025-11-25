@@ -20,6 +20,8 @@ int aes128_encrypt(data, key, result)
 
 // NOTE: for now just use openssl headers for encryption
 
+
+#include "MessageTypes.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h> // RSA
@@ -54,9 +56,11 @@ public:
 	// constructor
 	// deconstructor
 	// TODO: child classes need to take in the same parameters
-	//virtual bool encrypt() = 0;
-	//virtual bool decrypt() = 0;
-	//virtual ~Encryptor() = default; // TODO: what does default do?
+	virtual ~Encryptor() = default;
+	// will have to change parameters for encrypt/decrypt after implementing AES
+	virtual RawByteBuffer encrypt(const RawByteBuffer& plaintext) = 0;
+	virtual RawByteBuffer decrypt(const RawByteBuffer& cipher) = 0;
+
 private:
 };
 
@@ -96,17 +100,15 @@ class XorEncryptor : public Encryptor
 {
 public:
 	XorEncryptor() : XorEncryptor("DEFAULT_KEY") {}
-	XorEncryptor(const std::vector<uint8_t>& key) : key_(key) {} // TODO: is const needed?
+	XorEncryptor(const RawByteBuffer& key) : key_(key) {} // TODO: is const needed?
 	XorEncryptor(const std::string& key) : key_(key.begin(), key.end()) {}
-	//bool encrypt(std::vector<uint8_t>& data, std::vector<uint8_t>& cipher);
-	//bool decrypt(std::vector<uint8_t>& cipher, std::vector<uint8_t>& data);
-	std::vector<uint8_t> encrypt(std::vector<uint8_t>& msg);
-	std::vector<uint8_t> decrypt(std::vector<uint8_t>& cipher);
+	RawByteBuffer encrypt(const RawByteBuffer& msg);
+	RawByteBuffer decrypt(const RawByteBuffer& cipher);
 private:
 	// void initializeDefaultKey();
 
 	//const std::vector<uint8_t> key_; // change to reference?
-	const std::vector<uint8_t> key_; // change to reference?
+	const RawByteBuffer key_; // change to reference?
 };
 
 typedef std::unique_ptr<Encryptor> EncryptorUniquePtr;

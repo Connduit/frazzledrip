@@ -10,8 +10,6 @@
 /*
 ├── TransportLayer (OWNS connection + processing)
 │   ├── ConnectionManager (OWNS socket/network)
-│   ├── BinarySerializer
-│   ├── Base64Encoder
 │   └── XOREncryptor
 */
 
@@ -30,9 +28,9 @@
 #include <string>
 #include <winsock2.h>
 
-//#include <ws2tcpip.h>
+#include <functional>
 
-class MessageHandler;
+//#include <ws2tcpip.h>
 
 typedef enum
 {
@@ -44,43 +42,36 @@ typedef enum
 	//DNS
 } TransportLayerType; // TODO: rename to TransportType?
 
-// TODO: rename to TransportLayer
 class TransportLayer
 {
 public:
+	using ReceiveCallback = std::function<void(const RawByteBuffer&)>;
+	//void setReceiveCallback(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
+
 	// constructor
-	//explicit TransportLayer(MessageHandler* handler) : messageHandler_(handler) {}
-	explicit TransportLayer(
-				MessageHandler& handler,
-				SerializerUniquePtr serializer,
-				EncoderUniquePtr encoder,
-				EncryptorUniquePtr encryptor,
-				SerializerType serializerType,
-				EncoderType encoderType,
-				EncryptorType encryptorType);
+	//TransportLayer();
+	//TransportLayer(Encryptor* encryptor);
+
 	// deconstructor
-	virtual ~TransportLayer() = default; // TODO: what does default do?
+	virtual ~TransportLayer() = default;
+
+	// TODO: might have to change parameters after adding other transportlayers besides tcp
 	virtual bool connect() = 0;
-	virtual bool send(const std::vector<uint8_t>& data) = 0;
-	virtual std::vector<uint8_t> receive() = 0;
+	virtual bool send(const RawByteBuffer& msg) = 0;
+	virtual void receive() = 0;
 	virtual bool isConnected() = 0;
 	//virtual void disconnect() = 0;
 
-	// Process InternalMessage and convert it into raw bytes beforing sending it to the server
-	bool sendMessage(const InternalMessage& msg);
+	//bool sendMessage(const RawByteBuffer& msg); // TODO: conversion shouldn't be happening here: 
 
-	// Process raw bytes from server and convert them into an InternalMessage
-	InternalMessage receiveMessage();
+	//void beacon();
 
-	void beacon();
-
-	void testMessage();
 protected:
 	// default subsystems
-	MessageHandler& messageHandler_;
-	SerializerUniquePtr serializer_;
-	EncoderUniquePtr encoder_;
-	EncryptorUniquePtr encryptor_;
+	//Encryptor* encryptor_;
+	ReceiveCallback receiveCallback_;
+
 private:
 	/*
 	std::string server;
@@ -88,62 +79,13 @@ private:
 	SOCKET socket = INVALID_SOCKET;
 	bool connected = false;
 	*/
-	InternalMessage createHeartbeat();
-
-	// TODO: delete?
-	uint32_t generateId();
-
-};
-
-
-
-class TCPTransportLayer : public TransportLayer
-{
-public:
-	//TCPTransporter(const std::string& server, uint16_t port) : server_(server), port_(port) {}
-	//TCPTransporter(MessageHandler* messageHandler, const std::string& server, uint16_t port);
-	explicit TCPTransportLayer(
-				MessageHandler& messageHandler, 
-				const std::string& server, 
-				const std::string& port,
-				SerializerUniquePtr serializer = nullptr,
-				EncoderUniquePtr encoder = nullptr,
-				EncryptorUniquePtr encryptor = nullptr,
-				SerializerType serializerType = SerializerType::BINARY,
-				EncoderType encoderType = EncoderType::BASE64,
-				EncryptorType encryptorType = EncryptorType::XOR);
-
-	~TCPTransportLayer();
-
-	// Attemps to send a std::vector<uint8_t> as a raw buffer to server
-	bool send(const std::vector<uint8_t>& data);
-
-	// Creates socket and attempts to connect to it
-	// Returns true on success
-	bool connect();
-
-	// Receives raw buffer from server
-	// Returns raw buffer as a std::vector<uint8_t>
-	std::vector<uint8_t> receive();
-
-	// Getter to see if we've connected to the server
-	bool isConnected() { return connected_; }
-	
-private:
-	// Initializes WSADATA by being called through the constructor 
-	bool initializeWinsock();
-
-
-	// TODO: move this to abstract class?
-	std::string server_;
-	std::string port_;
-	//uint16_t port_;
-	//std::string port_;
-	SOCKET socket_ = INVALID_SOCKET;
-	bool connected_ = false;
 
 
 };
+
+
+
+
 /*
 
 // Handles HTTPS headers, TLS, cookies, etc.

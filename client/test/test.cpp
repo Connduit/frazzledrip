@@ -20,11 +20,11 @@ int main()
 	//ClientTest clientTest;
 	//clientTest.testAll();
 
-	Client client;
+	ClientSubsystem client;
 	//client.messageHandler_;
 	//client.transportLayerPtr_;
 	std::cout << "===================" << std::endl;
-	std::cout << typeid(client.transportLayerPtr_->messageHandler_).name() << std::endl;
+	std::cout << typeid(client.messageParser_).name() << std::endl;
 	//BinarySerializer bs;
 	//std::cout << typeid(bs).name() << std::endl;
 	//std::cout << typeid(obj).name() << std::endl;
@@ -36,16 +36,16 @@ int main()
         //Client client;
 
         // Test components are good
-        if (client.transportLayerPtr_->serializer_)
+        if (client.messageParser_->serializer_)
         {
             std::cout << "Serializer type: "
-                << typeid(*client.transportLayerPtr_->serializer_).name() << std::endl;
+                << typeid(*client.messageParser_->serializer_).name() << std::endl;
 
             // Test method call
             InternalMessage testMsg;
             testMsg.header.messageType = MessageType::NONE;
             testMsg.header.dataSize = 0;
-            auto data = client.transportLayerPtr_->serializer_->serialize(testMsg);
+            auto data = client.messageParser_->serializer_->serialize(testMsg);
             std::cout << "Pre-run test: GOOD" << std::endl;
         }
 

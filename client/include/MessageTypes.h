@@ -1,5 +1,7 @@
 /* MessageTypes.h */
 // TODO: reorganize order of data types in this file so they're easier to find?
+
+// TODO: rename this file to CommonTypes.h ?
 #ifndef MESSAGE_TYPES_H
 #define MESSAGE_TYPES_H
 
@@ -46,14 +48,14 @@ typedef struct {
 typedef struct MessageHeader
 {
 	MessageHeader() :
-		messageType(MessageType::NONE),
-		dataSize(0),
-		messageId(0)
+		messageType_(MessageType::NONE),
+		dataSize_(0),
+		messageId_(0)
 	{}
 
-	MessageType messageType;
-	uint32_t dataSize;     // Size of following data // size of payload?  // TODO: doesn't have to big as big as a uint32_t
-	uint32_t messageId;    // Unique ID for tracking // // TODO: doesn't have to big as big as a uint32_t
+	MessageType messageType_;
+	uint32_t dataSize_;     // Size of following data // size of payload?  // TODO: doesn't have to big as big as a uint32_t
+	uint32_t messageId_;    // Unique ID for tracking // // TODO: doesn't have to big as big as a uint32_t
 	//ULONG messageId; ?
 	//ULONG payloadSize; // MessageDataSize
 	//ULONG checksum; ?
@@ -74,13 +76,13 @@ typedef struct MessageHeader
 typedef struct InternalMessage
 {
 	InternalMessage() :
-		header(),
-		data()
+		header_(),
+		data_()
 	{}
 
-	MessageHeader header; // the header... always use custom header? no need for tlv... MessageType enum should be defined in header
+	MessageHeader header_; // the header... always use custom header? no need for tlv... MessageType enum should be defined in header
 	//MessageData payload; // the actual payload
-	std::vector<uint8_t> data; 
+	RawByteBuffer data_; 
 } InternalMessage;
 #pragma pack(pop)
 

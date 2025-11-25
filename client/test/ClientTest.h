@@ -1,13 +1,14 @@
 #ifndef CLIENT_TEST_H
 #define CLIENT_TEST_H
 
-#include "C2Profile.h"
 #include "Compressor.h"
 #include "Encoder.h"
 #include "Encryptor.h"
 #include "Serializer.h"
 
-#include "Client.h"
+#include "Config.h"
+
+#include "ClientSubsystem.h"
 #include "MessageTypes.h"
 
 #include <string>
@@ -18,19 +19,18 @@ public:
 	ClientTest();
 	~ClientTest();
 
-	void testTransportLayer();
-	void testFactoryDirectly();
-	bool testSerializer(InternalMessage& inMsg, std::vector<uint8_t>& outMsg, BinarySerializer& serializer);
-	bool testEncoder(std::vector<uint8_t>& inMsg, std::vector<uint8_t>& outMsg, B64Encoder& encoder);
-	bool testEncrypter(std::vector<uint8_t>& inMsg, std::vector<uint8_t>& outMsg, XorEncryptor& encryptor);
+	bool testSerializer(InternalMessage& msg);
+	bool testEncoder(RawByteBuffer& msg);
+	bool testEncrypter(RawByteBuffer& msg);
 	bool testAll();
 
 
 protected:
-	static Client* client_;
+	static ClientSubsystem* client_;
 private:
-	std::vector<uint8_t> string2byte(const std::string inMsg);
-	std::string byte2string(const std::vector<uint8_t> inMsg);
+	Config config_;
+
 };
 
 #endif
+
