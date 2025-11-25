@@ -19,6 +19,7 @@
 
 #include "TransportLayer.h"
 #include "MessageTransformer.h"
+#include "Packer.h"
 
 
 
@@ -38,7 +39,7 @@ public:
 	void setOnMessage(ReceiveCallback cb) { receiveCallback_ = std::move(cb); }
 
 
-	MessageHandler(TransportLayer* transportLayer, MessageTransformer* transformer);
+	MessageHandler(TransportLayer* transportLayer, MessageTransformer* transformer, Packer* packer);
 
 	~MessageHandler();
 
@@ -50,8 +51,10 @@ public:
 
 private:
 
-	MessageTransformer* transformer_;
 	TransportLayer* transportLayer_; // NOTE: pointer is being used instead of a reference because references require immediate initialization
+	MessageTransformer* transformer_;
+	Packer* packer_;
+
 
 	ReceiveCallback receiveCallback_;
 

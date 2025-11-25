@@ -17,10 +17,12 @@
 
 MessageHandler::MessageHandler(
 	TransportLayer* transportLayer, 
-	MessageTransformer* transformer)
+	MessageTransformer* transformer,
+	Packer* packer)
 	:
 	transportLayer_(transportLayer),
-	transformer_(transformer)
+	transformer_(transformer),
+	packer_(packer)
 {
 }
 

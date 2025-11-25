@@ -88,8 +88,6 @@ bool TCPTransportLayer::connect()
         return false;
     }
 
-    std::cout << "server = " << server_.c_str() << std::endl;
-
     ADDRINFOA hints, * result = nullptr;
     ZeroMemory(&hints, sizeof(hints));
     // TODO: do this instead of ZeroMemory

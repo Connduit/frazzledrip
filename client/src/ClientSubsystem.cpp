@@ -68,12 +68,13 @@ void ClientSubsystem::setupMessaging()
 	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, config_.server_, config_.port_);
 	// TODO: check that serializer and encoder are not null first?
 	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
-	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_);
+	packer_ = new Packer();
 
-	dispatcher_ = new Dispatcher();
+	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_, packer_);
+
 	controller_ = new Controller(messageHandler_);
 
-	packer_ = new Packer();
+	dispatcher_ = new Dispatcher();
 }
 
 
@@ -83,15 +84,9 @@ void ClientSubsystem::setupSubcomponents()
 	serializer_ = ComponentFactory::create(config_.serializerType_);
 	encoder_ = ComponentFactory::create(config_.encoderType_);
 	encryptor_ = ComponentFactory::create(config_.encryptorType_);
-
-	/*
-	serializer_ = new BinarySerializer();
-	encoder_ = new Base64Encoder();
-	encryptor_ = new XorEncryptor();
-	*/
 }
 
-// rename to setupCallbacks ? 
+// TODO: separate into 2 functions... setupCallbacks() and registerEvents()
 void ClientSubsystem::setupEvents()
 {
 	// transportLayer_ calls back to MessageParser

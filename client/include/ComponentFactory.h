@@ -40,18 +40,6 @@ private:
 
 
 
-/*
-// You need to create an entire system with dependencies
-class MessageSystemFactory {
-	static std::unique_ptr<MessageSystem> createSystem(const SystemConfig& config) {
-		auto encoder = EncoderFactory::createEncoder(config.encoder);
-		auto compressor = CompressorFactory::createCompressor(config.compressor);
-		auto network = NetworkFactory::createNetwork(config.network);
-
-		// Wire them together properly
-		return std::make_unique<MessageSystem>(encoder, compressor, network);
-	}
-};*/
 #endif
 
 
