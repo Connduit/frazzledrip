@@ -4,12 +4,14 @@
 
 #include <iostream>
 
-TransportLayer* TransportLayerFactory::create(TransportLayerType type)
+TransportLayer* TransportLayerFactory::create(
+	ApiManager* apiManager, 
+	TransportLayerType type)
 {
 	switch (type)
 	{
 	case TransportLayerType::TCP:
-		return new TCPTransportLayer();
+		return new TCPTransportLayer(apiManager);
 	default:
 		// throw error
 		//break;
@@ -19,6 +21,7 @@ TransportLayer* TransportLayerFactory::create(TransportLayerType type)
 }
 
 TransportLayer* TransportLayerFactory::create(
+	ApiManager* apiManager,
 	TransportLayerType type, 
 	std::string& server, 
 	std::string& port)
@@ -26,7 +29,7 @@ TransportLayer* TransportLayerFactory::create(
 	switch (type)
 	{
 	case TransportLayerType::TCP:
-		return new TCPTransportLayer(server, port);
+		return new TCPTransportLayer(apiManager, server, port);
 	default:
 		// throw error
 		//break;

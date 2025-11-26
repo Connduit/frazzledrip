@@ -16,6 +16,7 @@
 //#include "TransportLayerTypes.h"
 #include "TransportLayer.h"
 #include "TCPTransportLayer.h"
+#include "ApiManager.h"
 
 
 #include <memory>
@@ -32,8 +33,8 @@ private:
 class TransportLayerFactory
 {
 public:
-	static TransportLayer* create(TransportLayerType type);
-	static TransportLayer* create(TransportLayerType type, std::string& server, std::string& port);
+	static TransportLayer* create(ApiManager* apiManager, TransportLayerType type);
+	static TransportLayer* create(ApiManager* apiManager, TransportLayerType type, std::string& server, std::string& port);
 	//static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
 private:
 };

@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "Packer.h"
 #include "MessageTransformer.h"
+#include "ApiManager.h"
 
 // TODO: rename to ClientController? 
 class ClientSubsystem
@@ -42,6 +43,7 @@ private:
 
 	Dispatcher* dispatcher_;
 	Controller* controller_;
+	ApiManager* apiManager_;
 
 	Serializer* serializer_;
 	Encoder* encoder_;

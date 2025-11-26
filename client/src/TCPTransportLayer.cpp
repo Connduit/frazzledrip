@@ -8,17 +8,30 @@
 
 
 // TODO: this constructor shouldn't ever be hit? i also think it's just wrong
+/*
 TCPTransportLayer::TCPTransportLayer() :
     TransportLayer()
+{
+    //connected_ = false;
+    initializeWinsock();
+}*/
+
+TCPTransportLayer::TCPTransportLayer(
+    ApiManager* apiManager)
+    :
+    apiManager_(apiManager),
+    TransportLayer() // TODO: does this even do anything? also i think it gets called automatically anyways
 {
     //connected_ = false;
     initializeWinsock();
 }
 
 TCPTransportLayer::TCPTransportLayer(
+    ApiManager* apiManager,
     std::string& server, 
     std::string& port)
     :
+    apiManager_(apiManager),
     server_(server),
     port_(port)
 {
@@ -79,9 +92,17 @@ bool TCPTransportLayer::send(const RawByteBuffer& data)
 
 }
 
+
 bool TCPTransportLayer::connect()
 {
-    socket_ = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    // TODO: move this typedef into some header file? 
+    typedef SOCKET(WINAPI* FuncSocket) (int af, int type, int protocol);
+    FuncSocket pSocket = (FuncSocket)apiManager_->fProcedures_["socket"];
+    socket_ = pSocket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    //socket_ = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
     if (socket_ == INVALID_SOCKET)
     {
         std::cout << "socket invalid" << std::endl;
@@ -100,15 +121,9 @@ bool TCPTransportLayer::connect()
     // if server_ is empty/nullptr, the localhost will be used 
     if (getaddrinfo(server_.c_str(), port_.c_str(), &hints, &result) != 0)
     {
-        //std::cout << "getaddrinfo failed" << std::endl;
-        printf("getaddrinfo failed\n");
+        std::cout << "getaddrinfo failed" << std::endl;
         return false;
     }
-    /*
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port_);
-    inet_pton(AF_INET, server_.c_str(), &addr.sin_addr);*/
 
     ADDRINFOA* ptr = result; // TODO: no need to assign result to ptr just use result?
     while (ptr != NULL)
@@ -124,6 +139,8 @@ bool TCPTransportLayer::connect()
     if (connected_ == false)
     {
         // TODO: if 5 attempted connects in a row fail, exit, otherwise keep trying
+        // TODO: if we close socket due to multiple failed connections, we shouldn't 
+        //       reopen it right away in ClientSubsystem::run()
         std::cout << "connected_ == false" << std::endl;
         closesocket(socket_);
         socket_ = INVALID_SOCKET;

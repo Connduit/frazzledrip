@@ -10,8 +10,9 @@
 class TCPTransportLayer : public TransportLayer
 {
 public:
-	TCPTransportLayer();
-	TCPTransportLayer(std::string& server, std::string& port);
+	//TCPTransportLayer();
+	TCPTransportLayer(ApiManager* apiManager);
+	TCPTransportLayer(ApiManager* apiManager, std::string& server, std::string& port);
 	//TCPTransportLayer(Encryptor* encryptor);
 	~TCPTransportLayer();
 
@@ -46,6 +47,7 @@ private:
 	bool connected_ = false;
 	//std::atomic<bool> connected_;
 
+	ApiManager* apiManager_;
 
 };
 

@@ -20,6 +20,7 @@
 #include "Serializer.h"
 #include "Encryptor.h"
 #include "Encoder.h"
+#include "ApiManager.h"
 
 #include <vector>
 #include <memory>
@@ -51,6 +52,7 @@ public:
 
 	// constructor
 	//TransportLayer();
+	//TransportLayer(ApiManager* apiManager);
 	//TransportLayer(Encryptor* encryptor);
 
 	// deconstructor
@@ -70,6 +72,8 @@ public:
 protected:
 	// default subsystems
 	//Encryptor* encryptor_;
+	
+	//ApiManager* apiManager_;
 	ReceiveCallback receiveCallback_;
 
 private:

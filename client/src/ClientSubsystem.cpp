@@ -65,9 +65,17 @@ ClientSubsystem::~ClientSubsystem()
 void ClientSubsystem::setupMessaging()
 {
 
-	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, config_.server_, config_.port_);
+	apiManager_ = new ApiManager();
+
+	transportLayer_ = TransportLayerFactory::create(
+		apiManager_,
+		config_.transportLayerType_, 
+		config_.server_, 
+		config_.port_);
 	// TODO: check that serializer and encoder are not null first?
 	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
+
+
 	packer_ = new Packer();
 
 	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_, packer_);
@@ -140,6 +148,7 @@ void ClientSubsystem::run() // TODO: rename to start??
 {	
 
 	// 1. manually resolve apis
+	apiManager_->loadAPIs();
 	/*
 	TODO:
 	would i be more effient to find the function/procedure names all at once for a single dll/module so i don't have
