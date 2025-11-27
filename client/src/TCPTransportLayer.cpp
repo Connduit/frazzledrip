@@ -55,15 +55,24 @@ TCPTransportLayer::~TCPTransportLayer()
         socket_ = INVALID_SOCKET;
     }
     */
-    WSACleanup();
+    typedef int (WINAPI* FuncWSACleanup) ();
+    FuncWSACleanup pWSACleanup = (FuncWSACleanup)apiManager_->fProcedures_["WSACleanup"];
+    pWSACleanup();
+    //WSACleanup();
 }
 
 
 bool TCPTransportLayer::initializeWinsock()
 {
+
+    typedef int (WINAPI* FuncWSAStartup) 
+    (WORD wVersionRequired, LPWSADATA lpWSAData);
+    FuncWSAStartup pWSAStartup = (FuncWSAStartup)apiManager_->fProcedures_["WSAStartup"];
+
     // TODO: check if winsock is already initialized somehow?
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    if (pWSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    //if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
         std::cout << "WSAStartup failed" << std::endl;
         // printf("WSAStartup failed\n");
@@ -86,7 +95,12 @@ bool TCPTransportLayer::send(const RawByteBuffer& data)
         return false;
     }
 
-    int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
+    typedef int (WINAPI* FuncSend) 
+    (SOCKET s, const char* buf, int len, int flags);
+    FuncSend pSend = (FuncSend)apiManager_->fProcedures_["send"];
+
+    int result = pSend(socket_, (const char*)data.data(), data.size(), 0);
+    //int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
 
     return result > 0;
 

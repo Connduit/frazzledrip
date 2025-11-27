@@ -88,6 +88,9 @@ void ApiManager::loadAPIs()
     fProcedures_["connect"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "connect");
     fProcedures_["closesocket"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "closesocket");
     fProcedures_["recv"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "recv");
+    fProcedures_["send"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "send");
+    fProcedures_["WSAStartup"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "WSAStartup");
+    fProcedures_["WSACleanup"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "WSACleanup");
 
     // WinApi functions
 
