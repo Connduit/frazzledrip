@@ -78,11 +78,11 @@ FARPROC ApiManager::GetProcAddressManual(HMODULE hModule, DWORD procHash)
 void ApiManager::loadAPIs()
 {
     // TODO: hardcoded hModule names 
+    hModules_[L"ws2_32.dll"] = GetModuleHandleManual(L"ws2_32.dll");
     hModules_[L"kernel32.dll"] = GetModuleHandleManual(L"kernel32.dll");
     hModules_[L"ntdll.dll"] = GetModuleHandleManual(L"ntdll.dll");
-    hModules_[L"ws2_32.dll"] = GetModuleHandleManual(L"ws2_32.dll");
 
-    // TransportLayer functions
+    // TransportLayer functions (ws2_32.dll)
     fProcedures_["socket"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "socket");
     fProcedures_["getaddrinfo"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "getaddrinfo");
     fProcedures_["connect"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "connect");
@@ -92,7 +92,12 @@ void ApiManager::loadAPIs()
     fProcedures_["WSAStartup"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "WSAStartup");
     fProcedures_["WSACleanup"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "WSACleanup");
 
-    // WinApi functions
+    // WinApi functions (kernel32.dll)
+    // VirtualAlloc
+    // VirtualProtect
+    // CreateThread
+    // WaitForSingleObject
 
-    // LDRLOADDLL_HASH
+    // (ntdll.dll)
+    // LdrLoadDll
 }
