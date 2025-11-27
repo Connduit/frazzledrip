@@ -118,6 +118,12 @@ bool TCPTransportLayer::connect()
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
+
+    typedef int (WINAPI* FuncGetAddrInfo) 
+    (PCSTR pNodeName, PCSTR pServiceName, const ADDRINFO* pHints, LPADDRINFO* ppResult);
+    FuncGetAddrInfo pGetAddrInfo = (FuncGetAddrInfo)apiManager_->fProcedures_["getaddrinfo"];
+
+
     // if server_ is empty/nullptr, the localhost will be used 
     if (getaddrinfo(server_.c_str(), port_.c_str(), &hints, &result) != 0)
     {
@@ -125,10 +131,15 @@ bool TCPTransportLayer::connect()
         return false;
     }
 
+    typedef int (WINAPI* FuncConnect)
+    (SOCKET s, const struct sockaddr* name, int namelen);
+    FuncConnect pConnect = (FuncConnect)apiManager_->fProcedures_["connect"];
+
     ADDRINFOA* ptr = result; // TODO: no need to assign result to ptr just use result?
     while (ptr != NULL)
     {
-        if (::connect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
+        if (pConnect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
+        //if (::connect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
         {
             connected_ = true;
             break;
@@ -136,13 +147,16 @@ bool TCPTransportLayer::connect()
         ptr = ptr->ai_next;
     }
 
+    typedef int (WINAPI* FuncCloseSocket) (SOCKET s);
+    FuncCloseSocket pCloseSocket = (FuncCloseSocket)apiManager_->fProcedures_["closesocket"];
     if (connected_ == false)
     {
         // TODO: if 5 attempted connects in a row fail, exit, otherwise keep trying
         // TODO: if we close socket due to multiple failed connections, we shouldn't 
         //       reopen it right away in ClientSubsystem::run()
         std::cout << "connected_ == false" << std::endl;
-        closesocket(socket_);
+        pCloseSocket(socket_);
+        //closesocket(socket_);
         socket_ = INVALID_SOCKET;
         return false;
     }
@@ -158,8 +172,13 @@ void TCPTransportLayer::receive()
         return;
     }
 
+    typedef int (WINAPI* FuncRecv)
+	(SOCKET s, char* buf, int len, int flags);
+    FuncRecv pRecv = (FuncRecv)apiManager_->fProcedures_["recv"];
+
 	RawByteBuffer buffer(4096);
-	int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
+	int received = pRecv(socket_, (char*)buffer.data(), buffer.size(), 0);
+	//int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
 
 	if (received <= 0)
 	{

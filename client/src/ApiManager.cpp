@@ -82,7 +82,14 @@ void ApiManager::loadAPIs()
     hModules_[L"ntdll.dll"] = GetModuleHandleManual(L"ntdll.dll");
     hModules_[L"ws2_32.dll"] = GetModuleHandleManual(L"ws2_32.dll");
 
+    // TransportLayer functions
     fProcedures_["socket"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "socket");
+    fProcedures_["getaddrinfo"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "getaddrinfo");
+    fProcedures_["connect"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "connect");
+    fProcedures_["closesocket"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "closesocket");
+    fProcedures_["recv"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "recv");
+
+    // WinApi functions
 
     // LDRLOADDLL_HASH
 }
