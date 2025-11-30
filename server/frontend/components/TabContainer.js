@@ -1,26 +1,38 @@
+// Main tab container that renders different C2 interface components
+// depending on which tab is currently active.
 function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
     return (
         <div className="section">
             <div className="tab-container">
+
+                {/* ---- TAB BUTTONS (Navigation bar) ---- */}
                 <div className="tab-buttons">
+
+                    {/* Commands tab button */}
                     <button 
                         className={`tab-button ${activeTab === 'commands' ? 'active' : ''}`}
                         onClick={() => setActiveTab('commands')}
                     >
                         📝 Commands
                     </button>
+
+                    {/* File transfer tab button */}
                     <button 
                         className={`tab-button ${activeTab === 'files' ? 'active' : ''}`}
                         onClick={() => setActiveTab('files')}
                     >
                         📦 File Transfer
                     </button>
+
+                    {/* Shellcode execution tab */}
                     <button 
                         className={`tab-button ${activeTab === 'shellcode' ? 'active' : ''}`}
                         onClick={() => setActiveTab('shellcode')}
                     >
                         ⚡ Shellcode
                     </button>
+
+                    {/* Configuration tab */}
                     <button 
                         className={`tab-button ${activeTab === 'config' ? 'active' : ''}`}
                         onClick={() => setActiveTab('config')}
@@ -28,8 +40,11 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         ⚙️ Configuration
                     </button>
                 </div>
-                
+
+                {/* ---- TAB CONTENT AREA ---- */}
                 <div className="tab-content">
+
+                    {/* Commands tab content */}
                     {activeTab === 'commands' && (
                         <CommandTab 
                             selectedClient={selectedClient}
@@ -40,6 +55,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         />
                     )}
                     
+                    {/* File Transfer tab content */}
                     {activeTab === 'files' && (
                         <FileTransferTab 
                             selectedClient={selectedClient}
@@ -49,6 +65,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         />
                     )}
                     
+                    {/* Shellcode execution tab content */}
                     {activeTab === 'shellcode' && (
                         <ShellcodeTab 
                             selectedClient={selectedClient}
@@ -58,6 +75,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         />
                     )}
                     
+                    {/* Client configuration tab content */}
                     {activeTab === 'config' && (
                         <ConfigTab 
                             selectedClient={selectedClient}

