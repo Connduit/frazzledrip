@@ -16,6 +16,14 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         📝 Commands
                     </button>
 
+                    {/* TODO: MyCommands tab button */}
+                    <button 
+                        className={`tab-button ${activeTab === 'mycommands' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('mycommands')}
+                    >
+                        📝 MyCommands
+                    </button>
+
                     {/* File transfer tab button */}
                     <button 
                         className={`tab-button ${activeTab === 'files' ? 'active' : ''}`}
@@ -31,14 +39,6 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     >
                         ⚡ Shellcode
                     </button>
-
-                    {/* Configuration tab */}
-                    <button 
-                        className={`tab-button ${activeTab === 'config' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('config')}
-                    >
-                        ⚙️ Configuration
-                    </button>
                 </div>
 
                 {/* ---- TAB CONTENT AREA ---- */}
@@ -47,6 +47,17 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     {/* Commands tab content */}
                     {activeTab === 'commands' && (
                         <CommandTab 
+                            selectedClient={selectedClient}
+                            clients={clients}
+                            onClientSelect={onClientSelect}
+                            setStatus={setStatus}
+                            refreshMessages={refreshMessages}
+                        />
+                    )}
+
+                    {/* TODO: MyCommands tab content */}
+                    {activeTab === 'mycommands' && (
+                        <MyCommandTab 
                             selectedClient={selectedClient}
                             clients={clients}
                             onClientSelect={onClientSelect}
@@ -68,16 +79,6 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     {/* Shellcode execution tab content */}
                     {activeTab === 'shellcode' && (
                         <ShellcodeTab 
-                            selectedClient={selectedClient}
-                            clients={clients}
-                            onClientSelect={onClientSelect}
-                            setStatus={setStatus}
-                        />
-                    )}
-                    
-                    {/* Client configuration tab content */}
-                    {activeTab === 'config' && (
-                        <ConfigTab 
                             selectedClient={selectedClient}
                             clients={clients}
                             onClientSelect={onClientSelect}

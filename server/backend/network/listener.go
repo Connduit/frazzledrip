@@ -78,7 +78,7 @@ func StartReverseTCPListener(port int) {
 			ID:        utils.GenerateClientID(),        // Random C2-assigned unique ID
 			Conn:      conn,                            // Raw TCP connection
 			LastSeen:  time.Now(),                      // Last activity timestamp
-			IPAddress: clientAddr,                      // Remote address string
+			IPAddress: clientAddr,                      // Remote address string (IP Address)
 			IsActive:  true,                            // Mark as active
 			Messages:  make([]models.ClientMessage, 0), // Store recent inbound messages
 		}

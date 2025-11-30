@@ -43,16 +43,18 @@ type ClientMessage struct {
 	DataSize  int       `json:"data_size"`
 }
 
+// Attributes associated with Clients
 type Client struct {
 	ID         string
 	Conn       net.Conn
 	LastSeen   time.Time
-	SystemInfo SystemInfo
+	SystemInfo SystemInfo // TODO: remove?
 	IPAddress  string
 	IsActive   bool
 	Messages   []ClientMessage // Store messages for this client
 }
 
+// TODO: remove?
 type SystemInfo struct {
 	Hostname string `json:"hostname"`
 	OS       string `json:"os"`
@@ -63,9 +65,4 @@ type SystemInfo struct {
 type CommandRequest struct {
 	Client  string `json:"client"`
 	Command string `json:"command"`
-}
-
-type ConfigRequest struct {
-	Client string `json:"client"`
-	Config string `json:"config"`
 }
