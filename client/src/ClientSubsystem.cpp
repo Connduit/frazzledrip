@@ -85,7 +85,7 @@ void ClientSubsystem::setupMessaging()
 
 	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_, packer_);
 
-	controller_ = new Controller(messageHandler_);
+	controller_ = new Controller(messageHandler_, apiManager_);
 
 	dispatcher_ = new Dispatcher();
 }

