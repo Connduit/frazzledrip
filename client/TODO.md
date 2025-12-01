@@ -14,22 +14,6 @@
 - change function signature to return by parameter instead of return by value
 - switch from child classes to config file? config needs to be evaulated beforing compiling tho
 
-### Class and Ownership Hierarchy
-		
-		MalwareApp (TOP OWNER)
-		│
-		├── MessageHandler (OWNS execution + outgoing queue)
-		│   ├── CommandExecutor
-		│   ├── FileManager  
-		│   └── DataHarvester
-		│
-		└── C2Manager (OWNS multiple C2 connections)
-			└── std::vector<Transporter> (each OWNS one server)
-				├── ConnectionManager
-				├── Serializer
-				├── Encoder
-				└── Encryptor
-
 
 ### Core
 - Beacon/check-in with server
@@ -68,80 +52,6 @@
             SLEEP & REPEAT
 
 
-        
-                                		 ┌─────────────────────────────┐
-                                		 │     ClientSubsystem         │
-                                 		 │   (Top-level Orchestrator)  │
-                                  		 └───────────────┬─────────────┘
-                                                         │
-                                       Initializes & wires components together
-                                                         │
-              ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
-  		      │                                          │                                          │
-              ▼                                          ▼                                          ▼
-		┌────────────────┐                        ┌──────────────────┐                        ┌───────────────────┐
-		│  TransportLayer│                        │  MessageHandler  │                        │    Controller     │
-		│ (TCP, Encrypt) │                        │ (Parse, Validate)│                        │ (Business Logic)  │
-		└───────┬────────┘                        └─────────┬────────┘                        └───────┬───────────┘
-  		        │                                           │                                         │
-  			    │                              Emits decoded messages by type                         │
-                │                                           │                                         │
-                │                        ┌──────────────────▼──────────────────┐                      │
-                │                        │              Dispatcher             │                      │
-                │                        │ (Chooses WHICH Controller handles   │                      │
-                │                        │   each message type)                │                      │
-                │                        └──────────────────┬──────────────────┘                      │
-                │                                           │                                         │
-                │                                           │                                         │
-                │                             ┌─────────────┴─────────────┐                           │
-                │                             │         Sub-Controllers   │<──────────────────────────┘
-                │                             │ (Heartbeat, Auth, FileIO, │
-                │                             │   Commands, Sync, etc.)   │
-                │                             └─────────────┬─────────────┘
-                │                                           │
-                │                                           │
-                │                                           │   Create domain-level messages
-                │                                           ▼
-                │                               ┌────────────────────┐
-                │                               │     Serializer     │
-                │                               │  (struct <-> bytes)│
-                │                               └───────────┬────────┘
-                │                                           │
-                │                                           │ Encoded frames
-                │                                           ▼
-                │                               ┌────────────────────┐
-                │                               │      Encoder       │
-                │                               │ (compression/opt.) │
-                │                               └───────────┬────────┘
-                │                                           │
-                │                                           │ Encrypted frames
-                │                                           ▼
-                │                               ┌────────────────────┐
-                │                               │     Encryptor      │
-                │                               │ (AES/ChaCha/MAC)   │
-                │                               └───────────┬────────┘
-                │                                           │
-                │                                           ▼
-                │                                   Raw encrypted bytes
-                │                                           │
-                └───────────────────────────────────────────┘
-                                                            │
-                                                            ▼
-                                              ┌─────────────────────────┐
-                                              │ TransportLayer.send()   │
-                                              │   -> network socket     │
-                                              └─────────────────────────┘
-
-
-         OPTIONAL SYSTEM-WIDE UTILITIES
-         ┌─────────────────────────────────────────────────────────────────────────┐
-         │                                                                         │
-         │  ┌─────────────────┐     ┌──────────────────┐       ┌─────────────────┐ │
-         │  │    EventBus     │     │      Timer       │       │      Logger     │ │
-         │  │ (Reactive msgs) │     │ (Heartbeat loop) │       │ (Debug, Errors) │ │
-         │  └─────────────────┘     └──────────────────┘       └─────────────────┘ │
-         │                                                                         │
-         └─────────────────────────────────────────────────────────────────────────┘
 
 
 
