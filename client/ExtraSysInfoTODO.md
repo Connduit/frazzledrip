@@ -23,24 +23,24 @@
     }
     
     return false; // Placeholder
-}
-
-DWORD getWindowsBuildNumber();
-
-// GetSystemInfo() // get cpu info
-typedef struct _RTL_OSVERSIONINFOW {
-    DWORD dwOSVersionInfoSize;
-    DWORD dwMajorVersion;
-    DWORD dwMinorVersion;
-    DWORD dwBuildNumber;
-    DWORD dwPlatformId;
-    WCHAR szCSDVersion[128];
-} RTL_OSVERSIONINFOW;
 
 
-StealthSystemInfo getStealthSystemInfo() {
-    StealthSystemInfo info = {0};
-    SYSTEM_INFO sysInfo;
+    DWORD getWindowsBuildNumber();
+
+    // GetSystemInfo() // get cpu info
+    typedef struct _RTL_OSVERSIONINFOW {
+        DWORD dwOSVersionInfoSize;
+        DWORD dwMajorVersion;
+        DWORD dwMinorVersion;
+        DWORD dwBuildNumber;
+        DWORD dwPlatformId;
+        WCHAR szCSDVersion[128];
+    } RTL_OSVERSIONINFOW;
+
+
+    StealthSystemInfo getStealthSystemInfo() {
+        StealthSystemInfo info = {0};
+        SYSTEM_INFO sysInfo;
     
     // Single API call - very stealthy
     GetNativeSystemInfo(&sysInfo);
@@ -52,9 +52,9 @@ StealthSystemInfo getStealthSystemInfo() {
     info.maxAppAddr = (DWORD)sysInfo.lpMaximumApplicationAddress;
     
     return info;
-}
 
 
-// TODO: getTickCount() // (amount of time the system has been running?)
 
-// TODO: getGPU()
+    // TODO: getTickCount() // (amount of time the system has been running?)
+
+    // TODO: getGPU()
