@@ -1,5 +1,7 @@
 #include "ClientComponent.h"
 
+#include <iostream>
+
 ClientComponent::ClientComponent() : config_()
 {
 }
@@ -19,11 +21,13 @@ void ClientComponent::loadConfig()
 
 void ClientComponent::createClientSubsystem()
 {
+	std::cout << "ClientComponent::createClientSubsystem()" << std::endl;
 	clientSubsystem_ = new ClientSubsystem(config_);
 }
 
 void ClientComponent::startClientSubsystem()
 {
+	std::cout << "ClientComponent::startClientSubsystem()" << std::endl;
 	clientSubsystem_->run();
 }
 

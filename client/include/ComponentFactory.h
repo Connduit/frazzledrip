@@ -16,6 +16,7 @@
 //#include "TransportLayerTypes.h"
 #include "TransportLayer.h"
 #include "TCPTransportLayer.h"
+#include "ApiManager.h"
 
 
 #include <memory>
@@ -32,26 +33,14 @@ private:
 class TransportLayerFactory
 {
 public:
-	static TransportLayer* create(TransportLayerType type);
-	static TransportLayer* create(TransportLayerType type, std::string& server, std::string& port);
+	static TransportLayer* create(ApiManager* apiManager, TransportLayerType type);
+	static TransportLayer* create(ApiManager* apiManager, TransportLayerType type, std::string& server, std::string& port);
 	//static TransportLayer* create(TransportLayerType type, Encryptor* encryptor);
 private:
 };
 
 
 
-/*
-// You need to create an entire system with dependencies
-class MessageSystemFactory {
-	static std::unique_ptr<MessageSystem> createSystem(const SystemConfig& config) {
-		auto encoder = EncoderFactory::createEncoder(config.encoder);
-		auto compressor = CompressorFactory::createCompressor(config.compressor);
-		auto network = NetworkFactory::createNetwork(config.network);
-
-		// Wire them together properly
-		return std::make_unique<MessageSystem>(encoder, compressor, network);
-	}
-};*/
 #endif
 
 

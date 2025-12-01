@@ -11,7 +11,7 @@ typedef struct Config
                 serializerType_(SerializerType::BINARY),
                 encoderType_(EncoderType::BASE64),
                 encryptorType_(EncryptorType::XOR),
-                server_(""), // NOTE: empty server uses localhost
+                server_("10.0.0.48"), // NOTE: empty server uses localhost
                 port_("4444")
                 {}
 

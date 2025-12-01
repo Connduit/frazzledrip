@@ -1,4 +1,0 @@
-
-AntiDebug::AntiDebug()
-{
-}

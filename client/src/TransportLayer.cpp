@@ -12,6 +12,13 @@
 
 
 
+/*
+TransportLayer::TransportLayer(
+    ApiManager* apiManager)
+    :
+    apiManager_(apiManager)
+{
+}*/
 
 
 /*

