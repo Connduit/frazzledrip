@@ -6,11 +6,11 @@
 #include "MessageHandler.h"
 
 
-
+// TODO: 
+// https://attack.mitre.org/tactics/enterprise/
 class Controller
 {
 public:
-	Controller(MessageHandler* messageHandler);
 	Controller(MessageHandler* messageHandler, ApiManager* apiManager);
 	void handleDefault(const InternalMessage& msg);
 	void handleNone(const InternalMessage& msg);
@@ -21,6 +21,9 @@ public:
 	void handleExecuteShellcode(const InternalMessage& msg);
 
 	void handleSystemInfo(const InternalMessage& msg);
+
+	// TODO: make a subclass called PersistenceController?
+	void handleEstablishPersistence(const InternalMessage& msg);
 private:
 	MessageHandler* messageHandler_;
 	ApiManager* apiManager_;

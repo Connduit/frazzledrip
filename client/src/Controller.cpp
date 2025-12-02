@@ -10,13 +10,6 @@
 
 
 Controller::Controller(
-	MessageHandler* messageHandler)
-	:
-	messageHandler_(messageHandler)
-{
-}
-
-Controller::Controller(
     MessageHandler* messageHandler, 
     ApiManager* apiManager)
     :
@@ -255,6 +248,38 @@ void Controller::handleSystemInfo(const InternalMessage& msg)
     outMsg.header_ = header;
 
 	messageHandler_->sendMessage(outMsg);
+
+}
+
+void Controller::handleEstablishPersistence(const InternalMessage& msg)
+{
+    // 	RegCreateKey, RegSetValue, RegOpenKey, RegDeleteKey, RegCloseKey
+    // 	lResult = RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL, 0, (KEY_WRITE | KEY_READ), NULL, &hKey, NULL);
+    // https://github.com/center-for-threat-informed-defense/adversary_emulation_library/blob/master/wizard_spider/Resources/Emotet/EmotetClientDLL/EmotetClientDLL/persistence.cpp
+
+    // taskschd.msc, schtasks, /sc
+
+    // group policy scripts?
+
+    // https://github.com/vxunderground/VX-API/blob/main/VX-API/MpfComModifyShortcutTarget.cpp
+
+    // https://github.com/zer0yu/Awesome-CobaltStrike
+
+
+
+    // https://github.com/Ne0nd0g/merlin/tree/main/data/modules/windows/x64/powershell/persistence
+
+    // https://github.com/rmusser01/Infosec_Reference/blob/master/Draft/ATT%26CK-Stuff/ATT%26CK/Persistence.md
+
+    // https://attack.mitre.org/tactics/TA0003/
+
+    // https://github.com/mandiant/SharPersist?tab=readme-ov-file
+
+    // https://github.com/samratashok/nishang?tab=readme-ov-file
+
+    // https://github.com/infosecn1nja/Red-Teaming-Toolkit?tab=readme-ov-file#persistence
+
+    // https://github.com/Karneades/awesome-malware-persistence
 
 }
 

@@ -51,11 +51,5 @@ private:
 
 	Config& config_;
 
-	// State state_; // RUNNING, STOPPED, ETC...
-	// TODO: eventually turn this into a "ConnectionManager" that can own multiple transporters
-	// TODO: Eventually have multiple transporters if i need to connect to multiple servers.
-	// 		 This allows us to act as both cnc and p2p?
-	// 		 std::vector<std::unique_ptr<Transporter>> transporters_;
-
 };
 #endif

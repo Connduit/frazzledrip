@@ -4,7 +4,6 @@
 #include "TransportLayer.h"
 #include "MessageTypes.h"
 
-// TODO: rename to C2Profile? 
 typedef struct Config
 {
         Config() :
