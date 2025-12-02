@@ -1,4 +1,6 @@
 # TODO
+- add ability to send "batches" of commands instead of one by one?
+
 
 # GUI - Inspirations
 - https://practicalsecurityanalytics.com/specterinsight/

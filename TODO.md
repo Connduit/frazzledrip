@@ -1,5 +1,5 @@
 # TODO
-
+- rename client to implant? client should refer to the mechanism that allows the user to communicate with the c2 server. in this case that would be server/frontend
 
 # Inspirations
 - https://bc-security.gitbook.io/empire-wiki/
