@@ -4,6 +4,7 @@
 - backend: written in go or python?
 - gui/frontend (website): react
 - gui/frontend (exe): written in c++ qt gui? (do this after react implementation?)
+- TODO: write in c# so i can become more familiar with .net which will make it easier to learn powershell scripting
 
 ### Diagram
 
