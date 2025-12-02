@@ -23,11 +23,6 @@ class HTTPSTransportLayer : public TransportLayer
 	// Getter to see if we've connected to the server
 	bool isConnected() { return connected_; } // TODO: move to parent class? 
 
-	void run();
-
-	// call this function manually in main loop instead of using threads
-	// void update();
-
 private:
 	// Initializes WSADATA by being called through the constructor 
 	bool initializeWinsock();
