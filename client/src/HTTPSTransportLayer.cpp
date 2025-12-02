@@ -45,3 +45,68 @@ bool HTTPSTransportLayer::connect()
     connected_ = true;
     return true;
 }
+
+bool HTTPSTransportLayer::send(const RawByteBuffer& msg)
+{
+    if (!connected_)
+    {
+        std::cout << "Cannot send data over HTTPS... not connected..." << std::endl;
+        return false;
+    }
+
+    hRequest_ = WinHttpOpenRequest(
+        hConnect_,
+        L"POST",
+        path_.c_str(),
+        NULL, // HTTP/1.1
+        WINHTTP_NO_REFERER,
+        WINHTTP_DEFAULT_ACCEPT_TYPES,
+        WINHTTP_FLAG_SECURE); // use HTTPS... SSL/TLS
+
+    if (!hRequest_)
+    {
+        return false;
+    }
+
+    BOOL result = WinHttpSendRequest(
+        hRequest_,
+        WINHTTP_NO_ADDITIONAL_HEADERS,
+        0,
+        (LPVOID)msg.data(), // data to send using POST or PUT operations?
+        (DWORD)msg.size(),
+        (DWORD)msg.size(),
+        0);
+
+    if (!result)
+    {
+        return false;
+    }
+
+    return WinHttpReceiveResponse(hRequest_, NULL);
+    
+}
+
+void HTTPSTransportLayer::receive()
+{
+    if (!hRequest_ || !receiveCallback_)
+    {
+        return;
+    }
+
+    DWORD bytesAvailable = 0;
+    
+    while (WinHttpQueryDataAvailable(hRequest_, &bytesAvailable) && bytesAvailable > 0)
+    {
+        RawByteBuffer buffer(bytesAvailable);
+        DWORD bytesRead = 0;
+
+        if (!WinHttpReadData(hRequest_, buffer.data(), bytesAvailable, &bytesRead))
+        {
+            break;
+        }
+
+        buffer.resize(bytesRead);
+
+        receiveCallback_(buffer);
+    }
+}
