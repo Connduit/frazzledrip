@@ -107,6 +107,8 @@ void HTTPSTransportLayer::receive()
 
         buffer.resize(bytesRead);
 
-        receiveCallback_(buffer); // TODO: need a way to handle muliple chunks and putting them back together if the enitre message isn't sent in a single chunk
+        // TODO: need a way to handle muliple chunks and putting them back together if the enitre message isn't sent in a single chunk
+        // possible solutions: length-prefixed framing? 
+        receiveCallback_(buffer); 
     }
 }
