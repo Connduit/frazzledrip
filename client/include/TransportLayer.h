@@ -89,17 +89,6 @@ private:
 
 
 
-
-/*
-
-// Handles HTTPS headers, TLS, cookies, etc.
-class HTTPSTransportLayer : public TransportLayer
-{
-
-public:
-private:
-};
-
 // Handles DNS queries/responses, tunneling
 class DNSTransportLayer : public TransportLayer
 {
