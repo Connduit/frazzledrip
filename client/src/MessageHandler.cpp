@@ -36,6 +36,18 @@ void MessageHandler::handle(const RawByteBuffer& data)
 {
 	std::cout << "MessageHandler::handle(RawByteBuffer)" << std::endl;
 
+	/*
+	// TODO: use Packer/MessageFramer class here instead?
+	if (transportLayer_ == HTTPS):
+		chunk_.append(data);
+		if (chunk_ == completeMessage):
+			msg = transformer_->transform(chunk_);
+			if (receiveCallback_):
+				receiveCallback_(msg);
+			end
+		end
+	end
+	*/
 
 	// transform inbound raw bytes into InternalMessage
 	InternalMessage msg = transformer_->transform(data);
