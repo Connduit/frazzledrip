@@ -34,6 +34,10 @@ private:
 	bool connected_ = false;
 	//std::atomic<bool> connected_;
 
+	HINTERNET hSession_;
+	HINTERNET hConnect_;
+	HINTERNET hRequest_;
+
 	ApiManager* apiManager_;
 };
 
