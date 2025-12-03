@@ -265,7 +265,7 @@ void Controller::handleEstablishPersistence(const InternalMessage& msg)
 
     // https://github.com/zer0yu/Awesome-CobaltStrike
 
-
+    // NOTE: https://bneg.io/2017/05/22/athena-the-cias-rat-vs-empire/
 
     // https://github.com/Ne0nd0g/merlin/tree/main/data/modules/windows/x64/powershell/persistence
 
