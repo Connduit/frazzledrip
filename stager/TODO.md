@@ -16,6 +16,7 @@
 - bootstrapper = something that executes/starts/runs the downloader or loader
 
 # Requirements
+- reflective loading / manual PE mapping of dlls that live in .sections of the loader implant
 - able to load normal dlls, position independent code, and my custom dlls/modules
 - able to unload normal dlls and my custom dlls/modules
 - able to walk peb to resolve apis
