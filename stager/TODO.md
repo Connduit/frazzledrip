@@ -30,3 +30,6 @@
     - it should be possible to decrypt everything at runtime on-demand
           - only the core implant that does the loading needs to continuously live in memory
 - when modules are sent to the implant loader, they should live only in memory... they should be ENCRYPTED in memory until the moment they actually need to be executed
+- able to load from specific sections of an .exe/.dll
+    - like .data, .rsrc, .AES_ENCRYPTED_BLOB, .custom section
+    - executable code can/is hidden in these sections
