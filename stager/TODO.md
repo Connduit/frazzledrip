@@ -23,3 +23,9 @@
 - able to parse and resolve imports, find exported function, patch the payload so it can use exported functions (even when no mz header, pe, header or import table is present and has hashed imports in the import table instead of names)
 - able to do relocation table resolution
 - is able to call DllMain DLL_PROCESS_ATTACH / DLL_THREAD_ATTACH / DLL PROCESS_DETACH / DLL_THREAD_DETACH
+- supports on demand loading
+    - do not keep all modules, capabilities, or code loaded in memory at the same time
+    - load -> decrypt -> execute -> erase
+    - load only when required
+    - it should be possible to decrypt everything at runtime on-demand
+          - only the core implant that does the loading needs to continuously live in memory
