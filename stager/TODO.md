@@ -7,3 +7,45 @@
 - integrity checks done here to prevent adversary-in-the-middle tampering
 
 - stager.exe should be "truly modular"... receveies dlls or shell code and executes
+
+# NEW NOTES
+- stager = downloader + loader + bootstrapper
+- downloader = downloads the core payload/implant
+    - the core implant can either be downloaded by connecting back to the server through the internet or the core implant can already be "packaged" inside the stager
+- loader = loads the core implant into memory or downloads/writes it onto the disk
+- bootstrapper = something that executes/starts/runs the downloader or loader
+
+# Requirements
+- reflective loading / manual PE mapping of dlls that live in .sections of the loader implant
+- able to load normal dlls, position independent code, and my custom dlls/modules
+- able to unload normal dlls and my custom dlls/modules
+- able to walk peb to resolve apis
+- able to do function export forwarding
+- able to parse and resolve imports, find exported function, patch the payload so it can use exported functions (even when no mz header, pe, header or import table is present and has hashed imports in the import table instead of names)
+- able to do relocation table resolution
+- is able to call DllMain DLL_PROCESS_ATTACH / DLL_THREAD_ATTACH / DLL PROCESS_DETACH / DLL_THREAD_DETACH
+- supports on demand loading
+    - do not keep all modules, capabilities, or code loaded in memory at the same time
+    - load -> decrypt -> execute -> erase
+    - load only when required
+    - it should be possible to decrypt everything at runtime on-demand
+          - only the core implant that does the loading needs to continuously live in memory
+- when modules are sent to the implant loader, they should live only in memory... they should be ENCRYPTED in memory until the moment they actually need to be executed
+- able to load from specific sections of an .exe/.dll
+    - like .data, .rsrc, .AES_ENCRYPTED_BLOB, .custom section
+    - executable code can/is hidden in these sections
+ 
+### Minimum components required
+- core engine.dll
+    - import hashing
+    - memory/module loader
+    - module manager
+    - cryptography
+    - config parser
+    - command dispatcher
+- a transport and beacon stub (very small just what's needed to contact the c2 server)
+    - network code (windows api calls)
+    - protcol logic
+        - register/connect with c2 server
+        - download modules
+        - upload/report basic system info
