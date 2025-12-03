@@ -27,8 +27,6 @@ public:
 	// Returns raw buffer as a std::vector<uint8_t>
 	void receive();
 
-	// Getter to see if we've connected to the server
-	bool isConnected() { return connected_; }
 
 private:
 	// Initializes WSADATA by being called through the constructor 
@@ -39,7 +37,7 @@ private:
 	std::string server_;
 	std::string port_;
 	SOCKET socket_ = INVALID_SOCKET;
-	bool connected_ = false;
+	//bool connected_ = false;
 	//std::atomic<bool> connected_;
 
 	ApiManager* apiManager_;

@@ -38,7 +38,6 @@ typedef enum
 	//NONE,
 	TCP,
 	//UDP,
-	//HTTP,
 	//HTTPS,
 	//DNS
 } TransportLayerType; // TODO: rename to TransportType?
@@ -62,7 +61,9 @@ public:
 	virtual bool connect() = 0;
 	virtual bool send(const RawByteBuffer& msg) = 0;
 	virtual void receive() = 0;
-	virtual bool isConnected() = 0;
+
+	// Getter to see if we've connected to the server
+	bool isConnected() { return connected_; }
 	//virtual void disconnect() = 0;
 
 	//bool sendMessage(const RawByteBuffer& msg); // TODO: conversion shouldn't be happening here: 
@@ -75,6 +76,7 @@ protected:
 	
 	//ApiManager* apiManager_;
 	ReceiveCallback receiveCallback_;
+	bool connected_ = false;
 
 private:
 	/*
@@ -89,6 +91,7 @@ private:
 
 
 
+/*
 // Handles DNS queries/responses, tunneling
 class DNSTransportLayer : public TransportLayer
 {

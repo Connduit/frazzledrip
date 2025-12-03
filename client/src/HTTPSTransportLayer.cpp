@@ -24,6 +24,10 @@ HTTPSTransportLayer::HTTPSTransportLayer(
 HTTPSTransportLayer::~HTTPSTransportLayer()
 {
     // TODO: WinHttpCloseHandle(TODO_MY_HANDLE);
+    // TODO: check that WinHttpCloseHandle return sucessful for all
+    WinHttpCloseHandle(hSession_);
+    WinHttpCloseHandle(hConnect_);
+    WinHttpCloseHandle(hRequest_);
 }
 
 bool HTTPSTransportLayer::connect()
@@ -50,14 +54,15 @@ bool HTTPSTransportLayer::send(const RawByteBuffer& msg)
 {
     if (!connected_)
     {
-        std::cout << "Cannot send data over HTTPS... not connected..." << std::endl;
+        //std::cout << "Cannot send data over HTTPS... not connected..." << std::endl;
         return false;
     }
 
     hRequest_ = WinHttpOpenRequest(
         hConnect_,
         L"POST",
-        path_.c_str(),
+        L"TODO_PATH",
+        //path_.c_str(),
         NULL, // HTTP/1.1
         WINHTTP_NO_REFERER,
         WINHTTP_DEFAULT_ACCEPT_TYPES,
