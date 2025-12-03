@@ -29,3 +29,4 @@
     - load only when required
     - it should be possible to decrypt everything at runtime on-demand
           - only the core implant that does the loading needs to continuously live in memory
+- when modules are sent to the implant loader, they should live only in memory... they should be ENCRYPTED in memory until the moment they actually need to be executed
