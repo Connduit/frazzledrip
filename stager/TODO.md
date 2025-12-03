@@ -33,3 +33,18 @@
 - able to load from specific sections of an .exe/.dll
     - like .data, .rsrc, .AES_ENCRYPTED_BLOB, .custom section
     - executable code can/is hidden in these sections
+ 
+### Minimum components required
+- core engine.dll
+    - import hashing
+    - memory/module loader
+    - module manager
+    - cryptography
+    - config parser
+    - command dispatcher
+- a transport and beacon stub (very small just what's needed to contact the c2 server)
+    - network code (windows api calls)
+    - protcol logic
+        - register/connect with c2 server
+        - download modules
+        - upload/report basic system info
