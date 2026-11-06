@@ -45,16 +45,17 @@ type ClientMessage struct {
 
 // Attributes associated with Clients
 type Client struct {
-	Type           string
-	Listener       string
-	ID             string
-	Conn           net.Conn
-	LastSeen       time.Time
-	SystemInfo     SystemInfo
-	IPAddress      string
-	IsActive       bool
-	Messages       []ClientMessage // Store messages for this client
-	CommandResults []CommandResult `json:"CommandResults,omitempty"`
+	BasicInfoStatus string `json:"BasicInfoStatus,omitempty"`
+	Type            string
+	Listener        string
+	ID              string
+	Conn            net.Conn
+	LastSeen        time.Time
+	SystemInfo      SystemInfo
+	IPAddress       string
+	IsActive        bool
+	Messages        []ClientMessage // Store messages for this client
+	CommandResults  []CommandResult `json:"CommandResults,omitempty"`
 }
 
 type CommandResult struct {

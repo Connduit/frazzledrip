@@ -149,10 +149,14 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 	// TODO: maybe only add messages to the buffer if they are a certain msg.Header.MessageType?
 
 	// Append to client's message history (max 100)
+	advanceBasicInfo := false
 	clientsMutex.Lock()
-	if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
-		if pending, ok := pendingCommands[client.IPAddress]; ok && (msg.Header.MessageID == pending.ID || msg.Header.MessageID == 105) {
-			client.SystemInfo = mergeCommandInfo(client.SystemInfo, pending.Command, string(msg.Data))
+	if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT || msg.Header.MessageType == models.MESSAGE_ERROR_REPORT {
+		if pending, ok := pendingCommands[client.IPAddress]; ok && clients[client.IPAddress] == client && (msg.Header.MessageID == pending.ID || msg.Header.MessageID == 105) {
+			if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
+				client.SystemInfo = mergeCommandInfo(client.SystemInfo, pending.Command, string(msg.Data))
+			}
+			advanceBasicInfo = pending.Automatic || client.BasicInfoStatus == "collecting"
 			storeCommandResult(client, pending.Command, string(msg.Data), clientMessage.Timestamp)
 			delete(pendingCommands, client.IPAddress)
 		}
@@ -166,6 +170,9 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		client.Messages = client.Messages[1:] // Drop oldest
 	}
 	clientsMutex.Unlock()
+	if advanceBasicInfo {
+		sendNextBasicInfo(client)
+	}
 }
 
 /*
@@ -254,6 +261,10 @@ func SendCommandToClient(clientAddr string, command string) error {
 		Data: []byte(command),
 	}
 	clientsMutex.Lock()
+	if current := clients[clientAddr]; current != nil && current.BasicInfoStatus == "collecting" {
+		clientsMutex.Unlock()
+		return fmt.Errorf("initial host information is being collected; wait for it to finish")
+	}
 	if _, pending := pendingCommands[clientAddr]; pending {
 		clientsMutex.Unlock()
 		return fmt.Errorf("a shell command is already pending for this session; wait for its response")

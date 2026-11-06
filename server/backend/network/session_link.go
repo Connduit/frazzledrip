@@ -35,6 +35,9 @@ func LinkSavedSession(savedID, liveID string) error {
 
 // Call with clientsMutex held. Preserve the incoming connection and its activity.
 func restoreSessionData(saved, live *models.Client) {
+	if live.BasicInfoStatus == "" {
+		live.BasicInfoStatus = saved.BasicInfoStatus
+	}
 	live.SystemInfo = restoreSystemInfo(saved.SystemInfo, live.SystemInfo)
 	messages := append(append([]models.ClientMessage(nil), saved.Messages...), live.Messages...)
 	sort.SliceStable(messages, func(i, j int) bool { return messages[i].Timestamp.Before(messages[j].Timestamp) })

@@ -115,6 +115,7 @@ export default function App() {
                 setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
             }} />}
             {selected.IsActive && <div className="inspector-actions"><button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button></div>}
+            {selected.BasicInfoStatus && <p className="muted" role="status">{({ collecting: 'Collecting basic host information…', complete: 'Initial host queries complete.', interrupted: 'Initial host queries interrupted by disconnect.', failed: 'Initial host queries failed; use the command tabs to collect missing information.' })[selected.BasicInfoStatus]}</p>}
             <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
             {selected.IsActive ? <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}

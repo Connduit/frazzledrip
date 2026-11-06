@@ -208,6 +208,21 @@ stop the client program: a client that retries may reconnect, at which point
 the same-IP restoration rule applies. Stop the listener first if you also want
 to prevent reconnections through that listener.
 
-Use **+** / **−** above the connection graph to zoom from 50% to 300%, then scroll
-to explore enlarged graphs. **Fit graph** resets to 100% and returns the viewport
-to the start. Zoom is retained during session refreshes; nodes remain selectable.
+Use the mouse wheel or **+** / **−** above the connection graph to zoom from
+50% to 300%. Wheel zoom centers on the pointer; left-click and drag to pan. **Fit graph** resets to 100% and centers the graph in the viewport. Zoom is retained during session refreshes; nodes remain selectable.
+
+### Automatic basic host queries
+
+A new session automatically receives `whoami`, `ipconfig /all`, and `systeminfo`,
+one at a time. Responses update the session facts and appear in its command
+outputs and message history. Manual shell commands wait until this initial
+sequence finishes. The inspector reports collection progress, completion,
+interruption, or send failure. Completion means each query returned, not that
+all fields were available; parsing still supports English Windows output.
+Recognized reconnects preserve this state and do not replay the initial queries.
+If collection is interrupted, collect missing information manually after reconnect.
+No Windows client rebuild is required.
+
+The session table uses wrapped, fixed-width columns to fit the workspace without
+horizontal scrolling. Multiple internal IPv4 addresses each occupy their own
+line. On narrow screens, sessions use labeled fields in a two-column layout.

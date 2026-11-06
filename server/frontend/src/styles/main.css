@@ -31,3 +31,26 @@ input, select, textarea { background: #0e1521; } input { min-width: 0; } input::
 .graph-controls { display: flex; align-items: center; gap: 8px; } .graph-controls output { min-width: 42px; text-align: center; color: #a6b7cd; font-size: 12px; } .graph-controls button { padding: 6px 10px; }
 
 .inspector-actions { margin: 16px 0; }
+/* Keep the full inventory within the workspace instead of scrolling horizontally. */
+.sessions-table { table-layout: fixed; white-space: normal; }
+.sessions-table th, .sessions-table td { padding: 10px 6px; overflow-wrap: anywhere; font-size: clamp(10px, .78vw, 12px); vertical-align: top; }
+.sessions-table th { font-size: 9px; letter-spacing: .4px; }
+.sessions-table th:first-child, .sessions-table td:first-child { position: static; }
+.sessions-table .mono, .sessions-table .agent-link { font-size: inherit; }
+.sessions-table .agent-link { width: 100%; max-width: 100%; align-items: flex-start; white-space: normal; }
+.sessions-table .agent-link > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.sessions-table .session-dot { margin-top: 4px; }
+.ip-line { display: block; }
+.sessions-table .session-tag { max-width: 100%; overflow-wrap: anywhere; }
+.graph-viewport { height: 360px; overflow: hidden; background: #0e1623; }
+.graph-viewport .session-graph { width: 100%; height: 100%; min-width: 0; cursor: grab; touch-action: none; user-select: none; }
+.graph-viewport .session-graph.dragging, .graph-viewport .session-graph.dragging .graph-node { cursor: grabbing; }
+@media (max-width: 700px) {
+    .sessions-table colgroup, .sessions-table thead { display: none; }
+    .sessions-table, .sessions-table tbody { display: block; width: 100%; }
+    .sessions-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid #3c506b; }
+    .sessions-table td { display: block; min-width: 0; padding: 10px 12px; font-size: 12px; }
+    .sessions-table td::before { content: attr(data-label); display: block; margin-bottom: 5px; font: 10px system-ui; letter-spacing: .5px; text-transform: uppercase; color: #91a3b9; }
+    .sessions-table tr.selected td { background: #203149; }
+    .sessions-table tr:hover td { background: #1a273b; }
+}

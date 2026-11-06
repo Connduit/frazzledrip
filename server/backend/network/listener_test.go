@@ -40,6 +40,25 @@ func TestListenerStopAndDisconnect(t *testing.T) {
 	if session == nil {
 		t.Fatal("connection was not registered")
 	}
+
+	// New sessions collect facts sequentially before accepting manual commands.
+	peer.SetDeadline(time.Now().Add(3 * time.Second))
+	initial := []struct{ command, output string }{
+		{"whoami", "LAB\\tester\r\n"},
+		{"ipconfig /all", "Host Name . . . : WIN-LAB\nIPv4 Address. . : 10.0.0.48(Preferred)\n"},
+		{"systeminfo", "OS Name: Microsoft Windows 10 Pro\nOS Version: 10.0.19045 N/A Build 19045\n"},
+	}
+	for _, query := range initial {
+		request, err := readBinaryMessage(peer)
+		if err != nil || string(request.Data) != query.command {
+			t.Fatalf("initial query %q: %v", query.command, err)
+		}
+		output := []byte(query.output)
+		_, err = peer.Write(serializeBinaryMessage(models.InternalMessage{Header: models.MessageHeader{MessageType: models.MESSAGE_COMMAND_RESULT, MessageID: 105, DataSize: uint32(len(output))}, Data: output}))
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 	if err := StopReverseTCPListener(); err != nil {
 		t.Fatal(err)
 	}
@@ -61,12 +80,15 @@ func TestListenerStopAndDisconnect(t *testing.T) {
 	deadline = time.Now().Add(3 * time.Second)
 	for time.Now().Before(deadline) {
 		session, _ = GetClient(addr)
-		if len(session.Messages) > 0 {
+		if len(session.Messages) == 4 {
 			break
 		}
 		time.Sleep(time.Millisecond)
 	}
-	if !session.IsActive || len(session.Messages) != 1 {
+	if session.BasicInfoStatus != "complete" || session.SystemInfo.Hostname != "WIN-LAB" || session.SystemInfo.User != `LAB\tester` {
+		t.Fatalf("initial metadata not collected: %+v", session)
+	}
+	if !session.IsActive || len(session.Messages) != 4 {
 		t.Fatal("stopping listener interrupted existing session")
 	}
 	if err := DisconnectSession(session.ID); err != nil {
@@ -77,7 +99,7 @@ func TestListenerStopAndDisconnect(t *testing.T) {
 		t.Fatal("session socket still open")
 	}
 	offline, _ := GetClient(addr)
-	if offline.IsActive || len(offline.Messages) != 1 {
+	if offline.IsActive || len(offline.Messages) != 4 {
 		t.Fatal("disconnect failed to retain offline session")
 	}
 	if err := DisconnectSession("missing-session"); err == nil {

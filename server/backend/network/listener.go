@@ -64,6 +64,7 @@ func acceptClients(listener net.Listener) {
 		listenerMutex.Unlock()
 		log.Printf("Client connected: %s from %s", client.ID, addr)
 		go handleClientConnection(client)
+		go beginBasicInfo(client)
 	}
 }
 

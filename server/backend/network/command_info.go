@@ -11,8 +11,9 @@ import (
 )
 
 type pendingCommand struct {
-	ID      uint32
-	Command string
+	Automatic bool
+	ID        uint32
+	Command   string
 }
 
 // Protected by clientsMutex. Legacy clients return 105 for every shell result.
