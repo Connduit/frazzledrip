@@ -48,18 +48,25 @@ type Client struct {
 	ID         string
 	Conn       net.Conn
 	LastSeen   time.Time
-	SystemInfo SystemInfo // TODO: remove?
+	SystemInfo SystemInfo
 	IPAddress  string
 	IsActive   bool
 	Messages   []ClientMessage // Store messages for this client
 }
 
-// TODO: remove?
 type SystemInfo struct {
-	Hostname string `json:"hostname"`
-	OS       string `json:"os"`
-	Arch     string `json:"arch"`
-	User     string `json:"user"`
+	Hostname                string  `json:"hostname"`
+	OS                      string  `json:"os"`
+	Arch                    string  `json:"arch"`
+	User                    string  `json:"user"`
+	MajorVersion            *uint32 `json:"major_version,omitempty"`
+	MinorVersion            *uint32 `json:"minor_version,omitempty"`
+	BuildNumber             *uint32 `json:"build_number,omitempty"`
+	ProductType             *uint32 `json:"product_type,omitempty"`
+	TotalPhysicalMemory     *uint64 `json:"total_physical_memory,omitempty"`
+	AvailablePhysicalMemory *uint64 `json:"available_physical_memory,omitempty"`
+	NumberOfProcessors      *uint32 `json:"number_of_processors,omitempty"`
+	ProcessorArchitecture   *uint32 `json:"processor_architecture,omitempty"`
 }
 
 type CommandRequest struct {

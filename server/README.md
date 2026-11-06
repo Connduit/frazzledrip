@@ -111,3 +111,15 @@ browser's local storage, keyed by host address without the remote port. Sessions
 from the same address share the location; other browsers do not. Use **Clear**
 to remove it. Addresses alone are not treated as verified physical locations.
 No session addresses are sent to external mapping or geolocation services.
+
+### System information
+
+System-info responses update the session's OS version/build, architecture,
+logical processor count, and physical/available memory. Both `SYS_INFO` responses
+and the current client's version-keyed `COMMAND_RESULT` format are supported.
+The original response stays in the message history. The table picks up changes
+on its next refresh; the selected inspector refreshes every two seconds.
+Missing or invalid fields preserve existing values. Hostname, user, and product
+type remain unknown when the client does not report them. Memory is shown in GiB;
+Windows versions are shown as reported version/build numbers rather than guessed
+marketing names. Metadata is kept for the lifetime of the connected session.

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Connduit/frazzledrip/server/backend/models"
 	"github.com/Connduit/frazzledrip/server/backend/utils"
+	"io"
 	"log"
 	"time"
 )
@@ -31,8 +32,6 @@ func handleClientConnection(client *models.Client) {
 		log.Printf("Client disconnected: %s", client.ID)
 	}()
 
-	buffer := make([]byte, 4096)
-
 	for {
 		// Prevent dead clients from hanging forever.
 		/*
@@ -43,66 +42,40 @@ func handleClientConnection(client *models.Client) {
 		*/
 		client.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
-		n, err := client.Conn.Read(buffer)
+		message, err := readBinaryMessage(client.Conn)
 		if err != nil {
-			log.Printf("Read error from client %s: %v", client.ID, err)
+			log.Printf("Read message from client %s: %v", client.ID, err)
 			return
 		}
-
-		if n > 0 {
-			// Convert raw bytes → structured binary message
-			message, err := parseBinaryMessage(buffer[:n])
-			if err != nil {
-				log.Printf("Parse error from client %s: %v", client.ID, err)
-				continue
-			}
-
-			processClientMessage(client, message)
-			client.LastSeen = time.Now()
-		}
+		processClientMessage(client, message)
 	}
 }
 
-/*
-parseBinaryMessage reads a raw byte buffer and constructs an InternalMessage.
+// Bound allocations for untrusted frame lengths. This matches the HTTP upload limit.
+const maxMessageDataSize = 32 << 20
 
-Message format (Little Endian):
-[0–3]   uint32 MessageType
-[4–7]   uint32 DataSize
-[8–11]  uint32 MessageID
-[12..]  Data (optional)
-
-This function:
-- Validates minimum header length
-- Extracts fields using binary.LittleEndian
-- Validates DataSize integrity
-- Copies payload bytes
-
-Returns InternalMessage or error.
-*/
-// TODO: this is where message should be decrypted, decoded, deserialized
-func parseBinaryMessage(data []byte) (*models.InternalMessage, error) {
-	if len(data) < 12 {
-		return nil, fmt.Errorf("message too short")
+// TCP is a byte stream: read exactly one header and its declared payload,
+// preserving the next frame for the next call. A truncated frame ends the
+// connection rather than interpreting its remaining payload as a new header.
+func readBinaryMessage(reader io.Reader) (*models.InternalMessage, error) {
+	var header [12]byte
+	if _, err := io.ReadFull(reader, header[:]); err != nil {
+		return nil, fmt.Errorf("read header: %w", err)
 	}
-
-	msg := &models.InternalMessage{
-		Header: models.MessageHeader{
-			MessageType: binary.LittleEndian.Uint32(data[0:4]),
-			DataSize:    binary.LittleEndian.Uint32(data[4:8]),
-			MessageID:   binary.LittleEndian.Uint32(data[8:12]),
-		},
+	msg := &models.InternalMessage{Header: models.MessageHeader{
+		MessageType: binary.LittleEndian.Uint32(header[0:4]),
+		DataSize:    binary.LittleEndian.Uint32(header[4:8]),
+		MessageID:   binary.LittleEndian.Uint32(header[8:12]),
+	}}
+	if msg.Header.DataSize > maxMessageDataSize {
+		return nil, fmt.Errorf("message payload exceeds %d bytes", maxMessageDataSize)
 	}
-
-	// Ensure payload exists and is complete
 	if msg.Header.DataSize > 0 {
-		if len(data) < 12+int(msg.Header.DataSize) {
-			return nil, fmt.Errorf("incomplete message data")
+		msg.Data = make([]byte, int(msg.Header.DataSize))
+		if _, err := io.ReadFull(reader, msg.Data); err != nil {
+			return nil, fmt.Errorf("read payload: %w", err)
 		}
-		msg.Data = make([]byte, msg.Header.DataSize)
-		copy(msg.Data, data[12:12+msg.Header.DataSize])
 	}
-
 	return msg, nil
 }
 
@@ -171,6 +144,10 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 
 	// Append to client's message history (max 100)
 	clientsMutex.Lock()
+	if msg.Header.MessageType == models.MESSAGE_SYS_INFO || msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
+		client.SystemInfo = mergeSystemInfo(client.SystemInfo, msg.Data, msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT)
+	}
+	client.LastSeen = clientMessage.Timestamp
 	client.Messages = append(client.Messages, clientMessage)
 	if len(client.Messages) > 100 {
 		client.Messages = client.Messages[1:] // Drop oldest

@@ -46,7 +46,10 @@ func GetClient(addr string) (*models.Client, bool) {
 	defer clientsMutex.Unlock()
 
 	client, exists := clients[addr]
-	return client, exists
+	if !exists {
+		return nil, false
+	}
+	return snapshotClient(client), true
 }
 
 // GetAllClients returns a slice of all clients currently connected.
@@ -57,7 +60,14 @@ func GetAllClients() []*models.Client {
 
 	clientList := make([]*models.Client, 0, len(clients))
 	for _, client := range clients {
-		clientList = append(clientList, client)
+		clientList = append(clientList, snapshotClient(client))
 	}
 	return clientList
+}
+
+// Call with clientsMutex held so HTTP encoding never reads mutable session data.
+func snapshotClient(client *models.Client) *models.Client {
+	copy := *client
+	copy.Messages = append([]models.ClientMessage(nil), client.Messages...)
+	return &copy
 }

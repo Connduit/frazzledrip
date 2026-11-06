@@ -18,3 +18,8 @@ export function validLocation(location) {
         && Number.isFinite(location.lat) && Number.isFinite(location.lon)
         && Math.abs(location.lat) <= 90 && Math.abs(location.lon) <= 180;
 }
+
+export function formatMemory(bytes) {
+    if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes < 0) return '—';
+    return `${(bytes / (1024 ** 3)).toFixed(1)} GiB`;
+}
