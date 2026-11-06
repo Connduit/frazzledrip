@@ -12,7 +12,7 @@ function MessageList({ messages }) {
 
     return (
         <div className="message-list">
-            {messages.map((msg, index) => (
+            {[...messages].reverse().map((msg, index) => (
                 <div key={index} className="message-item">
                     <div className="message-header">
                         <strong>{msg.type}</strong> 
