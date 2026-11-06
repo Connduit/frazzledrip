@@ -155,12 +155,15 @@ A lost connection marks its record offline instead of deleting collected facts,
 messages, and command outputs. Offline graph links are dashed and their inspector
 remains available. Pending commands are cleared when the connection ends.
 
-The current client does not provide a stable device identifier. A reconnect with
-a different remote port therefore appears as a new connection; the old record
-is retained. The server does not automatically merge devices by IP because
-multiple devices may share NAT or WSL forwarding. Session records currently live
-in memory and do not survive a server restart. The existing 60-second inbound
-read timeout still applies; clients that send no heartbeats can hit that timeout.
+A reconnect from the same observed peer IP reuses its unique offline session,
+including the original agent ID, facts, messages, and command outputs. Remote
+source-port changes do not create a duplicate row. The inspector follows the
+agent ID onto the new endpoint. Active connections are kept separate; if several
+offline records share the IP, use explicit linking rather than guessing. IP
+matching is the chosen heuristic, not a verified device identity: NAT or WSL
+forwarding may make different devices appear under one address. Records live in
+memory and do not survive a server restart. The existing 60-second inbound read
+timeout still applies; clients that send no heartbeats can hit that timeout.
 
 ### Link a reconnect to saved information
 
@@ -171,7 +174,8 @@ history (latest 100), and latest command outputs (20 distinct commands) into the
 live connection, removing the consumed offline row. Existing live facts win over
 saved values; duplicate command outputs keep the newest response. The active
 connection retains its ID, endpoint, and pending command. Verify which device
-the saved record belongs to before linking; the server never matches by IP.
+the saved record belongs to before linking. Use this flow for ambiguous IPs
+or when a device reconnects from a different address.
 
 If the saved host has a manually assigned map location in this browser, it is
 copied to the new host address only when the new address has no saved location.
@@ -190,3 +194,20 @@ collected command responses. Last is the last message timestamp. Process, PID,
 Tags, and Sleep currently remain unreported (`—`); tasklist output alone does
 not identify the agent process, and UI polling intervals are not agent sleep
 settings. Memory and other detailed hardware fields remain in the inspector.
+
+### Connection controls and graph zoom
+
+Use **Start listener** and **Stop listener** in the header. The status badge
+reflects the actual listener state. Stopping closes only the listening socket:
+existing sessions remain connected. New clients cannot connect until it starts
+again. Bind errors are shown instead of reporting a successful start.
+
+Select an active session and click **Disconnect session** to close its socket,
+clear pending commands, and keep its metadata/history offline. This does not
+stop the client program: a client that retries may reconnect, at which point
+the same-IP restoration rule applies. Stop the listener first if you also want
+to prevent reconnections through that listener.
+
+Use **+** / **−** above the connection graph to zoom from 50% to 300%, then scroll
+to explore enlarged graphs. **Fit graph** resets to 100% and returns the viewport
+to the start. Zoom is retained during session refreshes; nodes remain selectable.

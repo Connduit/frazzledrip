@@ -44,7 +44,7 @@ func TestCommandCorrelationAndLegacyResult(t *testing.T) {
 	defer peer.Close()
 	server.SetDeadline(time.Now().Add(5 * time.Second))
 	peer.SetDeadline(time.Now().Add(5 * time.Second))
-	client := &models.Client{ID: "correlation-test", IPAddress: "test:commands", Conn: server}
+	client := &models.Client{ID: "correlation-test", IsActive: true, IPAddress: "test:commands", Conn: server}
 	AddClient(client.IPAddress, client)
 	defer RemoveClient(client.IPAddress)
 	sent := make(chan error, 1)

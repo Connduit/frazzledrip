@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
 import SessionLink from './SessionLink.jsx';
@@ -21,6 +21,7 @@ export default function App() {
     const [status, setStatus] = useState('');
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState('');
+    const selectedAgentID = useRef('');
     const [clientInfo, setClientInfo] = useState(null);
     const [clientMessages, setClientMessages] = useState([]);
     const [activeTab, setActiveTab] = useState('commands');
@@ -30,17 +31,19 @@ export default function App() {
     const [refreshVersion, setRefreshVersion] = useState(0);
     const [messageVersion, setMessageVersion] = useState(0);
     const [starting, setStarting] = useState(false);
+    const [listenerState, setListenerState] = useState(null);
+    const [disconnecting, setDisconnecting] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
         let timer;
         async function poll() {
             try {
-                const data = await apiService.getClients();
+                const [data, listener] = await Promise.all([apiService.getClients(), apiService.getListenerStatus()]);
                 if (!Array.isArray(data)) throw new Error('Unexpected session response');
                 if (cancelled) return;
-                setClients(data); setLastRefresh(new Date()); setFetchError('');
-                setSelectedClient(current => data.some(c => c.IPAddress === current) ? current : '');
+                setListenerState(listener); setClients(data); setLastRefresh(new Date()); setFetchError('');
+                setSelectedClient(current => data.find(c => c.ID === selectedAgentID.current)?.IPAddress || (data.some(c => c.IPAddress === current) ? current : ''));
             } catch (error) { if (!cancelled) setFetchError(error.message); }
             finally { if (!cancelled) timer = setTimeout(poll, 5000); }
         }
@@ -64,11 +67,22 @@ export default function App() {
         return () => { cancelled = true; clearTimeout(timer); };
     }, [selectedClient, messageVersion]);
 
-    async function startListener() {
+    async function controlListener(action) {
         setStarting(true);
-        try { setStatus((await apiService.startListener()).status); }
-        catch (error) { setStatus('Error: ' + error.message); }
+        try {
+            const data = await (action === 'start' ? apiService.startListener() : apiService.stopListener());
+            setStatus(data.status); setListenerState(await apiService.getListenerStatus());
+            setRefreshVersion(v => v + 1);
+        } catch (error) { setStatus('Error: ' + error.message); }
         finally { setStarting(false); }
+    }
+    async function disconnectSession(id) {
+        setDisconnecting(true);
+        try {
+            setStatus((await apiService.disconnectSession(id)).status);
+            setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
+        } catch (error) { setStatus('Error: ' + error.message); }
+        finally { setDisconnecting(false); }
     }
     function saveLocation(host, value) {
         const next = { ...locations };
@@ -80,10 +94,12 @@ export default function App() {
     const selected = clients.find(c => c.IPAddress === selectedClient);
     const active = clients.filter(c => c.IsActive).length;
     const hosts = new Set(clients.map(c => systemOf(c).hostname).filter(Boolean)).size;
-    const shared = { clients, selectedClient, onClientSelect: setSelectedClient };
+    const shared = { clients, selectedClient, onClientSelect: address => { selectedAgentID.current = clients.find(c => c.IPAddress === address)?.ID || ''; setSelectedClient(address); } };
     return <div className="container">
         <header className="app-header"><div><span className="eyebrow">FRAZZLEDRIP / CONTROLLER</span><h1>Session workspace</h1><p className="muted">Session inventory, topology, and geography.</p></div>
-            <div className="header-actions"><button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button><button className="primary" disabled={starting} onClick={startListener}>{starting ? 'Starting…' : 'Start listener · 4444'}</button></div></header>
+            <div className="header-actions"><button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button><span className={`badge ${listenerState?.running ? 'live' : ''}`}><i />{listenerState == null ? 'Listener unknown' : listenerState.running ? `Listening · ${listenerState.port}` : 'Listener stopped'}</span>
+                <button className="primary" disabled={starting || listenerState?.running} onClick={() => controlListener('start')}>Start listener</button>
+                <button disabled={starting || !listenerState?.running} onClick={() => controlListener('stop')}>Stop listener</button></div></header>
         <div className="summary-grid"><div className="metric"><span>Known sessions</span><strong>{clients.length.toString().padStart(2, '0')}</strong></div>
             <div className="metric"><span>Active sessions</span><strong className="accent">{active.toString().padStart(2, '0')}</strong></div>
             <div className="metric"><span>Reported hosts</span><strong>{hosts.toString().padStart(2, '0')}</strong></div>
@@ -98,6 +114,7 @@ export default function App() {
                 setStatus('Saved session linked.');
                 setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
             }} />}
+            {selected.IsActive && <div className="inspector-actions"><button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button></div>}
             <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
             {selected.IsActive ? <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}

@@ -26,7 +26,12 @@ Duties:
 
 // TODO: this handles incoming data from client
 func handleClientConnection(client *models.Client) {
+	clientsMutex.Lock()
 	conn := client.Conn
+	clientsMutex.Unlock()
+	if conn == nil {
+		return
+	}
 	defer func() {
 		conn.Close()
 		DisconnectClient(client)
@@ -170,13 +175,16 @@ to the client over TCP.
 This is the ONLY function that performs the actual network write.
 */
 func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error {
-	if client.Conn == nil {
+	clientsMutex.Lock()
+	conn, active := client.Conn, client.IsActive
+	clientsMutex.Unlock()
+	if conn == nil || !active {
 		return fmt.Errorf("session is offline")
 	}
 	data := serializeBinaryMessage(msg)
 	// data := encodeBinaryMessage(msg)
 	// data := encryptBinaryMessage(msg)
-	_, err := client.Conn.Write(data)
+	_, err := conn.Write(data)
 	return err
 }
 

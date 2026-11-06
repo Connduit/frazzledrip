@@ -1,7 +1,9 @@
 package network
 
 import (
+	"fmt"
 	"github.com/Connduit/frazzledrip/server/backend/models"
+	"net"
 	"sync"
 )
 
@@ -22,11 +24,29 @@ var (
 )
 
 // AddClient registers a new client in the global client map.
-// If an entry already exists for this address, it will be overwritten.
+// A unique offline session from the same peer IP resumes under its original ID.
 func AddClient(addr string, client *models.Client) {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
 
+	host, _, err := net.SplitHostPort(addr)
+	if err == nil && net.ParseIP(host) != nil && client.IsActive {
+		var saved *models.Client
+		matches := 0
+		for oldAddr, candidate := range clients {
+			oldHost, _, splitErr := net.SplitHostPort(oldAddr)
+			if splitErr == nil && net.ParseIP(oldHost).Equal(net.ParseIP(host)) && !candidate.IsActive {
+				saved = candidate
+				matches++
+			}
+		}
+		if matches == 1 {
+			restoreSessionData(saved, client)
+			client.ID = saved.ID
+			delete(clients, saved.IPAddress)
+			delete(pendingCommands, saved.IPAddress)
+		}
+	}
 	clients[addr] = client
 }
 
@@ -87,4 +107,29 @@ func snapshotClient(client *models.Client) *models.Client {
 	copy.SystemInfo.IPAddresses = append([]string(nil), client.SystemInfo.IPAddresses...)
 	copy.SystemInfo.MACAddresses = append([]string(nil), client.SystemInfo.MACAddresses...)
 	return &copy
+}
+
+// DisconnectSession closes one selected socket but keeps its saved record.
+func DisconnectSession(id string) error {
+	clientsMutex.Lock()
+	var selected *models.Client
+	for _, client := range clients {
+		if client.ID == id {
+			selected = client
+			break
+		}
+	}
+	if selected == nil {
+		clientsMutex.Unlock()
+		return fmt.Errorf("session no longer exists")
+	}
+	conn := selected.Conn
+	selected.IsActive = false
+	selected.Conn = nil
+	delete(pendingCommands, selected.IPAddress)
+	clientsMutex.Unlock()
+	if conn != nil {
+		conn.Close()
+	}
+	return nil
 }

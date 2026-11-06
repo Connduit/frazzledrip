@@ -10,6 +10,9 @@ import (
 // NOTE: this function "connects" backend and frontend
 func RegisterHandlers() {
 	http.HandleFunc("/link-session", linkSessionHandler)
+	http.HandleFunc("/stop-listener", stopListenerHandler)
+	http.HandleFunc("/listener-status", listenerStatusHandler)
+	http.HandleFunc("/disconnect-session", disconnectSessionHandler)
 	// Start listener endpoint
 	http.HandleFunc("/start-listener", startListenerHandler)
 
@@ -34,26 +37,6 @@ func RegisterHandlers() {
 
 	// Get client system info
 	http.HandleFunc("/get-client-info", getClientInfoHandler)
-}
-
-func startListenerHandler(w http.ResponseWriter, r *http.Request) {
-	utils.EnableCORS(&w, r)
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	if network.IsListening() {
-		json.NewEncoder(w).Encode(map[string]string{
-			"status": "⚠️ Listener already running on port 4444",
-		})
-		return
-	}
-
-	go network.StartReverseTCPListener(4444)
-
-	json.NewEncoder(w).Encode(map[string]string{
-		"status": "✅ Listener started on port 4444 - waiting for connections...",
-	})
 }
 
 func getClientsHandler(w http.ResponseWriter, r *http.Request) {

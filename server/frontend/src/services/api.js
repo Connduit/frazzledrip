@@ -1,6 +1,15 @@
 // Base URL for the API endpoints
 const API_BASE = '';
 
+async function controlRequest(path, body) {
+    const response = await fetch(`${API_BASE}${path}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Request failed');
+    return data;
+}
+
 // API service functions for communicating with the backend
 export const apiService = {
     async linkSession(savedID, liveID) {
@@ -12,16 +21,13 @@ export const apiService = {
         if (!result.ok) throw new Error(data.error || 'Could not link sessions');
         return data;
     },
-    // Starts the listener on the server
-    async startListener() {
-        // Send a POST request to /start-listener with an empty JSON body
-        const result = await fetch(`${API_BASE}/start-listener`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({}) // empty payload
-        });
-        // Parse and return the JSON response
-        return await result.json();
+    async startListener() { return controlRequest('/start-listener', {}); },
+    async stopListener() { return controlRequest('/stop-listener', {}); },
+    async disconnectSession(id) { return controlRequest('/disconnect-session', { id }); },
+    async getListenerStatus() {
+        const response = await fetch(`${API_BASE}/listener-status`);
+        if (!response.ok) throw new Error('Could not read listener status');
+        return response.json();
     },
 
     // Retrieves the list of connected clients from the server

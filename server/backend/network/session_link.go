@@ -27,6 +27,14 @@ func LinkSavedSession(savedID, liveID string) error {
 	if saved == live || saved.IsActive || !live.IsActive || live.Conn == nil {
 		return fmt.Errorf("select an offline saved session and a different active connection")
 	}
+	restoreSessionData(saved, live)
+	delete(clients, saved.IPAddress)
+	delete(pendingCommands, saved.IPAddress)
+	return nil
+}
+
+// Call with clientsMutex held. Preserve the incoming connection and its activity.
+func restoreSessionData(saved, live *models.Client) {
 	live.SystemInfo = restoreSystemInfo(saved.SystemInfo, live.SystemInfo)
 	messages := append(append([]models.ClientMessage(nil), saved.Messages...), live.Messages...)
 	sort.SliceStable(messages, func(i, j int) bool { return messages[i].Timestamp.Before(messages[j].Timestamp) })
@@ -45,9 +53,6 @@ func LinkSavedSession(savedID, liveID string) error {
 			seen[key] = true
 		}
 	}
-	delete(clients, saved.IPAddress)
-	delete(pendingCommands, saved.IPAddress)
-	return nil
 }
 
 // Keep facts already collected on the live connection, filling only missing fields.

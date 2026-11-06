@@ -1,104 +1,95 @@
 package network
 
 import (
+	"errors"
 	"fmt"
-	"github.com/Connduit/frazzledrip/server/backend/models"
-	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"log"
 	"net"
 	"sync"
 	"time"
-)
 
-// =====================================================
-//   Reverse TCP Listener (C2 Inbound Client Connector)
-// =====================================================
-//
-// This component listens for *incoming* agent/implant connections.
-// Clients connect back to the server (reverse TCP). Each accepted
-// connection is wrapped in a Client struct and handled asynchronously.
-//
-// The listener state is protected by a mutex so the UI / API can query
-// whether the server is currently listening.
+	"github.com/Connduit/frazzledrip/server/backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
+)
 
 var (
-	// isListening indicates whether the TCP listener is currently active.
-	isListening bool
-
-	// listenerMutex protects isListening and currentPort.
-	listenerMutex sync.Mutex
-
-	// currentPort stores the port number currently being listened on.
-	currentPort int
+	listenerMutex   sync.Mutex
+	currentListener net.Listener
 )
 
-// StartReverseTCPListener starts a TCP server on the given port and waits
-// for reverse connections from clients/agents. Each client is assigned
-// an ID and handled by handleClientConnection() in its own goroutine.
-func StartReverseTCPListener(port int) {
-	// Update listener state
+// StartReverseTCPListener binds synchronously so the caller receives bind errors.
+func StartReverseTCPListener(port int) error {
 	listenerMutex.Lock()
-	isListening = true
-	currentPort = port
-	listenerMutex.Unlock()
+	defer listenerMutex.Unlock()
+	if currentListener != nil {
+		return fmt.Errorf("listener is already running")
+	}
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+	if err != nil {
+		return err
+	}
+	currentListener = listener
+	go acceptClients(listener)
+	log.Printf("TCP listener started on %s", listener.Addr())
+	return nil
+}
 
-	// When the function exits (normally or by error), reset state
+func acceptClients(listener net.Listener) {
 	defer func() {
+		listener.Close()
 		listenerMutex.Lock()
-		isListening = false
-		currentPort = 0
+		if currentListener == listener {
+			currentListener = nil
+		}
 		listenerMutex.Unlock()
 	}()
-
-	address := fmt.Sprintf("0.0.0.0:%d", port)
-
-	// Attempt to bind the port
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Printf("Failed to start listener: %v", err)
-		return
-	}
-	defer listener.Close()
-
-	log.Printf("C2 Server listening on port %d", port)
-
-	// Accept incoming client connections indefinitely
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Printf("Accept error: %v", err)
-			continue
+			if errors.Is(err, net.ErrClosed) {
+				return
+			}
+			log.Printf("TCP listener stopped: %v", err)
+			return
 		}
-
-		// Extract connecting client's IP:port
-		clientAddr := conn.RemoteAddr().String()
-
-		// Create and store new client object
-		client := &models.Client{
-			Type:      "TCP",
-			Listener:  conn.LocalAddr().String(),
-			ID:        utils.GenerateClientID(),        // Random C2-assigned unique ID
-			Conn:      conn,                            // Raw TCP connection
-			LastSeen:  time.Now(),                      // Last activity timestamp
-			IPAddress: clientAddr,                      // Remote address string (IP Address)
-			IsActive:  true,                            // Mark as active
-			Messages:  make([]models.ClientMessage, 0), // Store recent inbound messages
+		listenerMutex.Lock()
+		if currentListener != listener {
+			listenerMutex.Unlock()
+			conn.Close()
+			return
 		}
-
-		log.Printf("New client connected: %s from %s", client.ID, clientAddr)
-
-		// Save in global client registry
-		AddClient(clientAddr, client)
-
-		// Spawn dedicated goroutine to handle binary protocol for this client
+		addr := conn.RemoteAddr().String()
+		client := &models.Client{ID: utils.GenerateClientID(), Conn: conn, LastSeen: time.Now(), IPAddress: addr, IsActive: true, Type: "TCP", Listener: conn.LocalAddr().String(), Messages: make([]models.ClientMessage, 0)}
+		AddClient(addr, client)
+		listenerMutex.Unlock()
+		log.Printf("Client connected: %s from %s", client.ID, addr)
 		go handleClientConnection(client)
 	}
 }
 
-// IsListening returns whether the listener is currently active.
-// Protected by a mutex to avoid race conditions in UI or API calls.
-func IsListening() bool {
+// Stopping accepts does not close existing session connections.
+func StopReverseTCPListener() error {
+	listenerMutex.Lock()
+	listener := currentListener
+	currentListener = nil
+	listenerMutex.Unlock()
+	if listener == nil {
+		return nil
+	}
+	err := listener.Close()
+	if errors.Is(err, net.ErrClosed) {
+		return nil
+	}
+	return err
+}
+
+func ListenerStatus() (bool, int) {
 	listenerMutex.Lock()
 	defer listenerMutex.Unlock()
-	return isListening
+	if currentListener == nil {
+		return false, 0
+	}
+	return true, currentListener.Addr().(*net.TCPAddr).Port
 }
+
+func IsListening() bool { running, _ := ListenerStatus(); return running }
