@@ -45,6 +45,8 @@ type ClientMessage struct {
 
 // Attributes associated with Clients
 type Client struct {
+	Type           string
+	Listener       string
 	ID             string
 	Conn           net.Conn
 	LastSeen       time.Time

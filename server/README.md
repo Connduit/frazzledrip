@@ -177,3 +177,16 @@ If the saved host has a manually assigned map location in this browser, it is
 copied to the new host address only when the new address has no saved location.
 No Windows client changes or rebuild are required. Linking and saved records
 remain in memory until the server process exits.
+
+### Session table columns
+
+The table shows Agent ID, Type, External, Listener, Internal, Domain, Computer,
+User, OS, Process, PID, Tags, Last, and Sleep, in that order. Click the agent ID
+to inspect a session; the adjacent dot indicates active/offline status.
+External is the remote peer IP observed by the server, which may be a private,
+loopback, or NAT address. Listener is the local endpoint that accepted the
+connection; Type is its transport. Internal addresses and host facts come from
+collected command responses. Last is the last message timestamp. Process, PID,
+Tags, and Sleep currently remain unreported (`—`); tasklist output alone does
+not identify the agent process, and UI polling intervals are not agent sleep
+settings. Memory and other detailed hardware fields remain in the inspector.

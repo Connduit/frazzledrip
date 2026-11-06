@@ -75,6 +75,8 @@ func StartReverseTCPListener(port int) {
 
 		// Create and store new client object
 		client := &models.Client{
+			Type:      "TCP",
+			Listener:  conn.LocalAddr().String(),
 			ID:        utils.GenerateClientID(),        // Random C2-assigned unique ID
 			Conn:      conn,                            // Raw TCP connection
 			LastSeen:  time.Now(),                      // Last activity timestamp
