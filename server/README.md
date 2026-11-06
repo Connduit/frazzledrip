@@ -161,3 +161,19 @@ is retained. The server does not automatically merge devices by IP because
 multiple devices may share NAT or WSL forwarding. Session records currently live
 in memory and do not survive a server restart. The existing 60-second inbound
 read timeout still applies; clients that send no heartbeats can hit that timeout.
+
+### Link a reconnect to saved information
+
+Select the new **active** connection in the session table. In its inspector,
+use **Link a saved session**, choose the corresponding offline record, and click
+**Link saved session**. This explicit action transfers the saved facts, message
+history (latest 100), and latest command outputs (20 distinct commands) into the
+live connection, removing the consumed offline row. Existing live facts win over
+saved values; duplicate command outputs keep the newest response. The active
+connection retains its ID, endpoint, and pending command. Verify which device
+the saved record belongs to before linking; the server never matches by IP.
+
+If the saved host has a manually assigned map location in this browser, it is
+copied to the new host address only when the new address has no saved location.
+No Windows client changes or rebuild are required. Linking and saved records
+remain in memory until the server process exits.

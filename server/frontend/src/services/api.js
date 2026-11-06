@@ -3,6 +3,15 @@ const API_BASE = '';
 
 // API service functions for communicating with the backend
 export const apiService = {
+    async linkSession(savedID, liveID) {
+        const result = await fetch(`${API_BASE}/link-session`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ saved_id: savedID, live_id: liveID }),
+        });
+        const data = await result.json();
+        if (!result.ok) throw new Error(data.error || 'Could not link sessions');
+        return data;
+    },
     // Starts the listener on the server
     async startListener() {
         // Send a POST request to /start-listener with an empty JSON body

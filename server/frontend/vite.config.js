@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 const apiPaths = [
+    '/link-session',
     '/start-listener',
     '/get-clients',
     '/get-client-messages',

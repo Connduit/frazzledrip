@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiService, utils } from '../services/api.js';
-import { systemOf, validLocation } from '../lib/sessions.js';
+import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
+import SessionLink from './SessionLink.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
@@ -91,6 +92,12 @@ export default function App() {
         <ClientList {...shared} locations={locations} />
         <div className="visual-grid"><SessionGraph {...shared} /><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>
         {selected ? <><section className="panel section"><span className="eyebrow">SESSION INSPECTOR</span><h2>{systemOf(selected).hostname || selectedClient}</h2><p className="mono muted">{selected.ID} · {selectedClient}</p>
+            {selected.IsActive && <SessionLink key={selected.ID} live={selected} clients={clients} onLinked={saved => {
+                const savedLocation = locations[hostOf(saved.IPAddress)];
+                if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
+                setStatus('Saved session linked.');
+                setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
+            }} />}
             <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
             {selected.IsActive ? <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}

@@ -24,3 +24,5 @@ input, select, textarea { background: #0e1521; } input { min-width: 0; } input::
 .command-results { margin: 24px 0; font-size: 12px; } .command-results details { border: 1px solid #283347; border-radius: 6px; margin: 8px 0; background: #0e1623; } .command-results summary { padding: 12px; cursor: pointer; overflow-wrap: anywhere; } .command-results time { color: #91a3b9; font-size: 11px; margin-left: 16px; } .command-results pre { padding: 14px; margin: 0; max-height: 360px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-top: 1px solid #283347; } .system-info { overflow-wrap: anywhere; }
 
 .graph-edge.disconnected { stroke-dasharray: 5 5; opacity: .4; }
+
+.session-link { padding: 16px; margin: 18px 0; border: 1px solid #3c506b; border-radius: 6px; font-size: 12px; } .session-link p { color: #a6b7cd; } .session-link label { display: block; margin-bottom: 8px; } .link-controls { display: flex; gap: 10px; flex-wrap: wrap; } .link-controls select { flex: 1; min-width: 0; max-width: 100%; }

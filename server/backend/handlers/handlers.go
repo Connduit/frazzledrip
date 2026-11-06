@@ -9,6 +9,7 @@ import (
 
 // NOTE: this function "connects" backend and frontend
 func RegisterHandlers() {
+	http.HandleFunc("/link-session", linkSessionHandler)
 	// Start listener endpoint
 	http.HandleFunc("/start-listener", startListenerHandler)
 
