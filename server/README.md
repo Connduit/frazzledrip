@@ -42,6 +42,19 @@ Open `http://localhost:5173` for development. Vite proxies API requests to
 Frontend edits appear through hot reload. After changing Go code, stop and rerun
 `go run ./backend` from `server`; Go does not automatically reload.
 
+If port 8080 is already in use, choose another backend address:
+
+```sh
+# Terminal 1, from server
+go run ./backend -addr 127.0.0.1:8081
+
+# Terminal 2, from server/frontend (Bash)
+BACKEND_URL=http://127.0.0.1:8081 npm run dev
+```
+
+In PowerShell, set `$env:BACKEND_URL = 'http://127.0.0.1:8081'` before
+`npm run dev`. Restart Vite after changing its backend address.
+
 ## Final build: one executable
 
 Build the production frontend first, then compile it into the Go server:
@@ -58,6 +71,11 @@ Open `http://localhost:8080`. This executable serves both the frontend and API
 and can run from any working directory. Deploy only the executable; Node.js,
 `node_modules`, and the frontend source/build directories are not needed at
 runtime. Stop the development backend first if it is still using port 8080.
+
+To use another port for the combined executable, run
+`./frazzledrip-server -addr 127.0.0.1:8081` (or
+`./frazzledrip-server.exe -addr 127.0.0.1:8081` on Windows), then open
+`http://localhost:8081`. The embedded frontend uses the same origin automatically.
 
 For a Windows executable, run this build command from `server` after generating
 the frontend assets (Bash syntax shown):

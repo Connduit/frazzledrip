@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/Connduit/frazzledrip/server/backend/handlers"
 	"github.com/Connduit/frazzledrip/server/frontend"
 	"log"
@@ -8,12 +9,15 @@ import (
 )
 
 func main() {
+	addr := flag.String("addr", ":8080", "HTTP listen address")
+	flag.Parse()
+
 	// Serve static files
 	http.Handle("/", frontend.Handler())
 
 	// Register HTTP handlers
 	handlers.RegisterHandlers()
 
-	log.Println("C2 Server with Message Storage running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("C2 Server with Message Storage starting on %s", *addr)
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }

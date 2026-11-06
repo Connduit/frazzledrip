@@ -11,8 +11,10 @@ const apiPaths = [
     '/get-client-info',
 ];
 
+const backendURL = process.env.BACKEND_URL || 'http://127.0.0.1:8080';
+
 export default defineConfig({
     server: {
-        proxy: Object.fromEntries(apiPaths.map(path => [path, 'http://127.0.0.1:8080'])),
+        proxy: Object.fromEntries(apiPaths.map(path => [path, backendURL])),
     },
 });
