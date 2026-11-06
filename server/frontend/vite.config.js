@@ -11,7 +11,7 @@ const apiPaths = [
     '/get-client-info',
 ];
 
-const backendURL = process.env.BACKEND_URL || 'http://127.0.0.1:8080';
+const backendURL = process.env.BACKEND_URL || 'http://127.0.0.1:8081';
 
 export default defineConfig({
     server: {
