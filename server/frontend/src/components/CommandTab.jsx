@@ -8,7 +8,8 @@ function CommandTab({ selectedClient, clients, onClientSelect, setStatus, refres
         if (!selectedClient || !command) return;
         
         try {
-            await apiService.sendCommand(selectedClient, command);
+            const data = await apiService.sendCommand(selectedClient, command);
+            if (data.status?.includes('Failed')) throw new Error(data.status);
             setStatus('✅ Command sent - waiting for response...');
             setCommand('');
             refreshMessages();

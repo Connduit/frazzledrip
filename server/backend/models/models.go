@@ -45,28 +45,41 @@ type ClientMessage struct {
 
 // Attributes associated with Clients
 type Client struct {
-	ID         string
-	Conn       net.Conn
-	LastSeen   time.Time
-	SystemInfo SystemInfo
-	IPAddress  string
-	IsActive   bool
-	Messages   []ClientMessage // Store messages for this client
+	ID             string
+	Conn           net.Conn
+	LastSeen       time.Time
+	SystemInfo     SystemInfo
+	IPAddress      string
+	IsActive       bool
+	Messages       []ClientMessage // Store messages for this client
+	CommandResults []CommandResult `json:"CommandResults,omitempty"`
+}
+
+type CommandResult struct {
+	Command    string    `json:"command"`
+	Output     string    `json:"output"`
+	ReceivedAt time.Time `json:"received_at"`
 }
 
 type SystemInfo struct {
-	Hostname                string  `json:"hostname"`
-	OS                      string  `json:"os"`
-	Arch                    string  `json:"arch"`
-	User                    string  `json:"user"`
-	MajorVersion            *uint32 `json:"major_version,omitempty"`
-	MinorVersion            *uint32 `json:"minor_version,omitempty"`
-	BuildNumber             *uint32 `json:"build_number,omitempty"`
-	ProductType             *uint32 `json:"product_type,omitempty"`
-	TotalPhysicalMemory     *uint64 `json:"total_physical_memory,omitempty"`
-	AvailablePhysicalMemory *uint64 `json:"available_physical_memory,omitempty"`
-	NumberOfProcessors      *uint32 `json:"number_of_processors,omitempty"`
-	ProcessorArchitecture   *uint32 `json:"processor_architecture,omitempty"`
+	Hostname                string   `json:"hostname"`
+	OS                      string   `json:"os"`
+	Arch                    string   `json:"arch"`
+	User                    string   `json:"user"`
+	Domain                  string   `json:"domain,omitempty"`
+	IPAddresses             []string `json:"ip_addresses,omitempty"`
+	MACAddresses            []string `json:"mac_addresses,omitempty"`
+	Manufacturer            string   `json:"manufacturer,omitempty"`
+	Model                   string   `json:"model,omitempty"`
+	BootTime                string   `json:"boot_time,omitempty"`
+	MajorVersion            *uint32  `json:"major_version,omitempty"`
+	MinorVersion            *uint32  `json:"minor_version,omitempty"`
+	BuildNumber             *uint32  `json:"build_number,omitempty"`
+	ProductType             *uint32  `json:"product_type,omitempty"`
+	TotalPhysicalMemory     *uint64  `json:"total_physical_memory,omitempty"`
+	AvailablePhysicalMemory *uint64  `json:"available_physical_memory,omitempty"`
+	NumberOfProcessors      *uint32  `json:"number_of_processors,omitempty"`
+	ProcessorArchitecture   *uint32  `json:"processor_architecture,omitempty"`
 }
 
 type CommandRequest struct {

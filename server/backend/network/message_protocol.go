@@ -144,6 +144,13 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 
 	// Append to client's message history (max 100)
 	clientsMutex.Lock()
+	if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
+		if pending, ok := pendingCommands[client.IPAddress]; ok && (msg.Header.MessageID == pending.ID || msg.Header.MessageID == 105) {
+			client.SystemInfo = mergeCommandInfo(client.SystemInfo, pending.Command, string(msg.Data))
+			storeCommandResult(client, pending.Command, string(msg.Data), clientMessage.Timestamp)
+			delete(pendingCommands, client.IPAddress)
+		}
+	}
 	if msg.Header.MessageType == models.MESSAGE_SYS_INFO || msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
 		client.SystemInfo = mergeSystemInfo(client.SystemInfo, msg.Data, msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT)
 	}
@@ -234,8 +241,20 @@ func SendCommandToClient(clientAddr string, command string) error {
 		},
 		Data: []byte(command),
 	}
+	clientsMutex.Lock()
+	if _, pending := pendingCommands[clientAddr]; pending {
+		clientsMutex.Unlock()
+		return fmt.Errorf("a shell command is already pending for this session; wait for its response")
+	}
+	pendingCommands[clientAddr] = pendingCommand{ID: msg.Header.MessageID, Command: command}
+	clientsMutex.Unlock()
 
 	if err := sendBinaryMessage(client, msg); err != nil {
+		clientsMutex.Lock()
+		if pendingCommands[clientAddr].ID == msg.Header.MessageID {
+			delete(pendingCommands, clientAddr)
+		}
+		clientsMutex.Unlock()
 		return err
 	}
 

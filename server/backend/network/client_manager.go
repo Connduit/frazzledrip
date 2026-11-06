@@ -37,6 +37,7 @@ func RemoveClient(addr string) {
 	defer clientsMutex.Unlock()
 
 	delete(clients, addr)
+	delete(pendingCommands, addr)
 }
 
 // GetClient returns a pointer to the client with the given address.
@@ -69,5 +70,8 @@ func GetAllClients() []*models.Client {
 func snapshotClient(client *models.Client) *models.Client {
 	copy := *client
 	copy.Messages = append([]models.ClientMessage(nil), client.Messages...)
+	copy.CommandResults = append([]models.CommandResult(nil), client.CommandResults...)
+	copy.SystemInfo.IPAddresses = append([]string(nil), client.SystemInfo.IPAddresses...)
+	copy.SystemInfo.MACAddresses = append([]string(nil), client.SystemInfo.MACAddresses...)
 	return &copy
 }

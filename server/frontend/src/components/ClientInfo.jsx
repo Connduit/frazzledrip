@@ -8,6 +8,12 @@ export default function ClientInfo({ clientInfo }) {
         <strong>System information</strong>
         <div>Hostname: {clientInfo.hostname || 'Unknown'}</div>
         <div>User: {clientInfo.user || 'Unknown'}</div>
+        <div>Domain: {clientInfo.domain || 'Unknown'}</div>
+        <div>Reported IPs: {clientInfo.ip_addresses?.join(', ') || 'Unknown'}</div>
+        <div>MAC addresses: {clientInfo.mac_addresses?.join(', ') || 'Unknown'}</div>
+        <div>Manufacturer: {clientInfo.manufacturer || 'Unknown'}</div>
+        <div>Model: {clientInfo.model || 'Unknown'}</div>
+        <div>Boot time: {clientInfo.boot_time || 'Unknown'}</div>
         <div>OS: {clientInfo.os || 'Unknown'}</div>
         <div>Architecture: {clientInfo.arch || 'Unknown'}</div>
         <div>Build: {clientInfo.build_number ?? 'Unknown'}</div>

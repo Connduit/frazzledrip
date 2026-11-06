@@ -4,6 +4,7 @@ import { systemOf, validLocation } from '../lib/sessions.js';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
+import CommandResults from './CommandResults.jsx';
 import ClientInfo from './ClientInfo.jsx';
 import MessageList from './MessageList.jsx';
 import TabContainer from './TabContainer.jsx';
@@ -90,7 +91,7 @@ export default function App() {
         <ClientList {...shared} locations={locations} />
         <div className="visual-grid"><SessionGraph {...shared} /><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>
         {selected ? <><section className="panel section"><span className="eyebrow">SESSION INSPECTOR</span><h2>{systemOf(selected).hostname || selectedClient}</h2><p className="mono muted">{selected.ID} · {selectedClient}</p>
-            <ClientInfo clientInfo={clientInfo} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
+            <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
             <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /></>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}
         {status && <div role="status" className={`status ${utils.getStatusClass(status)}`}>{status}</div>}

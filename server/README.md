@@ -123,3 +123,27 @@ Missing or invalid fields preserve existing values. Hostname, user, and product
 type remain unknown when the client does not report them. Memory is shown in GiB;
 Windows versions are shown as reported version/build numbers rather than guessed
 marketing names. Metadata is kept for the lifetime of the connected session.
+
+### Metadata from command responses
+
+Shell commands sent through the controller are associated with their responses:
+
+- `whoami`: current user identity.
+- `ipconfig` / `ipconfig /all`: host name, DNS suffix, reported IPv4/IPv6 addresses,
+  and MAC addresses when present.
+- `systeminfo`: host name, OS name/version/build, architecture, manufacturer,
+  model, domain, boot time, processor count, and physical memory when present.
+- Other commands, including `dir C:\`, `netstat -an`, `tasklist`, and `net user`:
+  the latest output is retained under **Collected command output** in the session
+  inspector. The latest 20 distinct commands are retained per connection.
+
+Metadata parsing supports the shown English Windows output formats. Empty,
+failed, localized, or unrecognized fields leave existing facts intact; original
+responses remain available. Reported interface IPs are distinct from the TCP
+remote endpoint, and do not change map coordinates automatically.
+
+The current Windows client returns the fixed response ID `105` for shell commands.
+The server therefore allows one shell command in flight per session, rejecting a
+second until the first responds. It also accepts clients that echo request IDs.
+No client rebuild is required. If a command never responds, its slot clears when
+the session disconnects; reconnect before sending another shell command.
