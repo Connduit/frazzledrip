@@ -16,7 +16,7 @@ export default function ClientList({ clients, selectedClient, onClientSelect, lo
                 <select aria-label="Sort sessions" value={sort} onChange={e => setSort(e.target.value)}><option value="host">Host name</option><option value="seen">Last seen</option></select></div></div>
         <div className="table-scroll"><table><thead><tr><th>Status</th><th>Device / session</th><th>Remote endpoint</th><th>Reported IPs</th><th>User</th><th>Platform</th><th>Processors</th><th>Memory</th><th>Location</th><th>Last seen</th><th><span className="sr-only">Action</span></th></tr></thead>
             <tbody>{rows.map(client => { const info = systemOf(client); return <tr key={client.IPAddress} className={selectedClient === client.IPAddress ? 'selected' : ''}>
-                <td><span className={`badge ${client.IsActive ? 'live' : ''}`}><i />{client.IsActive ? 'Active' : 'Inactive'}</span></td>
+                <td><span className={`badge ${client.IsActive ? 'live' : ''}`}><i />{client.IsActive ? 'Active' : 'Offline'}</span></td>
                 <td><strong>{info.hostname || 'Unknown host'}</strong><small className="mono">{client.ID}</small></td>
                 <td className="mono">{client.IPAddress}</td><td className="mono">{client.SystemInfo?.ip_addresses?.join(', ') || '—'}</td><td>{info.user || '—'}</td><td>{[info.os, info.arch].filter(Boolean).join(' / ') || '—'}</td>
                 <td>{client.SystemInfo?.number_of_processors ?? '—'}</td>

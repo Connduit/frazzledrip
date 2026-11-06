@@ -102,7 +102,8 @@ Search sessions by host, user, or address and sort by host or last seen. Select
 **Inspect**, a graph node, or a map marker to open the same session inspector.
 The graph shows direct controller connections; it does not infer pivots. The
 inventory refreshes every five seconds and reports failed refreshes. Disconnected
-sessions disappear when removed from the backend registry.
+sessions remain visible as offline, with metadata and command history preserved
+until the server process exits. Offline sessions cannot receive commands.
 
 The map bundles Natural Earth country boundaries for offline use. The server has
 no IP geolocation data. Select a session and enter a label, latitude, and longitude
@@ -122,7 +123,7 @@ on its next refresh; the selected inspector refreshes every two seconds.
 Missing or invalid fields preserve existing values. Hostname, user, and product
 type remain unknown when the client does not report them. Memory is shown in GiB;
 Windows versions are shown as reported version/build numbers rather than guessed
-marketing names. Metadata is kept for the lifetime of the connected session.
+marketing names. Metadata remains available when the connection drops, until the server process exits.
 
 ### Metadata from command responses
 
@@ -147,3 +148,16 @@ The server therefore allows one shell command in flight per session, rejecting a
 second until the first responds. It also accepts clients that echo request IDs.
 No client rebuild is required. If a command never responds, its slot clears when
 the session disconnects; reconnect before sending another shell command.
+
+### Disconnects
+
+A lost connection marks its record offline instead of deleting collected facts,
+messages, and command outputs. Offline graph links are dashed and their inspector
+remains available. Pending commands are cleared when the connection ends.
+
+The current client does not provide a stable device identifier. A reconnect with
+a different remote port therefore appears as a new connection; the old record
+is retained. The server does not automatically merge devices by IP because
+multiple devices may share NAT or WSL forwarding. Session records currently live
+in memory and do not survive a server restart. The existing 60-second inbound
+read timeout still applies; clients that send no heartbeats can hit that timeout.

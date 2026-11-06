@@ -40,6 +40,19 @@ func RemoveClient(addr string) {
 	delete(pendingCommands, addr)
 }
 
+// DisconnectClient keeps collected facts and history available for inspection.
+// An older socket must not mark a replacement connection offline.
+func DisconnectClient(client *models.Client) {
+	clientsMutex.Lock()
+	defer clientsMutex.Unlock()
+	if clients[client.IPAddress] != client {
+		return
+	}
+	client.IsActive = false
+	client.Conn = nil
+	delete(pendingCommands, client.IPAddress)
+}
+
 // GetClient returns a pointer to the client with the given address.
 // The second return value indicates whether the client was found.
 func GetClient(addr string) (*models.Client, bool) {

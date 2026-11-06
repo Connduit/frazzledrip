@@ -22,3 +22,5 @@ input, select, textarea { background: #0e1521; } input { min-width: 0; } input::
 @media (max-width: 1000px) { .visual-grid { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: 1fr 1fr; } .app-header { align-items: flex-start; flex-direction: column; } .panel-heading { flex-wrap: wrap; } }
 @media (max-width: 600px) { .container { padding: 16px; } .metric { padding: 16px; } .table-tools { flex-wrap: wrap; width: 100%; } .table-tools input { width: 100%; } .header-actions { flex-wrap: wrap; } .app-footer { flex-direction: column; } }
 .command-results { margin: 24px 0; font-size: 12px; } .command-results details { border: 1px solid #283347; border-radius: 6px; margin: 8px 0; background: #0e1623; } .command-results summary { padding: 12px; cursor: pointer; overflow-wrap: anywhere; } .command-results time { color: #91a3b9; font-size: 11px; margin-left: 16px; } .command-results pre { padding: 14px; margin: 0; max-height: 360px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-top: 1px solid #283347; } .system-info { overflow-wrap: anywhere; }
+
+.graph-edge.disconnected { stroke-dasharray: 5 5; opacity: .4; }

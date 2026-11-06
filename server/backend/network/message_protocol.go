@@ -26,9 +26,10 @@ Duties:
 
 // TODO: this handles incoming data from client
 func handleClientConnection(client *models.Client) {
+	conn := client.Conn
 	defer func() {
-		client.Conn.Close()
-		RemoveClient(client.IPAddress)
+		conn.Close()
+		DisconnectClient(client)
 		log.Printf("Client disconnected: %s", client.ID)
 	}()
 
@@ -40,9 +41,9 @@ func handleClientConnection(client *models.Client) {
 			Or if deadline is reached, send a "sleep/hibernate" message to the client that
 			also tells it when to wakeup?
 		*/
-		client.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
-		message, err := readBinaryMessage(client.Conn)
+		message, err := readBinaryMessage(conn)
 		if err != nil {
 			log.Printf("Read message from client %s: %v", client.ID, err)
 			return
@@ -169,6 +170,9 @@ to the client over TCP.
 This is the ONLY function that performs the actual network write.
 */
 func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error {
+	if client.Conn == nil {
+		return fmt.Errorf("session is offline")
+	}
 	data := serializeBinaryMessage(msg)
 	// data := encodeBinaryMessage(msg)
 	// data := encryptBinaryMessage(msg)

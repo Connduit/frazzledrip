@@ -81,9 +81,9 @@ export default function App() {
     const hosts = new Set(clients.map(c => systemOf(c).hostname).filter(Boolean)).size;
     const shared = { clients, selectedClient, onClientSelect: setSelectedClient };
     return <div className="container">
-        <header className="app-header"><div><span className="eyebrow">FRAZZLEDRIP / CONTROLLER</span><h1>Session workspace</h1><p className="muted">Connected devices, topology, and session geography.</p></div>
+        <header className="app-header"><div><span className="eyebrow">FRAZZLEDRIP / CONTROLLER</span><h1>Session workspace</h1><p className="muted">Session inventory, topology, and geography.</p></div>
             <div className="header-actions"><button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button><button className="primary" disabled={starting} onClick={startListener}>{starting ? 'Starting…' : 'Start listener · 4444'}</button></div></header>
-        <div className="summary-grid"><div className="metric"><span>Connected sessions</span><strong>{clients.length.toString().padStart(2, '0')}</strong></div>
+        <div className="summary-grid"><div className="metric"><span>Known sessions</span><strong>{clients.length.toString().padStart(2, '0')}</strong></div>
             <div className="metric"><span>Active sessions</span><strong className="accent">{active.toString().padStart(2, '0')}</strong></div>
             <div className="metric"><span>Reported hosts</span><strong>{hosts.toString().padStart(2, '0')}</strong></div>
             <div className="metric"><span>Session feed</span><strong className="feed-state">{fetchError ? 'Unavailable' : lastRefresh ? 'Connected' : 'Connecting…'}</strong><small>{lastRefresh ? `Last update ${lastRefresh.toLocaleTimeString()}` : 'Waiting for first update'}</small></div></div>
@@ -92,9 +92,9 @@ export default function App() {
         <div className="visual-grid"><SessionGraph {...shared} /><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>
         {selected ? <><section className="panel section"><span className="eyebrow">SESSION INSPECTOR</span><h2>{systemOf(selected).hostname || selectedClient}</h2><p className="mono muted">{selected.ID} · {selectedClient}</p>
             <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
-            <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /></>
+            {selected.IsActive ? <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}
         {status && <div role="status" className={`status ${utils.getStatusClass(status)}`}>{status}</div>}
-        <footer className="app-footer">FRAZZLEDRIP <span>Session inventory reflects the current server registry. Disconnected sessions are removed.</span></footer>
+        <footer className="app-footer">FRAZZLEDRIP <span>Session inventory reflects the current server registry. Offline sessions retain their collected information while the server is running.</span></footer>
     </div>;
 }
