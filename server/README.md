@@ -95,3 +95,19 @@ Generated `frontend/dist` and `frontend/node_modules` are ignored by Git;
 
 `npm run preview` (from `server/frontend`) serves only the built frontend for
 inspection. Use the Go executable for the combined frontend/API workflow.
+
+## Session dashboard
+
+Search sessions by host, user, or address and sort by host or last seen. Select
+**Inspect**, a graph node, or a map marker to open the same session inspector.
+The graph shows direct controller connections; it does not infer pivots. The
+inventory refreshes every five seconds and reports failed refreshes. Disconnected
+sessions disappear when removed from the backend registry.
+
+The map bundles Natural Earth country boundaries for offline use. The server has
+no IP geolocation data. Select a session and enter a label, latitude, and longitude
+to place it on the map. Locations are manually assigned and saved in this
+browser's local storage, keyed by host address without the remote port. Sessions
+from the same address share the location; other browsers do not. Use **Clear**
+to remove it. Addresses alone are not treated as verified physical locations.
+No session addresses are sent to external mapping or geolocation services.

