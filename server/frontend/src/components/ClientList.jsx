@@ -28,7 +28,7 @@ export default function ClientList({ clients, selectedClient, onClientSelect }) 
                     <td>{client.Type || '—'}</td>
                     <td className="mono" title={`Observed remote endpoint: ${client.IPAddress}`}>{hostOf(client.IPAddress) || '—'}</td>
                     <td className="mono">{client.Listener || '—'}</td>
-                    <td className="mono">{details.ip_addresses?.join(', ') || '—'}</td>
+                    <td className="mono">{details.ip_addresses?.filter(address => /^(?:\d{1,3}\.){3}\d{1,3}$/.test(address) && address.split('.').every(octet => Number(octet) <= 255)).join(', ') || '—'}</td>
                     <td>{details.domain || '—'}</td><td>{info.hostname || '—'}</td><td>{info.user || '—'}</td>
                     <td>{[info.os, info.arch].filter(Boolean).join(' / ') || '—'}</td>
                     <td>{details.process_name || '—'}</td><td className="mono">{details.process_id ?? '—'}</td>
