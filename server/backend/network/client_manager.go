@@ -1,7 +1,7 @@
 package network
 
 import (
-	"backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/models"
 	"sync"
 )
 

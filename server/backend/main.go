@@ -1,14 +1,15 @@
 package main
 
 import (
-	"backend/handlers"
+	"github.com/Connduit/frazzledrip/server/backend/handlers"
+	"github.com/Connduit/frazzledrip/server/frontend"
 	"log"
 	"net/http"
 )
 
 func main() {
 	// Serve static files
-	http.Handle("/", http.FileServer(http.Dir(".")))
+	http.Handle("/", frontend.Handler())
 
 	// Register HTTP handlers
 	handlers.RegisterHandlers()

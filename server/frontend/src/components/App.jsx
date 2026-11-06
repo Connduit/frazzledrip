@@ -1,3 +1,10 @@
+import React from 'react';
+import { apiService, utils } from '../services/api.js';
+import ClientList from './ClientList.jsx';
+import ClientInfo from './ClientInfo.jsx';
+import MessageList from './MessageList.jsx';
+import TabContainer from './TabContainer.jsx';
+
 function App() {
     // ================================
     //  React State
@@ -188,6 +195,5 @@ function App() {
     );
 }
 
-// Mount React app to DOM
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+
+export default App;

@@ -1,3 +1,6 @@
+import React from 'react';
+import { utils } from '../services/api.js';
+
 function ClientList({ clients, selectedClient, onClientSelect }) {
     if (clients.length === 0) {
         return (
@@ -41,3 +44,4 @@ function ClientList({ clients, selectedClient, onClientSelect }) {
         </div>
     );
 }
+export default ClientList;

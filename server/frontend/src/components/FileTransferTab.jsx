@@ -1,3 +1,6 @@
+import React from 'react';
+import { apiService } from '../services/api.js';
+
 function FileTransferTab({ selectedClient, clients, onClientSelect, setStatus }) {
     const [selectedFile, setSelectedFile] = React.useState(null);
 
@@ -52,3 +55,4 @@ function FileTransferTab({ selectedClient, clients, onClientSelect, setStatus })
         </div>
     );
 }
+export default FileTransferTab;

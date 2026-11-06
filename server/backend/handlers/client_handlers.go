@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"backend/models"
-	"backend/network"
-	"backend/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/Connduit/frazzledrip/server/backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/network"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"io"
 	"net/http"
 )

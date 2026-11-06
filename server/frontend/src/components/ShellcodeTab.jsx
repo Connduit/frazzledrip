@@ -1,3 +1,6 @@
+import React from 'react';
+import { apiService } from '../services/api.js';
+
 function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
     // Stores the file object chosen by the user (.bin, .raw, etc.)
     const [selectedShellcodeFile, setSelectedShellcodeFile] = React.useState(null);
@@ -124,3 +127,5 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
         </div>
     );
 }
+
+export default ShellcodeTab;

@@ -1,8 +1,8 @@
 // Base URL for the API endpoints
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';
 
 // API service functions for communicating with the backend
-const apiService = {
+export const apiService = {
     // Starts the listener on the server
     async startListener() {
         // Send a POST request to /start-listener with an empty JSON body
@@ -85,7 +85,7 @@ const apiService = {
 };
 
 // Utility functions for formatting and status handling
-const utils = {
+export const utils = {
     // Formats the last seen timestamp of a client
     formatLastSeen(lastSeen) {
         if (!lastSeen) return 'Unknown'; // return fallback if timestamp missing

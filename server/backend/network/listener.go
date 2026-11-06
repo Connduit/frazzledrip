@@ -1,9 +1,9 @@
 package network
 
 import (
-	"backend/models"
-	"backend/utils"
 	"fmt"
+	"github.com/Connduit/frazzledrip/server/backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"log"
 	"net"
 	"sync"

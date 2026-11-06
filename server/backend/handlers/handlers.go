@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"backend/network"
-	"backend/utils"
 	"encoding/json"
+	"github.com/Connduit/frazzledrip/server/backend/network"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"net/http"
 )
 

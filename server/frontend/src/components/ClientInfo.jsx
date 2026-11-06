@@ -1,3 +1,5 @@
+import React from 'react';
+
 function ClientInfo({ clientInfo }) {
     if (!clientInfo) {
         return <div>No client information available.</div>;
@@ -12,3 +14,4 @@ function ClientInfo({ clientInfo }) {
         </div>
     );
 }
+export default ClientInfo;

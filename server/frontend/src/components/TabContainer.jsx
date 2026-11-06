@@ -1,3 +1,9 @@
+import React from 'react';
+import CommandTab from './CommandTab.jsx';
+import MyCommandTab from './MyCommandTab.jsx';
+import FileTransferTab from './FileTransferTab.jsx';
+import ShellcodeTab from './ShellcodeTab.jsx';
+
 // Main tab container that renders different C2 interface components
 // depending on which tab is currently active.
 function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
@@ -90,3 +96,5 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
         </div>
     );
 }
+
+export default TabContainer;
