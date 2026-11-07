@@ -1,6 +1,5 @@
 import React from 'react';
 import CommandTab from './CommandTab.jsx';
-import MyCommandTab from './MyCommandTab.jsx';
 import FileTransferTab from './FileTransferTab.jsx';
 import ShellcodeTab from './ShellcodeTab.jsx';
 
@@ -20,14 +19,6 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         onClick={() => setActiveTab('commands')}
                     >
                         📝 Commands
-                    </button>
-
-                    {/* TODO: MyCommands tab button */}
-                    <button 
-                        className={`tab-button ${activeTab === 'mycommands' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('mycommands')}
-                    >
-                        📝 MyCommands
                     </button>
 
                     {/* File transfer tab button */}
@@ -61,17 +52,6 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                         />
                     )}
 
-                    {/* TODO: MyCommands tab content */}
-                    {activeTab === 'mycommands' && (
-                        <MyCommandTab 
-                            selectedClient={selectedClient}
-                            clients={clients}
-                            onClientSelect={onClientSelect}
-                            setStatus={setStatus}
-                            refreshMessages={refreshMessages}
-                        />
-                    )}
-                    
                     {/* File Transfer tab content */}
                     {activeTab === 'files' && (
                         <FileTransferTab 
