@@ -3,11 +3,12 @@ package network
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/Connduit/frazzledrip/server/backend/models"
-	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"io"
 	"log"
 	"time"
+
+	"github.com/Connduit/frazzledrip/server/backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
 )
 
 /*
@@ -344,6 +345,29 @@ func SendMyCommandToClient(clientAddr string, command string) error {
 	}
 
 	log.Printf("Sent MY_EXECUTE_COMMAND to client %s: %s", clientAddr, command)
+	return nil
+}
+
+func SendUploadRequestToClient(clientAddr string, filePath string) error {
+	client, exists := GetClient(clientAddr)
+	if !exists {
+		return fmt.Errorf("client not connected")
+	}
+
+	msg := models.InternalMessage{
+		Header: models.MessageHeader{
+			MessageType: models.MESSAGE_UPLOAD_FILE,
+			MessageID:   utils.GenerateMessageID(),
+			DataSize:    uint32(len(filePath)),
+		},
+		Data: []byte(filePath),
+	}
+
+	if err := sendBinaryMessage(client, msg); err != nil {
+		return err
+	}
+
+	log.Printf("Sent UPLOAD_FILE to client %s: %d bytes", clientAddr, len(filePath))
 	return nil
 }
 

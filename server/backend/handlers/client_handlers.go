@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Connduit/frazzledrip/server/backend/models"
-	"github.com/Connduit/frazzledrip/server/backend/network"
-	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/Connduit/frazzledrip/server/backend/models"
+	"github.com/Connduit/frazzledrip/server/backend/network"
+	"github.com/Connduit/frazzledrip/server/backend/utils"
 )
 
 // =========================
@@ -52,6 +53,15 @@ func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 	if selectedClient.IsActive {
 		status = "active"
 	}
+
+	// Attempt to send upload request to active agent
+	if err := network.SendUploadRequestToClient(clientAddr, request.Path); err != nil {
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": "❌ Failed to send command: " + err.Error(),
+		})
+		return
+	}
+
 	controlError(w, http.StatusNotImplemented, fmt.Sprintf("Download to server is not implemented for %q from session %q at %q (%s). No request was sent to the client.", request.Path, selectedClient.ID, clientAddr, status))
 }
 
