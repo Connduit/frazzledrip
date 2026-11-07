@@ -8,14 +8,33 @@ import (
 	"github.com/Connduit/frazzledrip/server/backend/utils"
 	"io"
 	"net/http"
+	"strings"
 )
 
-// downloadFilePlaceholderHandler deliberately performs no client or file operations.
+// =========================
+//
+//	POST /download-file
+//
+// =========================
+// Returns HTTP 501 Not Implemented for the download-to-server placeholder.
+// Performs no client or file operations.
 func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 	if !requireControlMethod(w, r, http.MethodPost) {
 		return
 	}
-	controlError(w, http.StatusNotImplemented, "Download to server is not implemented. No request was sent to the client.")
+	var request struct {
+		Path string `json:"path"`
+	}
+	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16384))
+	if err := decoder.Decode(&request); err != nil {
+		controlError(w, http.StatusBadRequest, "A JSON body with a file path is required.")
+		return
+	}
+	if err := decoder.Decode(new(any)); err != io.EOF || strings.TrimSpace(request.Path) == "" || len(request.Path) > 4096 {
+		controlError(w, http.StatusBadRequest, "Provide one JSON object with a nonempty file path of at most 4096 bytes.")
+		return
+	}
+	controlError(w, http.StatusNotImplemented, fmt.Sprintf("Download to server is not implemented for %q. No request was sent to the client.", request.Path))
 }
 
 // =========================
