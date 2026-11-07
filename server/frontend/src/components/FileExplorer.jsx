@@ -116,7 +116,7 @@ export default function FileExplorer({ agent }) {
         {selected && <div className="system-info"><strong>{selected.name}</strong><span className="mono">{selected.path}</span><span>Size: {formatFileSize(selected.size)}</span><span>Date modified: {formatFileDate(selected.modified_ms, selected.modified_text)}</span><span>Type: {fileType(selected)}</span></div>}
         {contextMenu && <div ref={menuRef} className="file-context-menu" aria-label={`Actions for ${contextMenu.entry.name}`} style={{ left: contextMenu.x, top: contextMenu.y }}>
             <strong>{contextMenu.entry.name}</strong>
-            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => requestDownloadPlaceholder(contextMenu.entry)}>Download to server (placeholder)</button>
+            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => requestDownloadPlaceholder(contextMenu.entry)}>Download to server</button>
             <button type="button" onClick={() => { setContextMenu(null); menuOrigin.current?.focus(); }}>Close</button>
         </div>}
     </section>;
