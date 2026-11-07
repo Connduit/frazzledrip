@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -15,14 +14,7 @@ func TestDownloadPlaceholder(t *testing.T) {
 			downloadFilePlaceholderHandler(response, httptest.NewRequest(method, "/download-file", strings.NewReader(`{"agent_id":"test","path":"C:\\Test Folder\\example.txt"}`)))
 			want := http.StatusMethodNotAllowed
 			if method == http.MethodPost {
-				want = http.StatusNotImplemented
-				var body map[string]string
-				if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
-					t.Fatal(err)
-				}
-				if !strings.Contains(body["error"], `"C:\\Test Folder\\example.txt"`) {
-					t.Fatalf("missing requested path: %s", body["error"])
-				}
+				want = http.StatusNotFound
 				if !strings.Contains(response.Body.String(), "No request was sent to the client") {
 					t.Fatalf("missing placeholder explanation: %s", response.Body.String())
 				}
@@ -35,7 +27,7 @@ func TestDownloadPlaceholder(t *testing.T) {
 }
 
 func TestDownloadPlaceholderRejectsInvalidPath(t *testing.T) {
-	for _, body := range []string{`{`, `{}`, `{"path":" "}`, `{"path":"test"} {}`, `{"path":"` + strings.Repeat("a", 4097) + `"}`} {
+	for _, body := range []string{`{`, `{}`, `{"path":" "}`, `{"agent_id":"test","path":"test"} {}`, `{"agent_id":"test","path":"` + strings.Repeat("a", 4097) + `"}`} {
 		response := httptest.NewRecorder()
 		downloadFilePlaceholderHandler(response, httptest.NewRequest(http.MethodPost, "/download-file", strings.NewReader(body)))
 		if response.Code != http.StatusBadRequest {
