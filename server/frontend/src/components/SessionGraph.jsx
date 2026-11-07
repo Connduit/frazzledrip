@@ -5,6 +5,7 @@ export default function SessionGraph({
     clients,
     selectedClient,
     onClientSelect,
+    onSessionContextMenu,
 }) {
     const [camera, setCamera] = useState({ zoom: 1, x: 0, y: 0 });
     const svg = useRef(null);
@@ -176,7 +177,23 @@ export default function SessionGraph({
                                         onClick={() =>
                                             onClientSelect(client.IPAddress)
                                         }
+                                        onContextMenu={(event) =>
+                                            onSessionContextMenu?.(
+                                                event,
+                                                client,
+                                            )
+                                        }
                                         onKeyDown={(e) => {
+                                            if (
+                                                e.key === 'ContextMenu' ||
+                                                (e.shiftKey && e.key === 'F10')
+                                            ) {
+                                                onSessionContextMenu?.(
+                                                    e,
+                                                    client,
+                                                );
+                                                return;
+                                            }
                                             if (
                                                 e.key === 'Enter' ||
                                                 e.key === ' '

@@ -24,6 +24,7 @@ export default function ClientList({
     clients,
     selectedClient,
     onClientSelect,
+    onSessionContextMenu,
 }) {
     const [query, setQuery] = useState('');
     const [sort, setSort] = useState('host');
@@ -183,6 +184,20 @@ export default function ClientList({
                             return (
                                 <tr
                                     key={client.ID}
+                                    onContextMenu={(event) =>
+                                        onSessionContextMenu?.(event, client)
+                                    }
+                                    onKeyDown={(event) => {
+                                        if (
+                                            event.key === 'ContextMenu' ||
+                                            (event.shiftKey &&
+                                                event.key === 'F10')
+                                        )
+                                            onSessionContextMenu?.(
+                                                event,
+                                                client,
+                                            );
+                                    }}
                                     className={
                                         selectedClient === client.IPAddress
                                             ? 'selected'

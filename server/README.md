@@ -307,6 +307,13 @@ Session and feature tab orders are saved independently. Switching session views
 preserves table filters, graph zoom, and the selected session. Narrow screens
 stack the two windows.
 
+Right-click a session row or graph node to open its context menu. **Open console**
+selects the session and opens its Console tab. Under **Browsers**, **File Browser**
+opens the existing Files tab, and **Process Browser** opens a UI placeholder that
+does not request process information. Already-open tabs are reused. Shift+F10
+also opens the menu from a focused session; arrow keys navigate, and Escape
+closes it and restores focus.
+
 Listener controls and disconnect remain in the toolbar/context strip.
 **Details & tools** opens host properties, saved-session linking, collected output,
 and existing controls. **Map** opens session geography separately.

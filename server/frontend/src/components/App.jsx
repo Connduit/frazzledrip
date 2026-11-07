@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
 import CommandConsole from './CommandConsole.jsx';
@@ -8,6 +8,7 @@ import HistoryPanel from './HistoryPanel.jsx';
 import EventViewer from './EventViewer.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
+import SessionContextMenu from './SessionContextMenu.jsx';
 import SessionMap from './SessionMap.jsx';
 import WorkspaceLayout from './WorkspaceLayout.jsx';
 import WorkspaceTabs from './WorkspaceTabs.jsx';
@@ -38,6 +39,8 @@ export default function App() {
     const [workspaceTab, setWorkspaceTab] = useState('events');
     const [openWorkspaceTabs, setOpenWorkspaceTabs] = useState(['events']);
     const [sessionView, setSessionView] = useState('sessions');
+    const [sessionMenu, setSessionMenu] = useState(null);
+    const closeSessionMenu = useCallback(() => setSessionMenu(null), []);
     const [showMap, setShowMap] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showAudit, setShowAudit] = useState(false);
@@ -176,14 +179,36 @@ export default function App() {
     const hosts = new Set(
         clients.map((c) => systemOf(c).hostname).filter(Boolean),
     ).size;
+    function selectSession(address) {
+        selectedAgentID.current =
+            clients.find((client) => client.IPAddress === address)?.ID || '';
+        setSelectedClient(address);
+    }
+    function showSessionMenu(event, client) {
+        event.preventDefault();
+        event.stopPropagation();
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const anchor = event.currentTarget.matches('button, [role="button"]')
+            ? event.currentTarget
+            : event.currentTarget.querySelector('button');
+        selectSession(client.IPAddress);
+        setSessionMenu({
+            id: client.ID,
+            anchor,
+            x: event.clientX || bounds.left,
+            y: event.clientY || bounds.bottom,
+        });
+    }
+    const menuClient =
+        sessionMenu && clients.find((client) => client.ID === sessionMenu.id);
+    useEffect(() => {
+        if (sessionMenu && !menuClient) closeSessionMenu();
+    }, [sessionMenu, menuClient, closeSessionMenu]);
     const shared = {
         clients,
         selectedClient,
-        onClientSelect: (address) => {
-            selectedAgentID.current =
-                clients.find((c) => c.IPAddress === address)?.ID || '';
-            setSelectedClient(address);
-        },
+        onClientSelect: selectSession,
+        onSessionContextMenu: showSessionMenu,
     };
     const selectedName = selected
         ? systemOf(selected).hostname || selected.ID
@@ -263,6 +288,7 @@ export default function App() {
                     { id: 'console', label: 'Console' },
                     { id: 'files', label: 'Files' },
                     { id: 'listeners', label: 'Listeners' },
+                    { id: 'processes', label: 'Process Browser' },
                 ].map((feature) => (
                     <button
                         type="button"
@@ -456,6 +482,31 @@ export default function App() {
                                 />
                             ),
                         },
+                        {
+                            id: 'processes',
+                            label: 'Process Browser',
+                            content: (
+                                <section
+                                    className="panel"
+                                    aria-label="Process Browser"
+                                >
+                                    <div className="workspace-panel-title">
+                                        <strong>Process Browser</strong>
+                                        <span>{selectedName}</span>
+                                    </div>
+                                    <div className="empty-state">
+                                        <strong>
+                                            Process Browser is not implemented
+                                            yet.
+                                        </strong>
+                                        <p>
+                                            No process information has been
+                                            requested from the client.
+                                        </p>
+                                    </div>
+                                </section>
+                            ),
+                        },
                     ]
                         .filter((tab) => openWorkspaceTabs.includes(tab.id))
                         .sort(
@@ -512,6 +563,25 @@ export default function App() {
                         setStatus('Saved session linked.');
                         setRefreshVersion((value) => value + 1);
                         setMessageVersion((value) => value + 1);
+                    }}
+                />
+            )}
+            {sessionMenu && menuClient && (
+                <SessionContextMenu
+                    {...sessionMenu}
+                    client={menuClient}
+                    onClose={closeSessionMenu}
+                    onOpen={(tab) => {
+                        selectSession(menuClient.IPAddress);
+                        openWorkspaceTab(tab);
+                        closeSessionMenu();
+                        requestAnimationFrame(() =>
+                            document
+                                .querySelector(
+                                    `[role="tab"][id$="-tab-${tab}"]`,
+                                )
+                                ?.focus(),
+                        );
                     }}
                 />
             )}
