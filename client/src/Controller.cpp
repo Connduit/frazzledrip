@@ -29,6 +29,8 @@ void Controller::handleNone(const InternalMessage& msg)
 	std::cout << "Controller::handleNone()" << std::endl;
 }
 
+// TODO: since this is just for executing commands into cmd, maybe implement a way to use
+// ConPTY instead? 
 void Controller::handleExecuteCommand(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteCommand()" << std::endl;
