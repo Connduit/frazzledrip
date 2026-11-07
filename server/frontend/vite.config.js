@@ -6,6 +6,7 @@ const apiPaths = [
     '/task-history',
     '/audit-history',
     '/browse-files',
+    '/download-file',
     '/stop-listener',
     '/listener-status',
     '/disconnect-session',

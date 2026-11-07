@@ -1,9 +1,9 @@
 // Base URL for the API endpoints
 const API_BASE = '';
 
-async function controlRequest(path, body) {
+async function controlRequest(path, body, signal) {
     const response = await fetch(`${API_BASE}${path}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal,
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Request failed');
@@ -12,6 +12,9 @@ async function controlRequest(path, body) {
 
 // API service functions for communicating with the backend
 export const apiService = {
+    async downloadFilePlaceholder(agentID, path, signal) {
+        return controlRequest('/download-file', { agent_id: agentID, path }, signal);
+    },
     async toolCatalog() {
         const response = await fetch(`${API_BASE}/tool-catalog`);
         const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Catalog unavailable'); return data;

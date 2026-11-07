@@ -16,8 +16,10 @@ export default function FileExplorer({ agent }) {
     const [notice, setNotice] = useState('');
     const menuRef = useRef(null);
     const menuOrigin = useRef(null);
+    const downloadRequest = useRef(null);
     useEffect(() => {
         setContextMenu(null); setNotice(''); setSelected(null);
+        return () => downloadRequest.current?.abort();
     }, [agent.ID]);
     useEffect(() => {
         if (!contextMenu) return;
@@ -48,6 +50,18 @@ export default function FileExplorer({ agent }) {
         const bounds = event.currentTarget.getBoundingClientRect();
         setSelected(entry); setNotice('');
         setContextMenu({ entry, x: Math.max(8, Math.min(event.clientX || bounds.left, window.innerWidth - 256)), y: Math.max(8, Math.min(event.clientY || bounds.bottom, window.innerHeight - 132)) });
+    }
+    async function requestDownloadPlaceholder(entry) {
+        downloadRequest.current?.abort();
+        const controller = new AbortController(); downloadRequest.current = controller;
+        setContextMenu(null); menuOrigin.current?.focus();
+        setNotice('Contacting server placeholder…');
+        try {
+            await apiService.downloadFilePlaceholder(agent.ID, entry.path, controller.signal);
+            if (!controller.signal.aborted) setNotice('Placeholder response received. No file transfer was performed.');
+        } catch (err) {
+            if (!controller.signal.aborted) setNotice(err.message);
+        }
     }
     const request = useRef(null);
     useEffect(() => () => request.current?.abort(), []);
@@ -102,10 +116,7 @@ export default function FileExplorer({ agent }) {
         {selected && <div className="system-info"><strong>{selected.name}</strong><span className="mono">{selected.path}</span><span>Size: {formatFileSize(selected.size)}</span><span>Date modified: {formatFileDate(selected.modified_ms, selected.modified_text)}</span><span>Type: {fileType(selected)}</span></div>}
         {contextMenu && <div ref={menuRef} className="file-context-menu" aria-label={`Actions for ${contextMenu.entry.name}`} style={{ left: contextMenu.x, top: contextMenu.y }}>
             <strong>{contextMenu.entry.name}</strong>
-            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => {
-                setNotice(`Download to server is not implemented for ${contextMenu.entry.name}. No request was sent to the client.`);
-                setContextMenu(null); menuOrigin.current?.focus();
-            }}>Download to server (placeholder)</button>
+            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => requestDownloadPlaceholder(contextMenu.entry)}>Download to server (placeholder)</button>
             <button type="button" onClick={() => { setContextMenu(null); menuOrigin.current?.focus(); }}>Close</button>
         </div>}
     </section>;
