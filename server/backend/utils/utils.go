@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -33,8 +35,25 @@ func SaveExfilData(clientID string, data []byte) {
 	fmt.Printf("Saved exfil data to %s (%d bytes)\n", filename, len(data))
 }
 
-func SaveUploadedFile(clientID string, data []byte) {
-	filename := fmt.Sprintf("upload-%s-%d.bin", clientID, time.Now().Unix())
+func SaveUploadedFile(clientID string, data []byte) error {
+	uploadDir := "uploads"
+
+	if err := os.MkdirAll(uploadDir, 0700); err != nil {
+		return err
+	}
+
+	filename := filepath.Join(
+		uploadDir,
+		fmt.Sprintf("upload-%s-%d.bin", clientID, time.Now().UnixNano()),
+	)
+
 	// Save to file implementation
+
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		return err
+	}
+
 	fmt.Printf("Saved uploaded file to %s (%d bytes)\n", filename, len(data))
+	return nil
+
 }
