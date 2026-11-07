@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { apiService } from '../services/api.js';
+import { clientMessageCategory } from '../lib/clientEvents.js';
 
 const emptySession = () => ({
     entries: [],
@@ -34,6 +35,7 @@ export default function TerminalTab({
             const seen = new Set(current.seen);
             const entries = [];
             for (const message of messages) {
+                if (clientMessageCategory(message)) continue;
                 if (!['COMMAND_RESULT', 'ERROR_REPORT'].includes(message.type))
                     continue;
                 const key = `${message.timestamp}:${message.message_id}:${message.type}`;
@@ -66,7 +68,12 @@ export default function TerminalTab({
             output.current.scrollTop = output.current.scrollHeight;
     }, [session.entries[session.entries.length - 1]?.id, active, agent.ID]);
     function clear() {
-        update(agent.ID, (current) => ({ ...current, entries: [] }));
+        navigation.current = { index: -1, draft: '' };
+        update(agent.ID, (current) => ({
+            ...current,
+            entries: [],
+            history: [],
+        }));
     }
     async function submit(event) {
         event.preventDefault();
@@ -144,12 +151,14 @@ export default function TerminalTab({
                 </span>
                 <button
                     type="button"
+                    aria-label="Clear terminal history"
+                    title="Clear this session's terminal output and recalled commands. Saved server history is retained."
                     onClick={() => {
                         clear();
                         input.current?.focus({ preventScroll: true });
                     }}
                 >
-                    Clear terminal
+                    Clear history
                 </button>
             </div>
             <p className="terminal-hint">

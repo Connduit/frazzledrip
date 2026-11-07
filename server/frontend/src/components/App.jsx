@@ -271,7 +271,14 @@ export default function App() {
                 <div className="workspace-graph">
                     <SessionGraph {...shared} />
                 </div>
-                <EventViewer />
+                <EventViewer
+                    clients={clients.map((client) =>
+                        client.ID === selected?.ID &&
+                        messagesClient === selectedClient
+                            ? { ...client, Messages: messages }
+                            : client,
+                    )}
+                />
                 <div className="workspace-sessions">
                     <ClientList {...shared} />
                 </div>

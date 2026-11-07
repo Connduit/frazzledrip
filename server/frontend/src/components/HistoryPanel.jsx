@@ -7,11 +7,13 @@ export default function HistoryPanel({ agentID, audit = false }) {
     const [query, setQuery] = useState('');
     const [expanded, setExpanded] = useState(null);
     const detailsRequest = useRef(0);
+    const [cleared, setCleared] = useState(() => new Set());
     useEffect(() => {
         let cancelled = false,
             timer;
         setRows([]);
         setExpanded(null);
+        setCleared(new Set());
         detailsRequest.current++;
         async function poll() {
             try {
@@ -35,8 +37,10 @@ export default function HistoryPanel({ agentID, audit = false }) {
             detailsRequest.current++;
         };
     }, [agentID, audit]);
-    const filtered = rows.filter((row) =>
-        JSON.stringify(row).toLowerCase().includes(query.toLowerCase()),
+    const filtered = rows.filter(
+        (row) =>
+            !cleared.has(row.id) &&
+            JSON.stringify(row).toLowerCase().includes(query.toLowerCase()),
     );
     async function inspect(task) {
         const token = ++detailsRequest.current;
@@ -66,8 +70,32 @@ export default function HistoryPanel({ agentID, audit = false }) {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                 />
+                <button
+                    type="button"
+                    disabled={!rows.some((row) => !cleared.has(row.id))}
+                    title="Clear the displayed history. Saved server records are retained."
+                    onClick={() => {
+                        detailsRequest.current++;
+                        setExpanded(null);
+                        setCleared(
+                            (current) =>
+                                new Set([
+                                    ...current,
+                                    ...rows.map((row) => row.id),
+                                ]),
+                        );
+                    }}
+                >
+                    Clear history view
+                </button>
+                {cleared.size > 0 && (
+                    <button type="button" onClick={() => setCleared(new Set())}>
+                        Show cleared history
+                    </button>
+                )}
             </div>
             <p className="muted explorer-note">
+                Clearing affects this view only.{' '}
                 {audit
                     ? 'Source is the HTTP peer endpoint or task origin, not an authenticated operator. Latest 300 events.'
                     : 'Latest 500 shell and simulation tasks. Queued means recorded before socket dispatch; sent means written, not acknowledged. Interrupted tasks are never replayed automatically.'}

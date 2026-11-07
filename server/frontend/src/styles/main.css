@@ -1653,3 +1653,17 @@ svg .graph-caption {
     overflow: auto;
     padding: 16px;
 }
+
+.workspace-console .terminal-toolbar {
+    display: flex;
+    flex-shrink: 0;
+    padding: 5px 10px;
+}
+.workspace-console .terminal-toolbar button {
+    font-size: 10px;
+    padding: 4px 7px;
+}
+.workspace-events .workspace-panel-title,
+.history-panel .panel-heading {
+    flex-wrap: wrap;
+}

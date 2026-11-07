@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiService } from '../services/api.js';
+import { clientMessageEvent } from '../lib/clientEvents.js';
 
 function levelOf(event) {
     if (
@@ -15,14 +16,32 @@ function levelOf(event) {
     return 'info';
 }
 
-export default function EventViewer() {
+export default function EventViewer({ clients = [] }) {
     const [events, setEvents] = useState([]);
+    const [clientEvents, setClientEvents] = useState([]);
     const [error, setError] = useState('');
     const [query, setQuery] = useState('');
     const [level, setLevel] = useState('all');
     const [paused, setPaused] = useState(false);
     const [refresh, setRefresh] = useState(0);
     const [updated, setUpdated] = useState(null);
+    const [cleared, setCleared] = useState(() => new Set());
+    useEffect(() => {
+        if (paused) return;
+        const incoming = clients.flatMap((agent) =>
+            (agent.Messages || [])
+                .map((message) => clientMessageEvent(agent, message))
+                .filter(Boolean),
+        );
+        if (!incoming.length) return;
+        setClientEvents((current) => {
+            const unique = new Map(current.map((event) => [event.id, event]));
+            incoming.forEach((event) => unique.set(event.id, event));
+            return [...unique.values()]
+                .sort((a, b) => new Date(b.at) - new Date(a.at))
+                .slice(0, 300);
+        });
+    }, [clients, paused]);
     useEffect(() => {
         if (paused) return;
         let cancelled = false,
@@ -54,7 +73,21 @@ export default function EventViewer() {
             clearTimeout(timer);
         };
     }, [paused, refresh]);
-    const visible = events.filter(
+    const allEvents = [
+        ...events.map((event) => ({ ...event, id: `audit:${event.id}` })),
+        ...clientEvents,
+    ];
+    const combined = allEvents
+        .filter((event) => !cleared.has(event.id))
+        .sort(
+            (a, b) =>
+                new Date(b.at) - new Date(a.at) ||
+                String(b.id).localeCompare(String(a.id), undefined, {
+                    numeric: true,
+                }),
+        )
+        .slice(0, 300);
+    const visible = combined.filter(
         (event) =>
             (level === 'all' || levelOf(event) === level) &&
             [
@@ -88,6 +121,27 @@ export default function EventViewer() {
                 >
                     Refresh events
                 </button>
+                <button
+                    type="button"
+                    disabled={!combined.length}
+                    title="Clear the displayed events. Saved server history is retained."
+                    onClick={() =>
+                        setCleared(
+                            (current) =>
+                                new Set([
+                                    ...current,
+                                    ...allEvents.map((event) => event.id),
+                                ]),
+                        )
+                    }
+                >
+                    Clear event history
+                </button>
+                {cleared.size > 0 && (
+                    <button type="button" onClick={() => setCleared(new Set())}>
+                        Show cleared events
+                    </button>
+                )}
             </div>
             <div className="event-filters">
                 <input
@@ -146,10 +200,12 @@ export default function EventViewer() {
                 ))}
                 {!visible.length && (
                     <li className="empty-state">
-                        {updated
-                            ? events.length
+                        {updated || combined.length
+                            ? combined.length
                                 ? 'No events match your filters.'
-                                : 'No server events recorded yet.'
+                                : cleared.size
+                                  ? 'Event view cleared. New events will appear here.'
+                                  : 'No server events recorded yet.'
                             : error
                               ? 'Waiting for the event feed.'
                               : 'Loading events…'}
@@ -157,9 +213,10 @@ export default function EventViewer() {
                 )}
             </ol>
             <div className="event-footer">
-                {visible.length} of {events.length} events · newest first ·
+                {visible.length} of {combined.length} events · newest first ·
                 latest 300
                 {updated && ` · updated ${updated.toLocaleTimeString()}`}
+                {' · Clearing affects this view only.'}
             </div>
         </section>
     );
