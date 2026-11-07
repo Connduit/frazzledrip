@@ -3,7 +3,10 @@ const API_BASE = '';
 
 async function controlRequest(path, body, signal) {
     const response = await fetch(`${API_BASE}${path}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal,
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Request failed');
@@ -13,48 +16,92 @@ async function controlRequest(path, body, signal) {
 // API service functions for communicating with the backend
 export const apiService = {
     async downloadFilePlaceholder(agentID, path, signal) {
-        return controlRequest('/download-file', { agent_id: agentID, path }, signal);
+        return controlRequest(
+            '/download-file',
+            { agent_id: agentID, path },
+            signal,
+        );
     },
     async toolCatalog() {
         const response = await fetch(`${API_BASE}/tool-catalog`);
-        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Catalog unavailable'); return data;
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Catalog unavailable');
+        return data;
     },
     async simulateTool(agentID, toolID, note) {
-        return controlRequest('/simulate-tool', { agent_id: agentID, tool_id: toolID, note });
+        return controlRequest('/simulate-tool', {
+            agent_id: agentID,
+            tool_id: toolID,
+            note,
+        });
     },
     async taskHistory(agentID) {
-        const response = await fetch(`${API_BASE}/task-history?agent=${encodeURIComponent(agentID)}`);
-        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'History unavailable'); return data;
+        const response = await fetch(
+            `${API_BASE}/task-history?agent=${encodeURIComponent(agentID)}`,
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'History unavailable');
+        return data;
     },
     async taskDetails(id) {
-        const response = await fetch(`${API_BASE}/task-history?task=${encodeURIComponent(id)}`);
-        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Task unavailable'); return data;
+        const response = await fetch(
+            `${API_BASE}/task-history?task=${encodeURIComponent(id)}`,
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Task unavailable');
+        return data;
     },
     async auditHistory() {
         const response = await fetch(`${API_BASE}/audit-history`);
-        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Audit unavailable'); return data;
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Audit unavailable');
+        return data;
     },
-    async browseFiles(client, path, signal, source = 'dir', refresh = false, cacheOnly = false) {
+    async browseFiles(
+        client,
+        path,
+        signal,
+        source = 'dir',
+        refresh = false,
+        cacheOnly = false,
+    ) {
         const response = await fetch(`${API_BASE}/browse-files`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ client, path, source, refresh, cache_only: cacheOnly }), signal,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                client,
+                path,
+                source,
+                refresh,
+                cache_only: cacheOnly,
+            }),
+            signal,
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Directory request failed');
+        if (!response.ok)
+            throw new Error(data.error || 'Directory request failed');
         return data;
     },
     async linkSession(savedID, liveID) {
         const result = await fetch(`${API_BASE}/link-session`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ saved_id: savedID, live_id: liveID }),
         });
         const data = await result.json();
-        if (!result.ok) throw new Error(data.error || 'Could not link sessions');
+        if (!result.ok)
+            throw new Error(data.error || 'Could not link sessions');
         return data;
     },
-    async startListener() { return controlRequest('/start-listener', {}); },
-    async stopListener() { return controlRequest('/stop-listener', {}); },
-    async disconnectSession(id) { return controlRequest('/disconnect-session', { id }); },
+    async startListener() {
+        return controlRequest('/start-listener', {});
+    },
+    async stopListener() {
+        return controlRequest('/stop-listener', {});
+    },
+    async disconnectSession(id) {
+        return controlRequest('/disconnect-session', { id });
+    },
     async getListenerStatus() {
         const response = await fetch(`${API_BASE}/listener-status`);
         if (!response.ok) throw new Error('Could not read listener status');
@@ -69,14 +116,18 @@ export const apiService = {
 
     // Retrieves detailed information about a specific client by IP
     async getClientInfo(clientIP) {
-        const result = await fetch(`${API_BASE}/get-client-info?client=${encodeURIComponent(clientIP)}`);
+        const result = await fetch(
+            `${API_BASE}/get-client-info?client=${encodeURIComponent(clientIP)}`,
+        );
         return await result.json();
     },
 
     // Retrieves messages for a specific client by IP
     async getClientMessages(clientIP) {
         // NOTE: fetches the messages appended to client.Messages buffer in message_protocol::processClientMessage()
-        const result = await fetch(`${API_BASE}/get-client-messages?client=${encodeURIComponent(clientIP)}`);
+        const result = await fetch(
+            `${API_BASE}/get-client-messages?client=${encodeURIComponent(clientIP)}`,
+        );
         return await result.json();
     },
 
@@ -85,8 +136,8 @@ export const apiService = {
         // POST request with client and command in JSON body
         const result = await fetch(`${API_BASE}/send-command`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ client, command })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client, command }),
         });
         return await result.json();
     },
@@ -96,8 +147,8 @@ export const apiService = {
         // POST request with client and command in JSON body
         const result = await fetch(`${API_BASE}/my-send-command`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ client, command })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client, command }),
         });
         return await result.json();
     },
@@ -111,7 +162,7 @@ export const apiService = {
         // POST request with form data (multipart/form-data)
         const result = await fetch(`${API_BASE}/send-binary`, {
             method: 'POST',
-            body: formData
+            body: formData,
         });
         return await result.json();
     },
@@ -124,10 +175,10 @@ export const apiService = {
 
         const result = await fetch(`${API_BASE}/send-shellcode`, {
             method: 'POST',
-            body: formData
+            body: formData,
         });
         return await result.json();
-    }
+    },
 };
 
 // Utility functions for formatting and status handling
@@ -148,9 +199,15 @@ export const utils = {
     // Determines a CSS class for a status string for styling
     getStatusClass(status) {
         if (!status) return ''; // empty status
-        if (status.includes('✅') || status.includes('Listener started')) return 'success';
+        if (status.includes('✅') || status.includes('Listener started'))
+            return 'success';
         if (status.includes('❌') || status.includes('Error')) return 'error';
-        if (status.includes('Warning:') || status.includes('⚠️') || status.includes('DANGER')) return 'warning';
+        if (
+            status.includes('Warning:') ||
+            status.includes('⚠️') ||
+            status.includes('DANGER')
+        )
+            return 'warning';
         return ''; // default if none match
-    }
+    },
 };

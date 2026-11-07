@@ -25,6 +25,6 @@ const backendURL = process.env.BACKEND_URL || 'http://127.0.0.1:8081';
 
 export default defineConfig({
     server: {
-        proxy: Object.fromEntries(apiPaths.map(path => [path, backendURL])),
+        proxy: Object.fromEntries(apiPaths.map((path) => [path, backendURL])),
     },
 });

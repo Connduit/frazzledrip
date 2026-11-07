@@ -5,16 +5,23 @@ import ShellcodeTab from './ShellcodeTab.jsx';
 
 // Main tab container that renders different C2 interface components
 // depending on which tab is currently active.
-function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClientSelect, setStatus, refreshMessages, messages }) {
+function TabContainer({
+    activeTab,
+    setActiveTab,
+    selectedClient,
+    clients,
+    onClientSelect,
+    setStatus,
+    refreshMessages,
+    messages,
+}) {
     return (
         <div className="section">
             <div className="tab-container">
-
                 {/* ---- TAB BUTTONS (Navigation bar) ---- */}
                 <div className="tab-buttons">
-
                     {/* Commands tab button */}
-                    <button 
+                    <button
                         className={`tab-button ${activeTab === 'commands' ? 'active' : ''}`}
                         onClick={() => setActiveTab('commands')}
                     >
@@ -22,7 +29,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     </button>
 
                     {/* File transfer tab button */}
-                    <button 
+                    <button
                         className={`tab-button ${activeTab === 'files' ? 'active' : ''}`}
                         onClick={() => setActiveTab('files')}
                     >
@@ -30,7 +37,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     </button>
 
                     {/* Shellcode execution tab */}
-                    <button 
+                    <button
                         className={`tab-button ${activeTab === 'shellcode' ? 'active' : ''}`}
                         onClick={() => setActiveTab('shellcode')}
                     >
@@ -40,10 +47,9 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
 
                 {/* ---- TAB CONTENT AREA ---- */}
                 <div className="tab-content">
-
                     {/* Commands tab content */}
                     {activeTab === 'commands' && (
-                        <CommandTab 
+                        <CommandTab
                             selectedClient={selectedClient}
                             clients={clients}
                             onClientSelect={onClientSelect}
@@ -54,17 +60,17 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
 
                     {/* File Transfer tab content */}
                     {activeTab === 'files' && (
-                        <FileTransferTab 
+                        <FileTransferTab
                             selectedClient={selectedClient}
                             clients={clients}
                             onClientSelect={onClientSelect}
                             setStatus={setStatus}
                         />
                     )}
-                    
+
                     {/* Shellcode execution tab content */}
                     {activeTab === 'shellcode' && (
-                        <ShellcodeTab 
+                        <ShellcodeTab
                             selectedClient={selectedClient}
                             clients={clients}
                             onClientSelect={onClientSelect}

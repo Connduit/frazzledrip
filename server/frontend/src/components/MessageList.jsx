@@ -15,7 +15,7 @@ function MessageList({ messages }) {
             {[...messages].reverse().map((msg, index) => (
                 <div key={index} className="message-item">
                     <div className="message-header">
-                        <strong>{msg.type}</strong> 
+                        <strong>{msg.type}</strong>
                         <span className="message-time">
                             {utils.formatMessageTime(msg.timestamp)}
                         </span>

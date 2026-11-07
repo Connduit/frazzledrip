@@ -9,12 +9,18 @@ import EventViewer from './EventViewer.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
+import WorkspaceLayout from './WorkspaceLayout.jsx';
 
 const locationKey = 'frazzledrip.session-locations.v1';
 function readLocations() {
-    try { const data = JSON.parse(localStorage.getItem(locationKey) || '{}');
-        return Object.fromEntries(Object.entries(data).filter(([, value]) => validLocation(value)));
-    } catch { return {}; }
+    try {
+        const data = JSON.parse(localStorage.getItem(locationKey) || '{}');
+        return Object.fromEntries(
+            Object.entries(data).filter(([, value]) => validLocation(value)),
+        );
+    } catch {
+        return {};
+    }
 }
 
 export default function App() {
@@ -43,100 +49,346 @@ export default function App() {
         let timer;
         async function poll() {
             try {
-                const [data, listener] = await Promise.all([apiService.getClients(), apiService.getListenerStatus()]);
-                if (!Array.isArray(data)) throw new Error('Unexpected session response');
+                const [data, listener] = await Promise.all([
+                    apiService.getClients(),
+                    apiService.getListenerStatus(),
+                ]);
+                if (!Array.isArray(data))
+                    throw new Error('Unexpected session response');
                 if (cancelled) return;
-                setListenerState(listener); setClients(data); setLastRefresh(new Date()); setFetchError('');
-                setSelectedClient(current => data.find(c => c.ID === selectedAgentID.current)?.IPAddress || (data.some(c => c.IPAddress === current) ? current : ''));
-            } catch (error) { if (!cancelled) setFetchError(error.message); }
-            finally { if (!cancelled) timer = setTimeout(poll, 5000); }
+                setListenerState(listener);
+                setClients(data);
+                setLastRefresh(new Date());
+                setFetchError('');
+                setSelectedClient(
+                    (current) =>
+                        data.find((c) => c.ID === selectedAgentID.current)
+                            ?.IPAddress ||
+                        (data.some((c) => c.IPAddress === current)
+                            ? current
+                            : ''),
+                );
+            } catch (error) {
+                if (!cancelled) setFetchError(error.message);
+            } finally {
+                if (!cancelled) timer = setTimeout(poll, 5000);
+            }
         }
         poll();
-        return () => { cancelled = true; clearTimeout(timer); };
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
     }, [refreshVersion]);
 
     useEffect(() => {
         let cancelled = false;
         let timer;
-        setClientInfo(null); setClientMessages([]); setMessagesClient('');
+        setClientInfo(null);
+        setClientMessages([]);
+        setMessagesClient('');
         if (!selectedClient) return;
         async function poll() {
             try {
-                const [info, messages] = await Promise.all([apiService.getClientInfo(selectedClient), apiService.getClientMessages(selectedClient)]);
-                if (!cancelled) { setClientInfo(info); setClientMessages(messages.messages || []); setMessagesClient(selectedClient); }
-            } catch (error) { if (!cancelled) setStatus('Error: ' + error.message); }
-            finally { if (!cancelled) timer = setTimeout(poll, 2000); }
+                const [info, messages] = await Promise.all([
+                    apiService.getClientInfo(selectedClient),
+                    apiService.getClientMessages(selectedClient),
+                ]);
+                if (!cancelled) {
+                    setClientInfo(info);
+                    setClientMessages(messages.messages || []);
+                    setMessagesClient(selectedClient);
+                }
+            } catch (error) {
+                if (!cancelled) setStatus('Error: ' + error.message);
+            } finally {
+                if (!cancelled) timer = setTimeout(poll, 2000);
+            }
         }
         poll();
-        return () => { cancelled = true; clearTimeout(timer); };
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
     }, [selectedClient, messageVersion]);
 
     async function controlListener(action) {
         setStarting(true);
         try {
-            const data = await (action === 'start' ? apiService.startListener() : apiService.stopListener());
-            setStatus(data.status); setListenerState(await apiService.getListenerStatus());
-            setRefreshVersion(v => v + 1);
-        } catch (error) { setStatus('Error: ' + error.message); }
-        finally { setStarting(false); }
+            const data = await (action === 'start'
+                ? apiService.startListener()
+                : apiService.stopListener());
+            setStatus(data.status);
+            setListenerState(await apiService.getListenerStatus());
+            setRefreshVersion((v) => v + 1);
+        } catch (error) {
+            setStatus('Error: ' + error.message);
+        } finally {
+            setStarting(false);
+        }
     }
     async function disconnectSession(id) {
         setDisconnecting(true);
         try {
             setStatus((await apiService.disconnectSession(id)).status);
-            setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
-        } catch (error) { setStatus('Error: ' + error.message); }
-        finally { setDisconnecting(false); }
+            setRefreshVersion((v) => v + 1);
+            setMessageVersion((v) => v + 1);
+        } catch (error) {
+            setStatus('Error: ' + error.message);
+        } finally {
+            setDisconnecting(false);
+        }
     }
     function saveLocation(host, value) {
         const next = { ...locations };
-        if (value) next[host] = value; else delete next[host];
+        if (value) next[host] = value;
+        else delete next[host];
         setLocations(next);
-        try { localStorage.setItem(locationKey, JSON.stringify(next)); setStatus('Location updated in this browser.'); }
-        catch { setStatus('Warning: location is available for this visit only; browser storage is unavailable.'); }
+        try {
+            localStorage.setItem(locationKey, JSON.stringify(next));
+            setStatus('Location updated in this browser.');
+        } catch {
+            setStatus(
+                'Warning: location is available for this visit only; browser storage is unavailable.',
+            );
+        }
     }
-    const selected = clients.find(c => c.IPAddress === selectedClient);
-    const active = clients.filter(c => c.IsActive).length;
-    const hosts = new Set(clients.map(c => systemOf(c).hostname).filter(Boolean)).size;
-    const shared = { clients, selectedClient, onClientSelect: address => { selectedAgentID.current = clients.find(c => c.IPAddress === address)?.ID || ''; setSelectedClient(address); } };
-    const selectedName = selected ? systemOf(selected).hostname || selected.ID : 'No session selected';
+    const selected = clients.find((c) => c.IPAddress === selectedClient);
+    const active = clients.filter((c) => c.IsActive).length;
+    const hosts = new Set(
+        clients.map((c) => systemOf(c).hostname).filter(Boolean),
+    ).size;
+    const shared = {
+        clients,
+        selectedClient,
+        onClientSelect: (address) => {
+            selectedAgentID.current =
+                clients.find((c) => c.IPAddress === address)?.ID || '';
+            setSelectedClient(address);
+        },
+    };
+    const selectedName = selected
+        ? systemOf(selected).hostname || selected.ID
+        : 'No session selected';
     const messages = messagesClient === selectedClient ? clientMessages : [];
-    return <div className="container workspace-shell">
-        <header className="workspace-toolbar">
-            <div className="workspace-brand"><span className="brand-mark">F</span><strong>frazzledrip</strong><span className="muted">/ workspace</span></div>
-            <div className="header-actions"><span className={`badge ${listenerState?.running ? 'live' : ''}`}><i />{listenerState == null ? 'Listener unknown' : listenerState.running ? `Listening · ${listenerState.port}` : 'Listener stopped'}</span>
-                <button disabled={starting || listenerState?.running} onClick={() => controlListener('start')}>Start listener</button>
-                <button disabled={starting || !listenerState?.running} onClick={() => controlListener('stop')}>Stop listener</button>
-                <button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button>
-                <button aria-expanded={showAudit} onClick={() => setShowAudit(value => !value)}>Audit</button>
-                <button aria-expanded={showMap} onClick={() => setShowMap(value => !value)}>Map</button>
-                <button aria-haspopup="dialog" aria-expanded={showTools} onClick={() => setShowTools(value => !value)}>Details &amp; tools</button>
+    return (
+        <div className="container workspace-shell">
+            <header className="workspace-toolbar">
+                <div className="workspace-brand">
+                    <span className="brand-mark">F</span>
+                    <strong>frazzledrip</strong>
+                    <span className="muted">/ workspace</span>
+                </div>
+                <div className="header-actions">
+                    <span
+                        className={`badge ${listenerState?.running ? 'live' : ''}`}
+                    >
+                        <i />
+                        {listenerState == null
+                            ? 'Listener unknown'
+                            : listenerState.running
+                              ? `Listening · ${listenerState.port}`
+                              : 'Listener stopped'}
+                    </span>
+                    <button
+                        disabled={starting || listenerState?.running}
+                        onClick={() => controlListener('start')}
+                    >
+                        Start listener
+                    </button>
+                    <button
+                        disabled={starting || !listenerState?.running}
+                        onClick={() => controlListener('stop')}
+                    >
+                        Stop listener
+                    </button>
+                    <button onClick={() => setRefreshVersion((v) => v + 1)}>
+                        Refresh sessions
+                    </button>
+                    <button
+                        aria-expanded={showAudit}
+                        onClick={() => setShowAudit((value) => !value)}
+                    >
+                        Audit
+                    </button>
+                    <button
+                        aria-expanded={showMap}
+                        onClick={() => setShowMap((value) => !value)}
+                    >
+                        Map
+                    </button>
+                    <button
+                        aria-haspopup="dialog"
+                        aria-expanded={showTools}
+                        onClick={() => setShowTools((value) => !value)}
+                    >
+                        Details &amp; tools
+                    </button>
+                </div>
+            </header>
+            <div className="workspace-context">
+                <span>
+                    <strong>{clients.length}</strong> sessions{' '}
+                    <span className="context-divider">/</span>{' '}
+                    <strong className="accent">{active}</strong> active{' '}
+                    <span className="context-divider">/</span> {hosts} hosts
+                </span>
+                <span className="workspace-selection">
+                    {selected
+                        ? `${selectedName} · ${selected.IsActive ? 'Active' : 'Offline'}`
+                        : 'Select a session in the table or graph'}
+                    {selected?.IsActive && (
+                        <button
+                            disabled={disconnecting}
+                            onClick={() => disconnectSession(selected.ID)}
+                        >
+                            {disconnecting
+                                ? 'Disconnecting…'
+                                : 'Disconnect session'}
+                        </button>
+                    )}
+                </span>
+                <span className="muted">
+                    {fetchError
+                        ? 'Feed unavailable'
+                        : lastRefresh
+                          ? `Updated ${lastRefresh.toLocaleTimeString()}`
+                          : 'Connecting…'}
+                </span>
             </div>
-        </header>
-        <div className="workspace-context"><span><strong>{clients.length}</strong> sessions <span className="context-divider">/</span> <strong className="accent">{active}</strong> active <span className="context-divider">/</span> {hosts} hosts</span>
-            <span className="workspace-selection">{selected ? `${selectedName} · ${selected.IsActive ? 'Active' : 'Offline'}` : 'Select a session in the table or graph'}
-                {selected?.IsActive && <button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button>}</span>
-            <span className="muted">{fetchError ? 'Feed unavailable' : lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Connecting…'}</span></div>
-        {fetchError && <div className="status error" role="alert">Session refresh failed: {fetchError}. Displayed sessions may be stale; retrying automatically.</div>}
-        {showAudit && <section className="panel section workspace-tools"><HistoryPanel audit /></section>}
-        <main className="workspace-grid">
-            <div className="workspace-graph"><SessionGraph {...shared} /></div>
-            <EventViewer />
-            <div className="workspace-sessions"><ClientList {...shared} /></div>
-            <section className="panel workspace-console" aria-label="Console pane"><div className="workspace-panel-title"><strong>Console</strong><span>{selectedName}</span>{selected?.BasicInfoStatus === 'collecting' && <span className="accent">Collecting initial host info…</span>}</div>
-                {selected ? <TerminalTab agent={selected} messages={messages} active={true} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="empty-state"><strong>No session selected</strong><p>Select an agent to open its command prompt and output.</p></div>}
-            </section>
-            <section className="panel workspace-files" aria-label="Files pane"><div className="workspace-panel-title"><strong>Files</strong><span>{selectedName}</span><span className="muted">Read only</span></div>
-                <div className="workspace-panel-body">{selected ? <FileExplorer key={selected.ID} agent={selected} /> : <div className="empty-state"><strong>No session selected</strong><p>Select an agent to browse its directories and file metadata.</p></div>}</div>
-            </section>
-        </main>
-        {status && <div role="status" className={`workspace-notice ${utils.getStatusClass(status)}`}>{status}</div>}
-        {showMap && <div className="workspace-map"><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>}
-        {showTools && <DetailsTools agent={selected} clients={clients} clientInfo={messagesClient === selectedClient ? clientInfo : null} messages={messages} shared={shared} activeTab={activeTab} setActiveTab={setActiveTab} setStatus={setStatus} refreshMessages={() => setMessageVersion(value => value + 1)} onClose={() => setShowTools(false)} onLinked={saved => {
-            const savedLocation = locations[hostOf(saved.IPAddress)];
-            if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
-            setStatus('Saved session linked.'); setRefreshVersion(value => value + 1); setMessageVersion(value => value + 1);
-        }} />}
-        <footer className="workspace-footer"><span>FRAZZLEDRIP</span><span>Session facts, task history, and audit events are saved on the server.</span></footer>
-    </div>;
+            {fetchError && (
+                <div className="status error" role="alert">
+                    Session refresh failed: {fetchError}. Displayed sessions may
+                    be stale; retrying automatically.
+                </div>
+            )}
+            {showAudit && (
+                <section className="panel section workspace-tools">
+                    <HistoryPanel audit />
+                </section>
+            )}
+            <WorkspaceLayout>
+                <div className="workspace-graph">
+                    <SessionGraph {...shared} />
+                </div>
+                <EventViewer />
+                <div className="workspace-sessions">
+                    <ClientList {...shared} />
+                </div>
+                <section
+                    className="panel workspace-console"
+                    aria-label="Console pane"
+                >
+                    <div className="workspace-panel-title">
+                        <strong>Console</strong>
+                        <span>{selectedName}</span>
+                        {selected?.BasicInfoStatus === 'collecting' && (
+                            <span className="accent">
+                                Collecting initial host info…
+                            </span>
+                        )}
+                    </div>
+                    {selected ? (
+                        <TerminalTab
+                            agent={selected}
+                            messages={messages}
+                            active={true}
+                            setStatus={setStatus}
+                            refreshMessages={() =>
+                                setMessageVersion((v) => v + 1)
+                            }
+                        />
+                    ) : (
+                        <div className="empty-state">
+                            <strong>No session selected</strong>
+                            <p>
+                                Select an agent to open its command prompt and
+                                output.
+                            </p>
+                        </div>
+                    )}
+                </section>
+                <section
+                    className="panel workspace-files"
+                    aria-label="Files pane"
+                >
+                    <div className="workspace-panel-title">
+                        <strong>Files</strong>
+                        <span>{selectedName}</span>
+                        <span className="muted">Read only</span>
+                    </div>
+                    <div className="workspace-panel-body">
+                        {selected ? (
+                            <FileExplorer key={selected.ID} agent={selected} />
+                        ) : (
+                            <div className="empty-state">
+                                <strong>No session selected</strong>
+                                <p>
+                                    Select an agent to browse its directories
+                                    and file metadata.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            </WorkspaceLayout>
+            {status && (
+                <div
+                    role="status"
+                    className={`workspace-notice ${utils.getStatusClass(status)}`}
+                >
+                    {status}
+                </div>
+            )}
+            {showMap && (
+                <div className="workspace-map">
+                    <SessionMap
+                        {...shared}
+                        locations={locations}
+                        onSaveLocation={saveLocation}
+                    />
+                </div>
+            )}
+            {showTools && (
+                <DetailsTools
+                    agent={selected}
+                    clients={clients}
+                    clientInfo={
+                        messagesClient === selectedClient ? clientInfo : null
+                    }
+                    messages={messages}
+                    shared={shared}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    setStatus={setStatus}
+                    refreshMessages={() =>
+                        setMessageVersion((value) => value + 1)
+                    }
+                    onClose={() => setShowTools(false)}
+                    onLinked={(saved) => {
+                        const savedLocation =
+                            locations[hostOf(saved.IPAddress)];
+                        if (
+                            savedLocation &&
+                            !locations[hostOf(selected.IPAddress)]
+                        )
+                            saveLocation(
+                                hostOf(selected.IPAddress),
+                                savedLocation,
+                            );
+                        setStatus('Saved session linked.');
+                        setRefreshVersion((value) => value + 1);
+                        setMessageVersion((value) => value + 1);
+                    }}
+                />
+            )}
+            <footer className="workspace-footer">
+                <span>FRAZZLEDRIP</span>
+                <span>
+                    Session facts, task history, and audit events are saved on
+                    the server.
+                </span>
+            </footer>
+        </div>
+    );
 }

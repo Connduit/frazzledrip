@@ -3,7 +3,8 @@ import { apiService } from '../services/api.js';
 
 function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
     // Stores the file object chosen by the user (.bin, .raw, etc.)
-    const [selectedShellcodeFile, setSelectedShellcodeFile] = React.useState(null);
+    const [selectedShellcodeFile, setSelectedShellcodeFile] =
+        React.useState(null);
 
     // ======================================
     //  Send shellcode file to backend
@@ -17,7 +18,10 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
 
         try {
             // Send shellcode file to backend
-            const data = await apiService.sendShellcode(selectedClient, selectedShellcodeFile);
+            const data = await apiService.sendShellcode(
+                selectedClient,
+                selectedShellcodeFile,
+            );
 
             // Update UI status
             setStatus(data.status);
@@ -42,7 +46,9 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
     //  (Purely informational — does not load files)
     // ======================================
     const loadExampleShellcode = (exampleName) => {
-        setStatus(`⚠️ ${exampleName} - Remember to upload actual shellcode file`);
+        setStatus(
+            `⚠️ ${exampleName} - Remember to upload actual shellcode file`,
+        );
     };
 
     // List of example types displayed as buttons
@@ -50,7 +56,7 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
         { label: 'MessageBox', name: 'MessageBox' },
         { label: 'Calculator', name: 'Calc' },
         { label: 'Reverse Shell', name: 'Reverse Shell' },
-        { label: 'Beacon', name: 'Beacon' }
+        { label: 'Beacon', name: 'Beacon' },
     ];
 
     // ======================================
@@ -62,56 +68,61 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
 
             {/* High-risk warning block */}
             <div className="shellcode-warning">
-                <strong>⚠️ WARNING: DANGEROUS OPERATION</strong><br/>
-                • Shellcode executes directly in memory<br/>
-                • Can crash the target system<br/>
-                • May trigger antivirus detection<br/>
-                • Use only with proper authorization
+                <strong>⚠️ WARNING: DANGEROUS OPERATION</strong>
+                <br />
+                • Shellcode executes directly in memory
+                <br />
+                • Can crash the target system
+                <br />
+                • May trigger antivirus detection
+                <br />• Use only with proper authorization
             </div>
-            
+
             {/* Client selector dropdown */}
-            <select 
-                value={selectedClient} 
+            <select
+                value={selectedClient}
                 onChange={(e) => onClientSelect(e.target.value)}
             >
                 <option value="">Select Client</option>
-                {clients.map(client => (
+                {clients.map((client) => (
                     <option key={client.IPAddress} value={client.IPAddress}>
-                        {client.ID} ({client.IPAddress}) - {client.SystemInfo?.OS}
+                        {client.ID} ({client.IPAddress}) -{' '}
+                        {client.SystemInfo?.OS}
                     </option>
                 ))}
             </select>
 
             {/* File upload input (.bin, .raw, etc.) */}
-            <input 
+            <input
                 id="shellcode-input"
-                type="file" 
+                type="file"
                 onChange={handleShellcodeFileSelect}
                 accept=".bin,.raw,.sc,.txt"
             />
 
             {/* Execute shellcode button */}
-            <button 
-                onClick={sendShellcode} 
+            <button
+                onClick={sendShellcode}
                 disabled={!selectedClient || !selectedShellcodeFile}
-                style={{background: '#dc3545'}} // Red = danger action
+                style={{ background: '#dc3545' }} // Red = danger action
             >
                 🚀 Execute Shellcode
             </button>
-            
+
             {/* Show selected file summary */}
             {selectedShellcodeFile && (
-                <div style={{marginTop: '10px'}}>
-                    <strong>Selected Shellcode:</strong> {selectedShellcodeFile.name} 
-                    ({(selectedShellcodeFile.size / 1024).toFixed(2)} KB)
+                <div style={{ marginTop: '10px' }}>
+                    <strong>Selected Shellcode:</strong>{' '}
+                    {selectedShellcodeFile.name}(
+                    {(selectedShellcodeFile.size / 1024).toFixed(2)} KB)
                 </div>
             )}
-            
+
             {/* Example shellcode concept buttons */}
-            <div style={{marginTop: '15px'}}>
+            <div style={{ marginTop: '15px' }}>
                 <h4>💡 Example Shellcode Types:</h4>
                 {examples.map((example, index) => (
-                    <button 
+                    <button
                         key={index}
                         onClick={() => loadExampleShellcode(example.name)}
                     >
@@ -119,9 +130,9 @@ function ShellcodeTab({ selectedClient, clients, onClientSelect, setStatus }) {
                     </button>
                 ))}
             </div>
-            
+
             {/* Accepted formats reminder */}
-            <p style={{fontSize: '0.8em', color: '#666', marginTop: '10px'}}>
+            <p style={{ fontSize: '0.8em', color: '#666', marginTop: '10px' }}>
                 📋 Upload raw binary shellcode files (.bin, .raw) or text format
             </p>
         </div>
