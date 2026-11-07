@@ -2,6 +2,8 @@ package network
 
 import (
 	"fmt"
+	"log"
+	"net"
 	"sort"
 
 	"github.com/Connduit/frazzledrip/server/backend/models"
@@ -28,6 +30,10 @@ func LinkSavedSession(savedID, liveID string) error {
 		return fmt.Errorf("select an offline saved session and a different active connection")
 	}
 	restoreSessionData(saved, live)
+	host, _, _ := net.SplitHostPort(live.IPAddress)
+	if err := directorySnapshots.merge(saved.ID, live.ID, host); err != nil {
+		log.Printf("Directory cache persistence failed after session link: %v", err)
+	}
 	delete(clients, saved.IPAddress)
 	delete(pendingCommands, saved.IPAddress)
 	return nil

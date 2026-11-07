@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Connduit/frazzledrip/server/backend/models"
 	"github.com/Connduit/frazzledrip/server/backend/utils"
@@ -21,10 +22,13 @@ type DirectoryEntry struct {
 	Size         *uint64 `json:"size,omitempty"`
 }
 type DirectoryListing struct {
-	Path      string           `json:"path"`
-	Parent    string           `json:"parent"`
-	Truncated bool             `json:"truncated"`
-	Entries   []DirectoryEntry `json:"entries"`
+	CapturedAt   time.Time        `json:"captured_at,omitempty"`
+	Cached       bool             `json:"cached"`
+	CacheWarning string           `json:"cache_warning,omitempty"`
+	Path         string           `json:"path"`
+	Parent       string           `json:"parent"`
+	Truncated    bool             `json:"truncated"`
+	Entries      []DirectoryEntry `json:"entries"`
 }
 type directoryResult struct {
 	Listing *DirectoryListing

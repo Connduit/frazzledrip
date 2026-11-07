@@ -289,3 +289,34 @@ toolbar/context strip. **Details & tools** opens host properties, saved-session
 linking, collected output, quick commands, and transfer/tools controls. **Map**
 opens session geography without taking space from the default layout. Narrow
 screens stack the panes while preserving the no-horizontal-scroll inventory.
+
+### Saved directory snapshots
+
+Directory listings are cached on the server per agent, directory, and listing
+method. Open, folder navigation, and Up use an existing snapshot; only a first
+visit to an uncached path queries the client. **Refresh directory** explicitly
+queries the client and replaces the snapshot after a successful response.
+Failures keep the previous snapshot. Listings show their capture time and whether
+they came from cache. Changing a client directory does not update its saved
+listing until you refresh it.
+
+Selecting a session first makes a cache-only request to restore its saved current
+directory view; this never sends a client command. Cached paths can be opened
+while offline, but uncached paths and refresh require a live session. Captures
+survive reconnects and explicit saved-session linking.
+
+Snapshots are written to `directories.json` in the OS user cache directory's
+`frazzledrip` subfolder (for example, `$XDG_CACHE_HOME/frazzledrip` or
+`~/.cache/frazzledrip` on Linux, and `%LocalAppData%\frazzledrip` on Windows).
+Use `-cache-dir /path/to/folder` to choose another location. Writes replace the
+file through a temporary file, with private file permissions where supported.
+If persistence fails, the snapshot remains usable in memory and the UI reports
+that it could not be saved to disk. An invalid existing cache file is reported at
+startup rather than overwritten.
+
+After a server restart, once a client reconnects, one unclaimed cached agent
+matching its observed IP can be restored under the existing IP-based identity
+policy. Ambiguous matches are not assigned automatically. Session records still
+live in memory; this feature persists directory snapshots, not the whole session
+registry. Cache size grows with visited directories; there is no automatic expiry.
+No client rebuild is required for caching.

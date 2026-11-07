@@ -14,13 +14,20 @@ export default function FileExplorer({ agent }) {
     const [error, setError] = useState('');
     const request = useRef(null);
     useEffect(() => () => request.current?.abort(), []);
-    async function browse(destination) {
-        if (!agent.IsActive) { setError('This session is offline. Reconnect to refresh its directory listing.'); return; }
+    useEffect(() => {
+        const controller = new AbortController(); request.current = controller;
+        apiService.browseFiles(agent.IPAddress, '', controller.signal, 'dir', false, true).then(result => {
+            if (!controller.signal.aborted) { setListing(result); setPath(current => current || result.path); }
+        }).catch(() => {}); // A cache miss leaves the explicit Open action available.
+        return () => controller.abort();
+    }, [agent.ID]);
+    async function browse(destination, refresh = false) {
+        if (refresh && !agent.IsActive) { setError('Reconnect to refresh this directory. Saved listings remain available.'); return; }
         request.current?.abort();
         const controller = new AbortController(); request.current = controller;
         setLoading(true); setError('');
         try {
-            const result = await apiService.browseFiles(agent.IPAddress, destination, controller.signal, source);
+            const result = await apiService.browseFiles(agent.IPAddress, destination, controller.signal, source, refresh);
             if (controller.signal.aborted) return;
             setListing(result); setPath(result.path); setSelected(null); setQuery('');
         } catch (err) { if (!controller.signal.aborted) setError(err.message); }
@@ -35,12 +42,14 @@ export default function FileExplorer({ agent }) {
             <button type="button" disabled={loading || !listing?.parent || listing.parent === listing.path} onClick={() => browse(listing.parent)}>Up</button>
             <select aria-label="Listing method" disabled={loading} value={source} onChange={event => { setSource(event.target.value); setError(''); }}><option value="dir">Windows dir</option><option value="native">Native listing</option></select>
             <input aria-label="Client directory path" placeholder="Empty path opens the client's current directory, or enter C:\\" value={path} onChange={event => setPath(event.target.value)} maxLength="2048" />
-            <button type="submit" disabled={loading || !agent.IsActive}>{loading ? 'Loading…' : 'Open directory'}</button>
-            <button type="button" disabled={loading || !listing} onClick={() => browse(listing.path)}>Refresh directory</button>
+            <button type="submit" disabled={loading}>{loading ? 'Loading…' : 'Open directory'}</button>
+            <button type="button" disabled={loading || !listing || !agent.IsActive} onClick={() => browse(listing.path, true)}>Refresh directory</button>
         </form>
         <p className="muted explorer-note">Windows dir works through the existing command handler. Native listing requires the updated client. Dates from dir use the client’s local format.</p>
         {error && <div role="alert" className="status error">{error}{listing && <span> The previous directory listing is still displayed.</span>}</div>}
         {listing && <><div className="explorer-heading"><span className="mono explorer-current">{listing.path}</span><input aria-label="Filter files" placeholder="Filter names…" value={query} onChange={event => setQuery(event.target.value)} /></div>
+            {listing.captured_at && <p className="explorer-note muted">{listing.cached ? 'Cached snapshot' : 'Snapshot captured'} · {new Date(listing.captured_at).toLocaleString()} · Refresh queries the client again.</p>}
+            {listing.cache_warning && <p role="alert" className="status warning">{listing.cache_warning}</p>}
             {listing.truncated && <p className="status warning">This listing is truncated. At most 2,000 entries are shown; additional entries remain.</p>}
             <div className="explorer-table"><table><thead><tr>{columns.map(column => <th key={column.field} aria-sort={sort.field === column.field ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}><button className="file-sort" onClick={() => sortBy(column.field)} aria-label={`Sort by ${column.label}`}>{column.label}<span aria-hidden="true">{sort.field === column.field ? (sort.direction === 'asc' ? ' ↑' : ' ↓') : ''}</span></button></th>)}</tr></thead><tbody>
                 {rows.map(entry => <tr key={entry.path} className={selected?.path === entry.path ? 'selected' : ''}>
