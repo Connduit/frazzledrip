@@ -35,19 +35,24 @@ func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 		controlError(w, http.StatusBadRequest, "Provide one JSON object with agent_id and a nonempty file path of at most 4096 bytes.")
 		return
 	}
+	var selectedClient *models.Client
 	for _, client := range network.GetAllClients() {
 		if client.ID != request.AgentID {
 			continue
 		}
-		clientAddr := client.IPAddress
-		status := "offline"
-		if client.IsActive {
-			status = "active"
-		}
-		controlError(w, http.StatusNotImplemented, fmt.Sprintf("Download to server is not implemented for %q from session %q at %q (%s). No request was sent to the client.", request.Path, client.ID, clientAddr, status))
+		selectedClient = client
+		break
+	}
+	if selectedClient == nil {
+		controlError(w, http.StatusNotFound, "Session not found. No request was sent to the client.")
 		return
 	}
-	controlError(w, http.StatusNotFound, "Session not found. No request was sent to the client.")
+	clientAddr := selectedClient.IPAddress
+	status := "offline"
+	if selectedClient.IsActive {
+		status = "active"
+	}
+	controlError(w, http.StatusNotImplemented, fmt.Sprintf("Download to server is not implemented for %q from session %q at %q (%s). No request was sent to the client.", request.Path, selectedClient.ID, clientAddr, status))
 }
 
 // =========================
