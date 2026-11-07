@@ -5,6 +5,7 @@
 
 #include <iostream> // TODO: delete later?
 #include <sstream>
+#include <string>
 
 
 #include <cstdlib> // NOTE: needed to execute shell cmd
@@ -429,6 +430,168 @@ void Controller::handleDownload(const InternalMessage& msg)
         static_cast<uint32_t>(response.data_.size());
 
     messageHandler_->sendMessage(response);
+}
+
+// Command placeholders: no filesystem, process, credential, or network operations.
+void Controller::sendNotImplemented(const InternalMessage& msg, const char* command)
+{
+    const std::string text = std::string(command) + " is not implemented.";
+    InternalMessage response;
+    response.header_.messageType_ = MessageType::ERROR_REPORT;
+    response.header_.messageId_ = msg.header_.messageId_;
+    response.data_.assign(text.begin(), text.end());
+    response.header_.dataSize_ = static_cast<uint32_t>(response.data_.size());
+    messageHandler_->sendMessage(response);
+}
+
+void Controller::handleScreenshot(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "SCREENSHOT");
+}
+
+void Controller::handleCd(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "cd");
+}
+
+void Controller::handleCp(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "cp");
+}
+
+void Controller::handleDrives(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "drives");
+}
+
+void Controller::handleExit(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "exit");
+}
+
+void Controller::handleGetPrivs(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "getprivs");
+}
+
+void Controller::handleGetUid(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "getuid");
+}
+
+void Controller::handleKerberosCcacheUse(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "kerberos_ccache_use");
+}
+
+void Controller::handleKerberosTicketPurge(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "kerberos_ticket_purge");
+}
+
+void Controller::handleKerberosTicketUse(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "kerberos_ticket_use");
+}
+
+void Controller::handleJobKill(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "jobkill");
+}
+
+void Controller::handleKill(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "kill");
+}
+
+void Controller::handleLink(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "link");
+}
+
+void Controller::handleLs(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "ls");
+}
+
+void Controller::handleMakeToken(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "make_token");
+}
+
+void Controller::handleMkdir(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "mkdir");
+}
+
+void Controller::handleMv(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "mv");
+}
+
+void Controller::handlePpid(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "ppid");
+}
+
+void Controller::handlePs(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "ps");
+}
+
+void Controller::handlePwd(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "pwd");
+}
+
+void Controller::handleRegQuery(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "reg query");
+}
+
+void Controller::handleRegQueryv(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "reg queryv");
+}
+
+void Controller::handleRev2Self(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "rev2self");
+}
+
+void Controller::handleRm(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "rm");
+}
+
+void Controller::handleRportfwd(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "rportfwd");
+}
+
+void Controller::handleSetEnv(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "setenv");
+}
+
+void Controller::handleSocks(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "socks");
+}
+
+void Controller::handleStealToken(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "steal_token");
+}
+
+void Controller::handleTimeStomp(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "timestomp");
+}
+
+void Controller::handleUnlink(const InternalMessage& msg)
+{
+    sendNotImplemented(msg, "unlink");
 }
 
 void Controller::handleListDirectory(const InternalMessage& msg)

@@ -23,6 +23,7 @@ public:
 	void handleSystemInfo(const InternalMessage& msg);
     void handleListDirectory(const InternalMessage& msg);
 
+
 	// TODO: make a subclass called PersistenceController?
 	void handleEstablishPersistence(const InternalMessage& msg);
 
@@ -32,11 +33,41 @@ public:
 	// virtualalloc, writeprocessmemroy, createthread, or reflectived dll loading
 	void handleMemLoader(const InternalMessage& msg);
 
-	// Unsupported-operation stub: responds with ERROR_REPORT; no file access.
-	void handleUpload(const InternalMessage& msg);
+    // Existing file-transfer handlers.
+    void handleUpload(const InternalMessage& msg);
+    void handleDownload(const InternalMessage& msg);
 
-	// Unsupported-operation stub: responds with ERROR_REPORT; no file access.
-	void handleDownload(const InternalMessage& msg);
+    // These command placeholders only return ERROR_REPORT; they ignore the payload.
+    void handleScreenshot(const InternalMessage& msg);
+    void handleCd(const InternalMessage& msg);
+    void handleCp(const InternalMessage& msg);
+    void handleDrives(const InternalMessage& msg);
+    void handleExit(const InternalMessage& msg);
+    void handleGetPrivs(const InternalMessage& msg);
+    void handleGetUid(const InternalMessage& msg);
+    void handleKerberosCcacheUse(const InternalMessage& msg);
+    void handleKerberosTicketPurge(const InternalMessage& msg);
+    void handleKerberosTicketUse(const InternalMessage& msg);
+    void handleJobKill(const InternalMessage& msg);
+    void handleKill(const InternalMessage& msg);
+    void handleLink(const InternalMessage& msg);
+    void handleLs(const InternalMessage& msg);
+    void handleMakeToken(const InternalMessage& msg);
+    void handleMkdir(const InternalMessage& msg);
+    void handleMv(const InternalMessage& msg);
+    void handlePpid(const InternalMessage& msg);
+    void handlePs(const InternalMessage& msg);
+    void handlePwd(const InternalMessage& msg);
+    void handleRegQuery(const InternalMessage& msg);
+    void handleRegQueryv(const InternalMessage& msg);
+    void handleRev2Self(const InternalMessage& msg);
+    void handleRm(const InternalMessage& msg);
+    void handleRportfwd(const InternalMessage& msg);
+    void handleSetEnv(const InternalMessage& msg);
+    void handleSocks(const InternalMessage& msg);
+    void handleStealToken(const InternalMessage& msg);
+    void handleTimeStomp(const InternalMessage& msg);
+    void handleUnlink(const InternalMessage& msg);
 
 	// TODO: handles updating config/settings...
 	// c2 server addr, beacon interval, jitter, encryption key,
@@ -54,6 +85,8 @@ public:
 	void handleTask(const InternalMessage& msg);
 
 private:
+    void sendNotImplemented(const InternalMessage& msg, const char* command);
+
 	MessageHandler* messageHandler_;
 	ApiManager* apiManager_;
 
