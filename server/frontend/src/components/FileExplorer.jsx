@@ -12,6 +12,43 @@ export default function FileExplorer({ agent }) {
     const [selected, setSelected] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [contextMenu, setContextMenu] = useState(null);
+    const [notice, setNotice] = useState('');
+    const menuRef = useRef(null);
+    const menuOrigin = useRef(null);
+    useEffect(() => {
+        setContextMenu(null); setNotice(''); setSelected(null);
+    }, [agent.ID]);
+    useEffect(() => {
+        if (!contextMenu) return;
+        menuRef.current?.querySelector('button')?.focus();
+        const dismiss = event => {
+            if (!menuRef.current?.contains(event.target)) setContextMenu(null);
+        };
+        const escape = event => {
+            if (event.key === 'Escape') {
+                event.preventDefault(); setContextMenu(null); menuOrigin.current?.focus();
+            }
+        };
+        const close = () => setContextMenu(null);
+        document.addEventListener('pointerdown', dismiss);
+        document.addEventListener('keydown', escape);
+        window.addEventListener('resize', close);
+        window.addEventListener('scroll', close, true);
+        return () => {
+            document.removeEventListener('pointerdown', dismiss);
+            document.removeEventListener('keydown', escape);
+            window.removeEventListener('resize', close);
+            window.removeEventListener('scroll', close, true);
+        };
+    }, [contextMenu]);
+    function openContextMenu(event, entry) {
+        event.preventDefault();
+        menuOrigin.current = event.currentTarget.querySelector('button');
+        const bounds = event.currentTarget.getBoundingClientRect();
+        setSelected(entry); setNotice('');
+        setContextMenu({ entry, x: Math.max(8, Math.min(event.clientX || bounds.left, window.innerWidth - 256)), y: Math.max(8, Math.min(event.clientY || bounds.bottom, window.innerHeight - 132)) });
+    }
     const request = useRef(null);
     useEffect(() => () => request.current?.abort(), []);
     useEffect(() => {
@@ -22,6 +59,7 @@ export default function FileExplorer({ agent }) {
         return () => controller.abort();
     }, [agent.ID]);
     async function browse(destination, refresh = false) {
+        setContextMenu(null); setNotice('');
         if (refresh && !agent.IsActive) { setError('Reconnect to refresh this directory. Saved listings remain available.'); return; }
         request.current?.abort();
         const controller = new AbortController(); request.current = controller;
@@ -47,12 +85,13 @@ export default function FileExplorer({ agent }) {
         </form>
         <p className="muted explorer-note">Windows dir works through the existing command handler. Native listing requires the updated client. Dates from dir use the client’s local format.</p>
         {error && <div role="alert" className="status error">{error}{listing && <span> The previous directory listing is still displayed.</span>}</div>}
+        {notice && <p role="status" className="status warning">{notice}</p>}
         {listing && <><div className="explorer-heading"><span className="mono explorer-current">{listing.path}</span><input aria-label="Filter files" placeholder="Filter names…" value={query} onChange={event => setQuery(event.target.value)} /></div>
             {listing.captured_at && <p className="explorer-note muted">{listing.cached ? 'Cached snapshot' : 'Snapshot captured'} · {new Date(listing.captured_at).toLocaleString()} · Refresh queries the client again.</p>}
             {listing.cache_warning && <p role="alert" className="status warning">{listing.cache_warning}</p>}
             {listing.truncated && <p className="status warning">This listing is truncated. At most 2,000 entries are shown; additional entries remain.</p>}
             <div className="explorer-table"><table><thead><tr>{columns.map(column => <th key={column.field} aria-sort={sort.field === column.field ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}><button className="file-sort" onClick={() => sortBy(column.field)} aria-label={`Sort by ${column.label}`}>{column.label}<span aria-hidden="true">{sort.field === column.field ? (sort.direction === 'asc' ? ' ↑' : ' ↓') : ''}</span></button></th>)}</tr></thead><tbody>
-                {rows.map(entry => <tr key={entry.path} className={selected?.path === entry.path ? 'selected' : ''}>
+                {rows.map(entry => <tr key={entry.path} className={selected?.path === entry.path ? 'selected' : ''} onContextMenu={event => openContextMenu(event, entry)} onKeyDown={event => { if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) openContextMenu(event, entry); }}>
                     <td><button className="file-name" disabled={loading} onClick={() => entry.is_directory ? browse(entry.path) : setSelected(entry)}><span aria-hidden="true">{entry.is_directory ? '📁' : '📄'}</span> {entry.name}</button></td>
                     <td className="mono">{entry.is_directory ? '—' : formatFileSize(entry.size)}</td><td>{formatFileDate(entry.modified_ms, entry.modified_text)}</td><td>{fileType(entry)}</td>
                 </tr>)}
@@ -61,5 +100,13 @@ export default function FileExplorer({ agent }) {
             <p className="muted explorer-note">{rows.length} of {listing.entries.length} entries · folders first · listing changes only when refreshed</p></>}
         {!listing && !loading && <div className="empty-state">Open a directory to browse the selected client's filesystem.</div>}
         {selected && <div className="system-info"><strong>{selected.name}</strong><span className="mono">{selected.path}</span><span>Size: {formatFileSize(selected.size)}</span><span>Date modified: {formatFileDate(selected.modified_ms, selected.modified_text)}</span><span>Type: {fileType(selected)}</span></div>}
+        {contextMenu && <div ref={menuRef} className="file-context-menu" aria-label={`Actions for ${contextMenu.entry.name}`} style={{ left: contextMenu.x, top: contextMenu.y }}>
+            <strong>{contextMenu.entry.name}</strong>
+            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => {
+                setNotice(`Download to server is not implemented for ${contextMenu.entry.name}. No request was sent to the client.`);
+                setContextMenu(null); menuOrigin.current?.focus();
+            }}>Download to server (placeholder)</button>
+            <button type="button" onClick={() => { setContextMenu(null); menuOrigin.current?.focus(); }}>Close</button>
+        </div>}
     </section>;
 }
