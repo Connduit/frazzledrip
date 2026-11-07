@@ -9,6 +9,7 @@ import EventViewer from './EventViewer.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionContextMenu from './SessionContextMenu.jsx';
+import SettingsDialog from './SettingsDialog.jsx';
 import SessionMap from './SessionMap.jsx';
 import WorkspaceLayout from './WorkspaceLayout.jsx';
 import WorkspaceTabs from './WorkspaceTabs.jsx';
@@ -39,11 +40,18 @@ export default function App() {
     const [workspaceTab, setWorkspaceTab] = useState('events');
     const [openWorkspaceTabs, setOpenWorkspaceTabs] = useState(['events']);
     const [sessionView, setSessionView] = useState('sessions');
+    const [openSessionTabs, setOpenSessionTabs] = useState([
+        'sessions',
+        'graph',
+    ]);
     const [sessionMenu, setSessionMenu] = useState(null);
     const closeSessionMenu = useCallback(() => setSessionMenu(null), []);
     const [showMap, setShowMap] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showAudit, setShowAudit] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [sizesVersion, setSizesVersion] = useState(0);
+    const [orderVersion, setOrderVersion] = useState(0);
     const [locations, setLocations] = useState(readLocations);
     const [lastRefresh, setLastRefresh] = useState(null);
     const [fetchError, setFetchError] = useState('');
@@ -147,6 +155,20 @@ export default function App() {
             current.includes(id) ? current : [...current, id],
         );
         setWorkspaceTab(id);
+    }
+    function closeWorkspaceTab(id, next) {
+        setOpenWorkspaceTabs((current) => current.filter((tab) => tab !== id));
+        setWorkspaceTab(next);
+    }
+    function openSessionTab(id) {
+        setOpenSessionTabs((current) =>
+            current.includes(id) ? current : [...current, id],
+        );
+        setSessionView(id);
+    }
+    function closeSessionTab(id, next) {
+        setOpenSessionTabs((current) => current.filter((tab) => tab !== id));
+        setSessionView(next);
     }
     async function disconnectSession(id) {
         setDisconnecting(true);
@@ -258,6 +280,17 @@ export default function App() {
                         Refresh sessions
                     </button>
                     <button
+                        type="button"
+                        aria-haspopup="dialog"
+                        aria-expanded={showSettings}
+                        onClick={() => {
+                            closeSessionMenu();
+                            setShowSettings(true);
+                        }}
+                    >
+                        Settings
+                    </button>
+                    <button
                         aria-expanded={showAudit}
                         onClick={() => setShowAudit((value) => !value)}
                     >
@@ -284,6 +317,12 @@ export default function App() {
             >
                 <span>Open view</span>
                 {[
+                    {
+                        id: 'sessions',
+                        label: 'Session table',
+                        scope: 'sessions',
+                    },
+                    { id: 'graph', label: 'Session graph', scope: 'sessions' },
                     { id: 'events', label: 'Event Viewer' },
                     { id: 'console', label: 'Console' },
                     { id: 'files', label: 'Files' },
@@ -294,8 +333,16 @@ export default function App() {
                         type="button"
                         key={feature.id}
                         aria-label={`Open ${feature.label} tab`}
-                        aria-pressed={workspaceTab === feature.id}
-                        onClick={() => openWorkspaceTab(feature.id)}
+                        aria-pressed={
+                            feature.scope === 'sessions'
+                                ? sessionView === feature.id
+                                : workspaceTab === feature.id
+                        }
+                        onClick={() =>
+                            feature.scope === 'sessions'
+                                ? openSessionTab(feature.id)
+                                : openWorkspaceTab(feature.id)
+                        }
                     >
                         {feature.label}
                     </button>
@@ -342,7 +389,7 @@ export default function App() {
                     <HistoryPanel audit />
                 </section>
             )}
-            <WorkspaceLayout>
+            <WorkspaceLayout resetVersion={sizesVersion}>
                 <WorkspaceTabs
                     label="Sessions window"
                     tabListLabel="Session views"
@@ -350,6 +397,9 @@ export default function App() {
                     className="workspace-inventory"
                     activeTab={sessionView}
                     onTabChange={setSessionView}
+                    onTabClose={closeSessionTab}
+                    resetVersion={orderVersion}
+                    emptyContent="No session views open. Use Session table or Session graph in the toolbar to reopen one."
                     tabs={[
                         {
                             id: 'sessions',
@@ -369,11 +419,19 @@ export default function App() {
                                 </div>
                             ),
                         },
-                    ]}
+                    ]
+                        .filter((tab) => openSessionTabs.includes(tab.id))
+                        .sort(
+                            (a, b) =>
+                                openSessionTabs.indexOf(a.id) -
+                                openSessionTabs.indexOf(b.id),
+                        )}
                 />
                 <WorkspaceTabs
                     activeTab={workspaceTab}
                     onTabChange={setWorkspaceTab}
+                    onTabClose={closeWorkspaceTab}
+                    resetVersion={orderVersion}
                     tabs={[
                         {
                             id: 'console',
@@ -583,6 +641,13 @@ export default function App() {
                                 ?.focus(),
                         );
                     }}
+                />
+            )}
+            {showSettings && (
+                <SettingsDialog
+                    onClose={() => setShowSettings(false)}
+                    onResetSizes={() => setSizesVersion((value) => value + 1)}
+                    onResetOrder={() => setOrderVersion((value) => value + 1)}
                 />
             )}
             <footer className="workspace-footer">

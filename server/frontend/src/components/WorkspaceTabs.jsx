@@ -1,5 +1,9 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { moveTab, orderedTabs } from '../lib/workspaceTabs.js';
+import {
+    activeTabAfterClose,
+    moveTab,
+    orderedTabs,
+} from '../lib/workspaceTabs.js';
 
 const defaultStorageKey = 'frazzledrip.workspace-tab-order.v1';
 
@@ -18,18 +22,25 @@ export default function WorkspaceTabs({
     tabs,
     activeTab,
     onTabChange,
+    onTabClose,
+    emptyContent = 'No tabs open. Use the toolbar to open a view.',
     label = 'Session workspace',
     tabListLabel = 'Workspace views',
     storageKey = defaultStorageKey,
     className = '',
+    resetVersion = 0,
 }) {
     const id = useId();
     const [order, setOrder] = useState(() => readOrder(storageKey));
     const [dragging, setDragging] = useState(null);
     const [dropTarget, setDropTarget] = useState(null);
     const [announcement, setAnnouncement] = useState('');
+    const container = useRef(null);
     const draggedTab = useRef(null);
     const displayed = orderedTabs(tabs, order);
+    useEffect(() => {
+        if (resetVersion) setOrder([]);
+    }, [resetVersion]);
 
     useEffect(() => {
         try {
@@ -59,7 +70,27 @@ export default function WorkspaceTabs({
         setDropTarget(null);
     }
 
+    function closeTab(tab) {
+        const next = activeTabAfterClose(
+            displayed.map((item) => item.id),
+            activeTab,
+            tab.id,
+        );
+        finishDrag();
+        onTabClose(tab.id, next);
+        setAnnouncement(`${tab.label} closed.`);
+        requestAnimationFrame(() => {
+            const target = next && document.getElementById(`${id}-tab-${next}`);
+            (target || container.current)?.focus();
+        });
+    }
+
     function navigate(event, index) {
+        if (event.key === 'Delete' && onTabClose) {
+            event.preventDefault();
+            closeTab(displayed[index]);
+            return;
+        }
         if (
             event.ctrlKey &&
             event.shiftKey &&
@@ -88,13 +119,16 @@ export default function WorkspaceTabs({
         else return;
         event.preventDefault();
         onTabChange(displayed[next].id);
-        event.currentTarget.parentElement
+        event.currentTarget
+            .closest('[role="tablist"]')
             .querySelectorAll('[role="tab"]')
             [next].focus();
     }
 
     return (
         <section
+            ref={container}
+            tabIndex={-1}
             className={`panel workspace-tabs ${className}`}
             aria-label={label}
         >
@@ -104,32 +138,10 @@ export default function WorkspaceTabs({
                 aria-label={tabListLabel}
             >
                 {displayed.map((tab, index) => (
-                    <button
+                    <div
                         key={tab.id}
-                        type="button"
-                        role="tab"
-                        draggable
-                        title="Drag to reorder. Ctrl+Shift+Left/Right also moves this tab."
-                        className={
-                            dragging === tab.id ? 'workspace-tab-dragging' : ''
-                        }
-                        data-drop-position={
-                            dropTarget?.id === tab.id
-                                ? dropTarget.position
-                                : undefined
-                        }
-                        id={`${id}-tab-${tab.id}`}
-                        aria-controls={`${id}-panel-${tab.id}`}
-                        aria-selected={activeTab === tab.id}
-                        tabIndex={activeTab === tab.id ? 0 : -1}
-                        onClick={() => onTabChange(tab.id)}
-                        onKeyDown={(event) => navigate(event, index)}
-                        onDragStart={(event) => {
-                            draggedTab.current = tab.id;
-                            setDragging(tab.id);
-                            event.dataTransfer.effectAllowed = 'move';
-                            event.dataTransfer.setData('text/plain', tab.id);
-                        }}
+                        role="presentation"
+                        className={`workspace-tab-item ${onTabClose ? 'closable' : ''}`}
                         onDragOver={(event) => {
                             if (
                                 !draggedTab.current ||
@@ -164,15 +176,67 @@ export default function WorkspaceTabs({
                             );
                             finishDrag();
                         }}
-                        onDragEnd={finishDrag}
                     >
-                        {tab.label}
-                    </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            draggable
+                            title="Drag to reorder. Ctrl+Shift+Left/Right moves this tab. Delete closes it."
+                            className={
+                                dragging === tab.id
+                                    ? 'workspace-tab-dragging'
+                                    : ''
+                            }
+                            data-drop-position={
+                                dropTarget?.id === tab.id
+                                    ? dropTarget.position
+                                    : undefined
+                            }
+                            id={`${id}-tab-${tab.id}`}
+                            aria-controls={`${id}-panel-${tab.id}`}
+                            aria-selected={activeTab === tab.id}
+                            tabIndex={activeTab === tab.id ? 0 : -1}
+                            onClick={() => onTabChange(tab.id)}
+                            onKeyDown={(event) => navigate(event, index)}
+                            onDragStart={(event) => {
+                                draggedTab.current = tab.id;
+                                setDragging(tab.id);
+                                event.dataTransfer.effectAllowed = 'move';
+                                event.dataTransfer.setData(
+                                    'text/plain',
+                                    tab.id,
+                                );
+                            }}
+                            onDragEnd={finishDrag}
+                        >
+                            {tab.label}
+                        </button>
+                        {onTabClose && (
+                            <button
+                                type="button"
+                                className="workspace-tab-close"
+                                aria-label={`Close ${tab.label} tab`}
+                                title={`Close ${tab.label} (Delete)`}
+                                tabIndex={-1}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    closeTab(tab);
+                                }}
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
                 ))}
             </div>
             <span className="sr-only" role="status">
                 {announcement}
             </span>
+            {!tabs.length && (
+                <div className="empty-state workspace-tabs-empty">
+                    {emptyContent}
+                </div>
+            )}
             {tabs.map((tab) => (
                 <div
                     key={tab.id}

@@ -1940,3 +1940,83 @@ svg .graph-caption {
 .session-menu-browsers button {
     padding-left: 15px;
 }
+
+.workspace-tab-item {
+    position: relative;
+    display: flex;
+}
+.workspace-tab-item.closable > [role='tab'] {
+    padding-right: 29px;
+}
+.workspace-tab-list .workspace-tab-close {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: #95a8c0;
+    font-size: 15px;
+    line-height: 1;
+}
+.workspace-tab-list .workspace-tab-close:hover {
+    color: #fff;
+    background: #4c3440;
+}
+.workspace-tabs-empty {
+    flex: 1;
+}
+
+.settings-dialog {
+    width: min(620px, calc(100vw - 24px));
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 1px solid #40516a;
+    border-radius: 8px;
+    background: #121b29;
+    color: #d5e2f3;
+    overflow: auto;
+}
+.settings-dialog::backdrop {
+    background: #050a12b8;
+    backdrop-filter: blur(3px);
+}
+.settings-dialog .workspace-panel-title {
+    justify-content: space-between;
+}
+.settings-dialog h2 {
+    margin: 0;
+    font-size: 16px;
+}
+.settings-body {
+    padding: 18px;
+}
+.settings-row {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #283347;
+}
+.settings-row strong {
+    font-size: 13px;
+}
+.settings-row p {
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+.settings-row button {
+    flex-shrink: 0;
+}
+@media (max-width: 500px) {
+    .settings-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+}

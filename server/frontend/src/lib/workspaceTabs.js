@@ -15,3 +15,9 @@ export function moveTab(ids, source, target, position = 'before') {
     );
     return remaining;
 }
+
+export function activeTabAfterClose(ids, active, closed) {
+    const index = ids.indexOf(closed);
+    if (index < 0 || active !== closed) return active;
+    return ids[index + 1] || ids[index - 1] || '';
+}

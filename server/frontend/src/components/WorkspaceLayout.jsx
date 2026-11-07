@@ -15,11 +15,14 @@ function readSize() {
     return defaultSize;
 }
 
-export default function WorkspaceLayout({ children }) {
+export default function WorkspaceLayout({ children, resetVersion = 0 }) {
     const [size, setSize] = useState(readSize);
     const [dragging, setDragging] = useState(false);
     const grid = useRef(null);
     const offset = useRef(null);
+    useEffect(() => {
+        if (resetVersion) setSize(defaultSize);
+    }, [resetVersion]);
 
     useEffect(() => {
         try {

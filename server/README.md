@@ -298,7 +298,10 @@ the Console and Files tabs. Switching tabs preserves console drafts, file paths,
 and event filters; the event feed continues refreshing while its tab is hidden
 unless paused. Drag tab headers to reorder them; the order is saved in this
 browser. Ctrl+Shift+Left/Right moves a focused tab. Arrow keys, Home, and End
-navigate the tabs.
+navigate the tabs. Use the small **×** button or Delete on a focused tab to close
+it. Closing the active tab selects its next neighbor (or previous neighbor at the
+end). All tabs can be closed; toolbar buttons reopen session and feature views.
+Closing a tab does not disconnect sessions, stop listeners, or delete saved data.
 
 Drag the horizontal divider between the Sessions and feature windows to resize
 them. Keyboard arrow keys also resize focused
@@ -313,6 +316,10 @@ opens the existing Files tab, and **Process Browser** opens a UI placeholder tha
 does not request process information. Already-open tabs are reused. Shift+F10
 also opens the menu from a focused session; arrow keys navigate, and Escape
 closes it and restores focus.
+
+**Settings** in the top toolbar opens browser-local workspace preferences, with
+actions to reset window sizes or tab order without closing tabs. Escape or Close
+dismisses Settings and restores toolbar focus.
 
 Listener controls and disconnect remain in the toolbar/context strip.
 **Details & tools** opens host properties, saved-session linking, collected output,
