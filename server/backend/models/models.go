@@ -22,6 +22,39 @@ const (
 	MESSAGE_ERROR_REPORT       = 12
 	MESSAGE_LIST_DIRECTORY     = 13
 	MESSAGE_DIRECTORY_LISTING  = 14
+
+	// Reserved command identifiers; adding a value does not enable dispatch.
+	// Upload/download continue to use MESSAGE_UPLOAD_FILE/MESSAGE_DOWNLOAD_FILE.
+	MESSAGE_SCREENSHOT            = 15
+	MESSAGE_CD                    = 16
+	MESSAGE_CP                    = 17
+	MESSAGE_DRIVES                = 18
+	MESSAGE_EXIT                  = 19
+	MESSAGE_GETPRIVS              = 20
+	MESSAGE_GETUID                = 21
+	MESSAGE_KERBEROS_CCACHE_USE   = 22
+	MESSAGE_KERBEROS_TICKET_PURGE = 23
+	MESSAGE_KERBEROS_TICKET_USE   = 24
+	MESSAGE_JOBKILL               = 25
+	MESSAGE_KILL                  = 26
+	MESSAGE_LINK                  = 27
+	MESSAGE_LS                    = 28
+	MESSAGE_MAKE_TOKEN            = 29
+	MESSAGE_MKDIR                 = 30
+	MESSAGE_MV                    = 31
+	MESSAGE_PPID                  = 32
+	MESSAGE_PS                    = 33
+	MESSAGE_PWD                   = 34
+	MESSAGE_REG_QUERY             = 35
+	MESSAGE_REG_QUERYV            = 36
+	MESSAGE_REV2SELF              = 37
+	MESSAGE_RM                    = 38
+	MESSAGE_RPORTFWD              = 39
+	MESSAGE_SETENV                = 40
+	MESSAGE_SOCKS                 = 41
+	MESSAGE_STEAL_TOKEN           = 42
+	MESSAGE_TIMESTOMP             = 43
+	MESSAGE_UNLINK                = 44
 )
 
 // MessageHeader matches your C++ #pragma pack(1) struct

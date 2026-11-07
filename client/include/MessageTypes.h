@@ -30,7 +30,40 @@ typedef enum
 
 	ERROR_REPORT,       // Error information
     LIST_DIRECTORY = 13,
-    DIRECTORY_LISTING = 14
+    DIRECTORY_LISTING = 14,
+
+    // Reserved command identifiers for not-implemented handlers.
+    // Existing upload/download commands retain UPLOAD_FILE and DOWNLOAD_FILE.
+    SCREENSHOT = 15,
+    CD = 16,
+    CP = 17,
+    DRIVES = 18,
+    EXIT = 19,
+    GETPRIVS = 20,
+    GETUID = 21,
+    KERBEROS_CCACHE_USE = 22,
+    KERBEROS_TICKET_PURGE = 23,
+    KERBEROS_TICKET_USE = 24,
+    JOBKILL = 25,
+    KILL = 26,
+    LINK = 27,
+    LS = 28,
+    MAKE_TOKEN = 29,
+    MKDIR = 30,
+    MV = 31,
+    PPID = 32,
+    PS = 33,
+    PWD = 34,
+    REG_QUERY = 35,
+    REG_QUERYV = 36,
+    REV2SELF = 37,
+    RM = 38,
+    RPORTFWD = 39,
+    SETENV = 40,
+    SOCKS = 41,
+    STEAL_TOKEN = 42,
+    TIMESTOMP = 43,
+    UNLINK = 44
 
 } MessageType;
 
