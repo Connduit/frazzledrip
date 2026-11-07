@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
-import TerminalTab from './TerminalTab.jsx';
+import CommandConsole from './CommandConsole.jsx';
 import FileExplorer from './FileExplorer.jsx';
 import DetailsTools from './DetailsTools.jsx';
 import HistoryPanel from './HistoryPanel.jsx';
@@ -296,7 +296,7 @@ export default function App() {
                         )}
                     </div>
                     {selected ? (
-                        <TerminalTab
+                        <CommandConsole
                             agent={selected}
                             messages={messages}
                             active={true}
@@ -309,8 +309,8 @@ export default function App() {
                         <div className="empty-state">
                             <strong>No session selected</strong>
                             <p>
-                                Select an agent to open its command prompt and
-                                output.
+                                Select an agent to use its custom-message
+                                console.
                             </p>
                         </div>
                     )}

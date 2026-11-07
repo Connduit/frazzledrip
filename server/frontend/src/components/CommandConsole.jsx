@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { apiService } from '../services/api.js';
-import { clientMessageCategory } from '../lib/clientEvents.js';
+import {
+    isConsoleMessage,
+    parseConsoleCommand,
+} from '../lib/consoleCommands.js';
 
 const emptySession = () => ({
     entries: [],
@@ -9,7 +12,7 @@ const emptySession = () => ({
     draft: '',
 });
 
-export default function TerminalTab({
+export default function CommandConsole({
     agent,
     messages,
     active,
@@ -35,9 +38,7 @@ export default function TerminalTab({
             const seen = new Set(current.seen);
             const entries = [];
             for (const message of messages) {
-                if (clientMessageCategory(message)) continue;
-                if (!['COMMAND_RESULT', 'ERROR_REPORT'].includes(message.type))
-                    continue;
+                if (!isConsoleMessage(message)) continue;
                 const key = `${message.timestamp}:${message.message_id}:${message.type}`;
                 if (seen.has(key)) continue;
                 seen.add(key);
@@ -78,9 +79,8 @@ export default function TerminalTab({
     async function submit(event) {
         event.preventDefault();
         const command = session.draft.trim();
-        if (!command || sending || !agent.IsActive) return;
+        if (!command || sending) return;
         const id = agent.ID;
-        const endpoint = agent.IPAddress;
         const entryID = `local-${++sequence.current}`;
         navigation.current = { index: -1, draft: '' };
         followOutput.current = true;
@@ -93,14 +93,42 @@ export default function TerminalTab({
                 { id: entryID, type: 'command', text: command },
             ].slice(-300),
         }));
+        const parsed = parseConsoleCommand(command);
+        if (parsed.kind === 'clear') {
+            clear();
+            return;
+        }
+        if (parsed.kind !== 'request' || !agent.IsActive) {
+            const text =
+                parsed.kind === 'help'
+                    ? 'Custom commands:\nSYS_INFO — native OS, memory, and processor information\nhelp — show this list\nclear — clear console history\nShell commands are not accepted.'
+                    : parsed.kind === 'request'
+                      ? 'This session is offline. Reconnect to send SYS_INFO.'
+                      : 'Unknown custom command. Type help for available commands. Shell commands are not accepted.';
+            update(id, (current) => ({
+                ...current,
+                entries: [
+                    ...current.entries,
+                    {
+                        id: `${entryID}-local`,
+                        type: parsed.kind === 'help' ? 'response' : 'error',
+                        text,
+                    },
+                ].slice(-300),
+            }));
+            return;
+        }
         setSending(true);
         try {
-            const result = await apiService.sendCommand(endpoint, command);
+            const result = await apiService.mySendCommand(
+                agent.IPAddress,
+                'systeminfo',
+            );
             if (!result.status?.startsWith('✅'))
                 throw new Error(
                     result.error || result.status || 'Command was not accepted',
                 );
-            setStatus('✅ Command sent - waiting for response...');
+            setStatus('✅ SYS_INFO sent - waiting for response...');
             refreshMessages();
         } catch (error) {
             update(id, (current) => ({
@@ -144,15 +172,15 @@ export default function TerminalTab({
         update(agent.ID, (current) => ({ ...current, draft }));
     }
     return (
-        <section className="terminal-panel" aria-label="Session terminal">
+        <section className="terminal-panel" aria-label="Custom command console">
             <div className="terminal-toolbar">
                 <span className="mono">
                     {agent.SystemInfo?.hostname || agent.ID} · {agent.IPAddress}
                 </span>
                 <button
                     type="button"
-                    aria-label="Clear terminal history"
-                    title="Clear this session's terminal output and recalled commands. Saved server history is retained."
+                    aria-label="Clear console history"
+                    title="Clear this session's custom-command output and recalled commands. Saved server history is retained."
                     onClick={() => {
                         clear();
                         input.current?.focus({ preventScroll: true });
@@ -162,15 +190,15 @@ export default function TerminalTab({
                 </button>
             </div>
             <p className="terminal-hint">
-                Enter sends a command · ↑ / ↓ recalls history · Ctrl+L clears
-                the view. Each command runs separately; directories, variables,
-                stdin, and Ctrl+C do not persist between commands.
+                Custom message commands only: SYS_INFO · help · clear. Shell
+                commands are not accepted. ↑ / ↓ recalls commands; Ctrl+L clears
+                this view.
             </p>
             <div
                 className="terminal-output"
                 ref={output}
                 role="log"
-                aria-label="Terminal output"
+                aria-label="Console output"
                 tabIndex="0"
                 onScroll={(event) => {
                     const el = event.currentTarget;
@@ -180,8 +208,8 @@ export default function TerminalTab({
             >
                 {!session.entries.length && (
                     <div className="muted">
-                        Type a command below. Responses appear here when the
-                        device returns them.
+                        Type help for available custom commands. SYS_INFO
+                        requests native host information.
                     </div>
                 )}
                 {session.entries.map((entry) => (
@@ -202,11 +230,13 @@ export default function TerminalTab({
                 <span aria-hidden="true">&gt;</span>
                 <input
                     ref={input}
-                    aria-label="Terminal command"
+                    aria-label="Console command"
                     value={session.draft}
+                    maxLength={128}
+                    placeholder="SYS_INFO, help, clear"
                     autoComplete="off"
                     spellCheck="false"
-                    disabled={sending || !agent.IsActive}
+                    disabled={sending}
                     onKeyDown={keyDown}
                     onChange={(event) => {
                         navigation.current.index = -1;
@@ -218,9 +248,7 @@ export default function TerminalTab({
                 />
                 <button
                     type="submit"
-                    disabled={
-                        sending || !agent.IsActive || !session.draft.trim()
-                    }
+                    disabled={sending || !session.draft.trim()}
                 >
                     {sending ? 'Sending…' : 'Run'}
                 </button>

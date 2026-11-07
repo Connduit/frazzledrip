@@ -228,20 +228,26 @@ line. On narrow screens, sessions use labeled fields in a two-column layout.
 
 ### Workspace console
 
-Select a session in the graph or table. Its **Console** and **Files** panes are
-visible together in the workspace. Type a command and press Enter
-(or **Run**) to send it through the existing Execute Command flow. Responses and
-error reports appear chronologically as they return. Use Up/Down to recall typed
-commands and **Clear terminal** or Ctrl+L to clear the local view; clearing does
-not delete server history. History is kept separately per agent while the panel
-is mounted. Session output polling
-continues to use the existing inspector refresh.
+Select a session in the graph or table. The **Console** accepts an explicit list
+of custom message commands; it does not accept shell or terminal commands.
 
-This is a CLI interface to the existing one-shot commands, not a persistent
-shell: each invocation starts separately. Working-directory changes and shell
-variables do not carry over, and interactive stdin or Ctrl+C is unsupported.
-The server still allows only one shell command in flight per session. No client
-rebuild or terminal-specific server endpoint is required.
+- `SYS_INFO` requests native OS, memory, and processor information using the
+  existing `SYS_INFO` message handler. Names are case insensitive.
+- `help` displays supported console commands locally.
+- `clear`, **Clear history**, or Ctrl+L clears the console view and recalled
+  commands for the selected session. Saved server history is retained.
+
+Press Enter or **Run** to submit; Up/Down recalls typed commands. `help` and
+`clear` also work for offline sessions. Unknown commands, shell syntax, and
+response-only message types are rejected locally without a network request.
+The **Commands** panel also provides only the native `SYS_INFO` operation.
+
+Native responses appear in the console, including the current client's legacy
+`COMMAND_RESULT` responses with message ID 99. Shell-command output does not
+appear here. Transfer status and directory errors remain in the Event Viewer.
+This UI change requires no client rebuild or new backend endpoint. The existing
+shell backend endpoint remains available to other existing server features;
+removing shell entry from the console does not disable it globally.
 
 ### File Explorer
 
