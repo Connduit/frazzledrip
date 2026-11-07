@@ -7,41 +7,60 @@ import (
 	"net/http"
 )
 
-// NOTE: this function "connects" backend and frontend
+// RegisterHandlers connects frontend API routes to their backend handlers.
 func RegisterHandlers() {
+	// List the non-executable attack and script placeholders available in the tools catalog.
 	http.HandleFunc("/tool-catalog", toolCatalogHandler)
+
+	// Record a simulated tool task and test result without contacting a client.
 	http.HandleFunc("/simulate-tool", simulateToolHandler)
+
+	// Retrieve saved task summaries or the details and output of one task.
 	http.HandleFunc("/task-history", taskHistoryHandler)
+
+	// Retrieve recent server audit events for the Event Viewer and audit history.
 	http.HandleFunc("/audit-history", auditHistoryHandler)
+
+	// Read cached directory listings or request a new listing from the selected client.
 	http.HandleFunc("/browse-files", browseFilesHandler)
+
+	// Request that the selected client upload a file to the server; acknowledge dispatch.
 	http.HandleFunc("/download-file", downloadFilePlaceholderHandler)
+
+	// Explicitly associate a live connection with a previously saved session.
 	http.HandleFunc("/link-session", linkSessionHandler)
+
+	// Stop accepting new TCP connections while preserving existing sessions.
 	http.HandleFunc("/stop-listener", stopListenerHandler)
+
+	// Report whether the TCP listener is running and which port it has bound.
 	http.HandleFunc("/listener-status", listenerStatusHandler)
+
+	// Close a selected session's connection while retaining its saved information.
 	http.HandleFunc("/disconnect-session", disconnectSessionHandler)
-	// Start listener endpoint
+
+	// Start the default TCP listener and report any bind failure.
 	http.HandleFunc("/start-listener", startListenerHandler)
 
-	// Get connected clients
+	// List snapshots of active and saved offline client sessions.
 	http.HandleFunc("/get-clients", getClientsHandler)
 
-	// Get messages from a specific client
+	// Retrieve the selected client's recent incoming messages and session metadata.
 	http.HandleFunc("/get-client-messages", getClientMessagesHandler)
 
-	// Send command to client
+	// Dispatch a shell command through the client's EXECUTE_COMMAND message handler.
 	http.HandleFunc("/send-command", sendCommandHandler)
 
-	// TODO
-	// Send MY command to client
+	// Request native host information through the existing SYS_INFO message handler.
 	http.HandleFunc("/my-send-command", mySendCommandHandler)
 
-	// Send file to client
+	// Accept a file from the browser and send it to the selected client.
 	http.HandleFunc("/send-binary", sendBinaryHandler)
 
-	// Send shellcode to client
+	// Accept shellcode from the browser and dispatch it to the client's shellcode handler.
 	http.HandleFunc("/send-shellcode", sendShellcodeHandler)
 
-	// Get client system info
+	// Retrieve the selected client's collected system information.
 	http.HandleFunc("/get-client-info", getClientInfoHandler)
 }
 

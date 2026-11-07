@@ -315,6 +315,11 @@ The existing **Start** and **Stop** actions query the backend status again befor
 reporting success. A status-read failure shows **Unverified**, preserves the last
 known details, and retries automatically. Stopping the listener prevents new connections; existing sessions remain connected.
 
+Use **Create listener** to save a test draft with a name, TCP protocol, bind
+address (IPv4, IPv6, or localhost), and port. Drafts are stored in this browser,
+listed separately, and can be removed. Names and draft endpoints must be unique;
+ports must be 1–65535. Drafts never start listeners or send backend requests.
+
 ### Saved directory snapshots
 
 Directory listings are cached on the server per agent, directory, and listing

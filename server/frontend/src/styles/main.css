@@ -1785,3 +1785,74 @@ svg .graph-caption {
         padding: 6px 0;
     }
 }
+
+.listener-draft-form {
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #40516a;
+    border-radius: 6px;
+    background: #182130;
+}
+.listener-draft-form h3,
+.listener-drafts h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+.listener-form-fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+}
+.listener-form-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    min-width: 0;
+}
+.listener-form-fields input,
+.listener-form-fields select {
+    width: 100%;
+    min-width: 0;
+}
+.listener-drafts {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #354258;
+}
+.listener-draft-list {
+    padding: 0;
+    list-style: none;
+}
+.listener-draft-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #283347;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+.listener-draft-list li > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.listener-draft-list .badge {
+    margin-left: 10px;
+}
+.listener-draft-list p {
+    margin: 6px 0 0;
+    font-size: 12px;
+}
+@media (max-width: 700px) {
+    .listener-form-fields {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media (max-width: 420px) {
+    .listener-form-fields {
+        grid-template-columns: 1fr;
+    }
+}
