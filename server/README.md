@@ -103,7 +103,7 @@ Search sessions by host, user, or address and sort by host or last seen. Select
 The graph shows direct controller connections; it does not infer pivots. The
 inventory refreshes every five seconds and reports failed refreshes. Disconnected
 sessions remain visible as offline, with metadata and command history preserved
-until the server process exits. Offline sessions cannot receive commands.
+in the persistent server database. Offline sessions cannot receive commands.
 
 The map bundles Natural Earth country boundaries for offline use. The server has
 no IP geolocation data. Select a session and enter a label, latitude, and longitude
@@ -123,7 +123,7 @@ on its next refresh; the selected inspector refreshes every two seconds.
 Missing or invalid fields preserve existing values. Hostname, user, and product
 type remain unknown when the client does not report them. Memory is shown in GiB;
 Windows versions are shown as reported version/build numbers rather than guessed
-marketing names. Metadata remains available when the connection drops, until the server process exits.
+marketing names. Metadata remains available when the connection drops, in the persistent server database.
 
 ### Metadata from command responses
 
@@ -161,8 +161,7 @@ source-port changes do not create a duplicate row. The inspector follows the
 agent ID onto the new endpoint. Active connections are kept separate; if several
 offline records share the IP, use explicit linking rather than guessing. IP
 matching is the chosen heuristic, not a verified device identity: NAT or WSL
-forwarding may make different devices appear under one address. Records live in
-memory and do not survive a server restart. The existing 60-second inbound read
+forwarding may make different devices appear under one address. Session records are persisted and reload offline after a server restart. The existing 60-second inbound read
 timeout still applies; clients that send no heartbeats can hit that timeout.
 
 ### Link a reconnect to saved information
@@ -180,7 +179,7 @@ or when a device reconnects from a different address.
 If the saved host has a manually assigned map location in this browser, it is
 copied to the new host address only when the new address has no saved location.
 No Windows client changes or rebuild are required. Linking and saved records
-remain in memory until the server process exits.
+are stored in the persistent server database.
 
 ### Session table columns
 
@@ -316,7 +315,48 @@ startup rather than overwritten.
 
 After a server restart, once a client reconnects, one unclaimed cached agent
 matching its observed IP can be restored under the existing IP-based identity
-policy. Ambiguous matches are not assigned automatically. Session records still
-live in memory; this feature persists directory snapshots, not the whole session
-registry. Cache size grows with visited directories; there is no automatic expiry.
+policy. Ambiguous matches are not assigned automatically. Session records now persist separately in the server database described below. Cache size grows with visited directories; there is no automatic expiry.
 No client rebuild is required for caching.
+
+## Persistent server foundation (milestone 1)
+
+The server now stores sessions, host facts, the existing bounded message/output
+history, shell-task outcomes, and audit events in a transactional bbolt database.
+This pure-Go store keeps Linux and Windows builds independent of CGO. The default
+file is `server.db` alongside the directory cache. Use `-database /path/server.db`
+to choose another file. The database is private to one server process; stop the
+server before copying its database as a backup. Do not share one database between
+concurrent server processes.
+
+At startup, saved sessions appear offline. Reconnecting follows the existing
+IP-based matching policy and retains the saved agent ID and collected facts.
+Unfinished tasks become **interrupted**, with an audit event; they are never
+replayed. This remains a legacy IP heuristic, not authenticated device identity.
+The HTTP interface now defaults to `127.0.0.1:8081`.
+
+Under **Details & tools**, **Shell task history** shows the latest 500 manual
+shell and initial-host-info tasks for the selected agent. Click a command to
+inspect its archived output (limited to 1 MiB, explicitly marked if truncated).
+States are queued (recorded before socket dispatch), sent (written, not
+acknowledged), completed, failed, and interrupted. These states record existing
+execution; this milestone does not add a background job scheduler or automatic
+retry. Existing clients with fixed response ID 105 still use one pending shell
+command; test fixtures can echo the request ID.
+
+**Audit** shows the latest 300 durable lifecycle events and POST request outcomes.
+HTTP peer endpoints and task origins are recorded; request bodies and query
+strings are excluded. Peer addresses are not authenticated operator identities.
+Directory/native operations currently receive HTTP audit entries; shell commands
+and initial host queries additionally have task lifecycle records.
+
+This is the first server-side foundation, not a completed security rollout.
+Operator login, authenticated stable agent identity, TLS provisioning, roles,
+advanced task scheduling/cancellation, and engagement isolation remain follow-up
+work. Keep the HTTP service on its loopback default while those are developed.
+Existing APIs do not yet authenticate operators. The database audit is not a
+cryptographically tamper-evident log.
+
+The Windows client is unchanged. `client/test/fixtures/mock_agent.py` provides
+TEST-only responses without executing commands or reading files. See its adjacent
+README for an isolated test workflow. Rebuild the server/frontend for this phase;
+no production client changes or rebuild are required.

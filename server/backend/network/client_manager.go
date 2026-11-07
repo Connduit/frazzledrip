@@ -48,6 +48,7 @@ func AddClient(addr string, client *models.Client) {
 		}
 	}
 	clients[addr] = client
+	persistSessionLocked(client, "session.connected")
 }
 
 // RemoveClient deletes a client entry from the map using its address.
@@ -67,13 +68,15 @@ func RemoveClient(addr string) {
 func DisconnectClient(client *models.Client) {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
-	if clients[client.IPAddress] != client {
+	if clients[client.IPAddress] != client || (!client.IsActive && client.Conn == nil) {
 		return
 	}
+	interruptTaskLocked(client.IPAddress)
 	cancelDirectoryRequest(client.IPAddress)
 	interruptBasicInfo(client)
 	client.IsActive = false
 	client.Conn = nil
+	persistSessionLocked(client, "session.disconnected")
 	delete(pendingCommands, client.IPAddress)
 }
 
@@ -128,10 +131,12 @@ func DisconnectSession(id string) error {
 		return fmt.Errorf("session no longer exists")
 	}
 	conn := selected.Conn
+	interruptTaskLocked(selected.IPAddress)
 	cancelDirectoryRequest(selected.IPAddress)
 	interruptBasicInfo(selected)
 	selected.IsActive = false
 	selected.Conn = nil
+	persistSessionLocked(selected, "session.disconnected")
 	delete(pendingCommands, selected.IPAddress)
 	clientsMutex.Unlock()
 	if conn != nil {

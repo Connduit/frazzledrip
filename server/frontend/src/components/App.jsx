@@ -3,6 +3,7 @@ import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
 import TerminalTab from './TerminalTab.jsx';
 import FileExplorer from './FileExplorer.jsx';
+import HistoryPanel from './HistoryPanel.jsx';
 import SessionLink from './SessionLink.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
@@ -30,6 +31,7 @@ export default function App() {
     const [activeTab, setActiveTab] = useState('commands');
     const [showMap, setShowMap] = useState(false);
     const [showTools, setShowTools] = useState(false);
+    const [showAudit, setShowAudit] = useState(false);
     const [locations, setLocations] = useState(readLocations);
     const [lastRefresh, setLastRefresh] = useState(null);
     const [fetchError, setFetchError] = useState('');
@@ -109,6 +111,7 @@ export default function App() {
                 <button disabled={starting || listenerState?.running} onClick={() => controlListener('start')}>Start listener</button>
                 <button disabled={starting || !listenerState?.running} onClick={() => controlListener('stop')}>Stop listener</button>
                 <button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button>
+                <button aria-expanded={showAudit} onClick={() => setShowAudit(value => !value)}>Audit</button>
                 <button aria-expanded={showMap} onClick={() => setShowMap(value => !value)}>Map</button>
                 <button aria-expanded={showTools} onClick={() => setShowTools(value => !value)}>Details &amp; tools</button>
             </div>
@@ -118,6 +121,7 @@ export default function App() {
                 {selected?.IsActive && <button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button>}</span>
             <span className="muted">{fetchError ? 'Feed unavailable' : lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Connecting…'}</span></div>
         {fetchError && <div className="status error" role="alert">Session refresh failed: {fetchError}. Displayed sessions may be stale; retrying automatically.</div>}
+        {showAudit && <section className="panel section workspace-tools"><HistoryPanel audit /></section>}
         <main className="workspace-grid">
             <div className="workspace-graph"><SessionGraph {...shared} /></div>
             <div className="workspace-sessions"><ClientList {...shared} /></div>
@@ -137,10 +141,10 @@ export default function App() {
                     if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
                     setStatus('Saved session linked.'); setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
                 }} />}
-                <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><MessageList messages={messages} />
+                <ClientInfo clientInfo={clientInfo} /><HistoryPanel agentID={selected.ID} /><CommandResults results={selected.CommandResults || []} /><MessageList messages={messages} />
                 {selected.IsActive && <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} />}
             </> : <p className="muted">Select a session to inspect its details and tools.</p>}
         </section>}
-        <footer className="workspace-footer"><span>FRAZZLEDRIP</span><span>Offline sessions retain collected information while the server is running.</span></footer>
+        <footer className="workspace-footer"><span>FRAZZLEDRIP</span><span>Session facts, task history, and audit events are saved on the server.</span></footer>
     </div>;
 }

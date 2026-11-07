@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 
 const apiPaths = [
+    '/task-history',
+    '/audit-history',
     '/browse-files',
     '/stop-listener',
     '/listener-status',

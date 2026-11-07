@@ -89,3 +89,5 @@ input, select, textarea { background: #0e1521; } input { min-width: 0; } input::
 @media(max-width:600px) { .workspace-shell { padding: 8px; }.workspace-brand .muted { display:none; }.workspace-footer { flex-wrap:wrap; }.workspace-toolbar .header-actions { justify-content:flex-start; }.workspace-panel-title { flex-wrap:wrap; }.workspace-files .explorer-path input { min-width:0; } }
 
 .workspace-files .explorer-path select { font-size: 10px; padding: 6px; max-width: 120px; }
+
+.history-panel { margin: 18px 0; }.history-table { overflow: auto; max-height: 400px; }.history-table table { table-layout: fixed; white-space: normal; }.history-table td { overflow-wrap: anywhere; }.task-details { border: 1px solid #354258; padding: 14px; margin-top: 12px; border-radius: 6px; }.task-details pre { max-height: 350px; overflow: auto; }.task-details strong { overflow-wrap: anywhere; }

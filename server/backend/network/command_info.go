@@ -11,6 +11,7 @@ import (
 )
 
 type pendingCommand struct {
+	TaskID    string
 	Automatic bool
 	ID        uint32
 	Command   string

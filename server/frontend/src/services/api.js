@@ -12,6 +12,18 @@ async function controlRequest(path, body) {
 
 // API service functions for communicating with the backend
 export const apiService = {
+    async taskHistory(agentID) {
+        const response = await fetch(`${API_BASE}/task-history?agent=${encodeURIComponent(agentID)}`);
+        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'History unavailable'); return data;
+    },
+    async taskDetails(id) {
+        const response = await fetch(`${API_BASE}/task-history?task=${encodeURIComponent(id)}`);
+        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Task unavailable'); return data;
+    },
+    async auditHistory() {
+        const response = await fetch(`${API_BASE}/audit-history`);
+        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Audit unavailable'); return data;
+    },
     async browseFiles(client, path, signal, source = 'dir', refresh = false, cacheOnly = false) {
         const response = await fetch(`${API_BASE}/browse-files`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },

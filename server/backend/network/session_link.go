@@ -29,6 +29,13 @@ func LinkSavedSession(savedID, liveID string) error {
 	if saved == live || saved.IsActive || !live.IsActive || live.Conn == nil {
 		return fmt.Errorf("select an offline saved session and a different active connection")
 	}
+	merged := snapshotClient(live)
+	restoreSessionData(saved, merged)
+	if persistentState != nil {
+		if err := persistentState.MergeSession(saved.ID, merged); err != nil {
+			return err
+		}
+	}
 	restoreSessionData(saved, live)
 	host, _, _ := net.SplitHostPort(live.IPAddress)
 	if err := directorySnapshots.merge(saved.ID, live.ID, host); err != nil {

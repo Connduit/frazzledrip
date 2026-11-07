@@ -17,6 +17,7 @@ func beginBasicInfo(client *models.Client) {
 		return
 	}
 	client.BasicInfoStatus = "collecting"
+	persistSessionLocked(client, "")
 	basicInfoQueues[client.IPAddress] = []string{"whoami", "ipconfig /all", "systeminfo"}
 	clientsMutex.Unlock()
 	sendNextBasicInfo(client)
@@ -35,6 +36,7 @@ func sendNextBasicInfo(client *models.Client) {
 	}
 	if len(queue) == 0 {
 		client.BasicInfoStatus = "complete"
+		persistSessionLocked(client, "")
 		delete(basicInfoQueues, client.IPAddress)
 		clientsMutex.Unlock()
 		return
@@ -42,18 +44,30 @@ func sendNextBasicInfo(client *models.Client) {
 	command := queue[0]
 	basicInfoQueues[client.IPAddress] = queue[1:]
 	id := utils.GenerateMessageID()
-	pendingCommands[client.IPAddress] = pendingCommand{ID: id, Command: command, Automatic: true}
+	taskID, err := newTrackedTaskLocked(client, command, "initial-host-info", id)
+	if err != nil {
+		client.BasicInfoStatus = "failed"
+		delete(basicInfoQueues, client.IPAddress)
+		persistSessionLocked(client, "")
+		clientsMutex.Unlock()
+		return
+	}
+	pendingCommands[client.IPAddress] = pendingCommand{ID: id, Command: command, Automatic: true, TaskID: taskID}
 	clientsMutex.Unlock()
 	msg := models.InternalMessage{Header: models.MessageHeader{MessageType: models.MESSAGE_EXECUTE_COMMAND, MessageID: id, DataSize: uint32(len(command))}, Data: []byte(command)}
 	if err := sendBinaryMessage(client, msg); err != nil {
+		taskTransition(taskID, "failed", err.Error())
 		clientsMutex.Lock()
 		if clients[client.IPAddress] == client && pendingCommands[client.IPAddress].ID == id {
 			delete(pendingCommands, client.IPAddress)
 			delete(basicInfoQueues, client.IPAddress)
 			client.BasicInfoStatus = "failed"
+			persistSessionLocked(client, "")
 		}
 		clientsMutex.Unlock()
 		log.Printf("Initial host info for %s failed: %v", client.ID, err)
+	} else {
+		taskTransition(taskID, "sent", "")
 	}
 }
 

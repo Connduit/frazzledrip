@@ -165,6 +165,11 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 			if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
 				client.SystemInfo = mergeCommandInfo(client.SystemInfo, pending.Command, string(msg.Data))
 			}
+			taskState := "completed"
+			if msg.Header.MessageType == models.MESSAGE_ERROR_REPORT {
+				taskState = "failed"
+			}
+			taskTransition(pending.TaskID, taskState, string(msg.Data))
 			advanceBasicInfo = pending.Automatic || client.BasicInfoStatus == "collecting"
 			storeCommandResult(client, pending.Command, string(msg.Data), clientMessage.Timestamp)
 			delete(pendingCommands, client.IPAddress)
@@ -177,6 +182,9 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 	client.Messages = append(client.Messages, clientMessage)
 	if len(client.Messages) > 100 {
 		client.Messages = client.Messages[1:] // Drop oldest
+	}
+	if clients[client.IPAddress] == client {
+		persistSessionLocked(client, "")
 	}
 	clientsMutex.Unlock()
 	if advanceBasicInfo {
@@ -291,10 +299,16 @@ func SendCommandToClient(clientAddr string, command string) error {
 		clientsMutex.Unlock()
 		return fmt.Errorf("a shell command is already pending for this session; wait for its response")
 	}
-	pendingCommands[clientAddr] = pendingCommand{ID: msg.Header.MessageID, Command: command}
+	taskID, err := newTrackedTaskLocked(client, command, "api", msg.Header.MessageID)
+	if err != nil {
+		clientsMutex.Unlock()
+		return fmt.Errorf("could not record task: %w", err)
+	}
+	pendingCommands[clientAddr] = pendingCommand{ID: msg.Header.MessageID, Command: command, TaskID: taskID}
 	clientsMutex.Unlock()
 
 	if err := sendBinaryMessage(client, msg); err != nil {
+		taskTransition(taskID, "failed", err.Error())
 		clientsMutex.Lock()
 		if pendingCommands[clientAddr].ID == msg.Header.MessageID {
 			delete(pendingCommands, clientAddr)
@@ -303,6 +317,7 @@ func SendCommandToClient(clientAddr string, command string) error {
 		return err
 	}
 
+	taskTransition(taskID, "sent", "")
 	log.Printf("Sent EXECUTE_COMMAND to client %s: %s", clientAddr, command)
 	return nil
 }

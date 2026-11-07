@@ -51,7 +51,7 @@ type Client struct {
 	Type            string
 	Listener        string
 	ID              string
-	Conn            net.Conn
+	Conn            net.Conn `json:"-"`
 	LastSeen        time.Time
 	SystemInfo      SystemInfo
 	IPAddress       string
