@@ -20,6 +20,8 @@ const (
 	MESSAGE_DOWNLOAD_FILE      = 10
 	MESSAGE_CONFIG_UPDATE      = 11
 	MESSAGE_ERROR_REPORT       = 12
+	MESSAGE_LIST_DIRECTORY     = 13
+	MESSAGE_DIRECTORY_LISTING  = 14
 )
 
 // MessageHeader matches your C++ #pragma pack(1) struct

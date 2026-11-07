@@ -242,3 +242,25 @@ shell: each invocation starts separately. Working-directory changes and shell
 variables do not carry over, and interactive stdin or Ctrl+C is unsupported.
 The server still allows only one shell command in flight per session. No client
 rebuild or terminal-specific server endpoint is required.
+
+### File Explorer
+
+Inspect an active session and open **File Explorer**. Leave the path empty and
+click **Open directory** for the client's current directory, or enter an absolute
+Windows path. Click a folder to navigate, use **Up** for its parent, and
+**Refresh directory** to reload. Filter names locally and select a file to view
+its full path and size. Directory links are labeled; folders sort first.
+
+This is a read-only, nonrecursive listing of names and metadata. It does not
+read file contents, download, delete, rename, or upload files. The existing File
+Transfer tab remains separate. Listings are capped at 2,000 entries or about 8 MiB of metadata and clearly
+marked when truncated. Permission errors, invalid paths, disconnects, and the
+20-second response timeout are surfaced without clearing the previous listing.
+Wait for initial host collection or any current shell command before browsing.
+
+Rebuild **both the Windows client and the Go server/frontend**. The new client
+supports protocol messages 13 (LIST_DIRECTORY, UTF-8 path) and 14
+(DIRECTORY_LISTING, UTF-8 JSON), echoing the request ID. Older clients cannot browse
+and will time out. Client TCP framing now reads complete messages and sends
+complete buffers, including listings exceeding 4 KB. Portable helper/transport
+tests validate this logic; a complete Windows build/runtime check is still needed.

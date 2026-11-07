@@ -156,6 +156,7 @@ void ClientSubsystem::setupEvents()
 		std::cout << "dispatch_->registerHandler(MessageType::SYS_INFO)" << std::endl;
 		controller_->handleSystemInfo(msg);
 	});
+    dispatcher_->registerHandler(MessageType::LIST_DIRECTORY, [&](const InternalMessage& msg) { controller_->handleListDirectory(msg); });
 }
 
 void ClientSubsystem::setupTasks()

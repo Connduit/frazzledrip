@@ -64,3 +64,8 @@ input, select, textarea { background: #0e1521; } input { min-width: 0; } input::
 .terminal-command { color: #80d9bf; }.terminal-error { color: #ff9eac; }
 .terminal-prompt { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-top: 1px solid #354258; }
 .terminal-prompt > span { color: #80d9bf; font-family: monospace; }.terminal-prompt input { flex: 1; min-width: 0; font-family: Consolas, monospace; background: transparent; }.terminal-prompt button { flex-shrink: 0; }
+
+.explorer-heading, .explorer-path { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.explorer-path input { flex: 1; min-width: 150px; }.explorer-current { overflow-wrap: anywhere; min-width: 0; }.explorer-note, .explorer-heading p { font-size: 12px; }
+.explorer-table table { white-space: normal; table-layout: fixed; }.explorer-table th:first-child { width: 65%; }.explorer-table td { overflow-wrap: anywhere; }.file-name { text-align: left; background: transparent; color: #9bcafa; max-width: 100%; overflow-wrap: anywhere; }
+@media(max-width:600px) { .explorer-path input { flex-basis: 100%; }.explorer-table td, .explorer-table th { padding: 10px 6px; } }

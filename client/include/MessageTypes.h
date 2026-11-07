@@ -28,7 +28,9 @@ typedef enum
 	DOWNLOAD_FILE,		// file transfer (server to client)
 	CONFIG_UPDATE,
 
-	ERROR_REPORT        // Error information
+	ERROR_REPORT,       // Error information
+    LIST_DIRECTORY = 13,
+    DIRECTORY_LISTING = 14
 
 } MessageType;
 

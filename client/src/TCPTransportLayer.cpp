@@ -99,10 +99,20 @@ bool TCPTransportLayer::send(const RawByteBuffer& data)
     (SOCKET s, const char* buf, int len, int flags);
     FuncSend pSend = (FuncSend)apiManager_->fProcedures_["send"];
 
-    int result = pSend(socket_, (const char*)data.data(), data.size(), 0);
-    //int result = ::send(socket_, (const char*)data.data(), data.size(), 0);
-
-    return result > 0;
+    std::size_t sent = 0;
+    while (sent < data.size())
+    {
+        const int result = pSend(socket_, reinterpret_cast<const char*>(data.data() + sent),
+            static_cast<int>((data.size() - sent) > 65536 ? 65536 : (data.size() - sent)), 0);
+        if (result <= 0) {
+            typedef int (WINAPI* FuncCloseSocket)(SOCKET);
+            auto closeSocket = (FuncCloseSocket)apiManager_->fProcedures_["closesocket"];
+            closeSocket(socket_); socket_ = INVALID_SOCKET; connected_ = false;
+            return false;
+        }
+        sent += static_cast<std::size_t>(result);
+    }
+    return true;
 
 }
 
@@ -190,21 +200,27 @@ void TCPTransportLayer::receive()
 	(SOCKET s, char* buf, int len, int flags);
     FuncRecv pRecv = (FuncRecv)apiManager_->fProcedures_["recv"];
 
-	RawByteBuffer buffer(4096);
-	int received = pRecv(socket_, (char*)buffer.data(), buffer.size(), 0);
-	//int received = recv(socket_, (char*)buffer.data(), buffer.size(), 0);
-
-	if (received <= 0)
-	{
-		connected_ = false;
-        return;
-	}
-
-	buffer.resize(received);
-
-	if (receiveCallback_)
-	{
-		receiveCallback_(buffer); 
-	}
+    auto disconnect = [&]() {
+        typedef int (WINAPI* FuncCloseSocket)(SOCKET);
+        auto closeSocket = (FuncCloseSocket)apiManager_->fProcedures_["closesocket"];
+        closeSocket(socket_); socket_ = INVALID_SOCKET; connected_ = false;
+    };
+    auto readExactly = [&](uint8_t* destination, std::size_t size) {
+        std::size_t received = 0;
+        while (received < size) {
+            const int count = pRecv(socket_, reinterpret_cast<char*>(destination + received),
+                static_cast<int>((size - received) > 65536 ? 65536 : (size - received)), 0);
+            if (count <= 0) { disconnect(); return false; }
+            received += static_cast<std::size_t>(count);
+        }
+        return true;
+    };
+    RawByteBuffer buffer(12);
+    if (!readExactly(buffer.data(), buffer.size())) return;
+    const uint32_t size = static_cast<uint32_t>(buffer[4]) | (static_cast<uint32_t>(buffer[5]) << 8)
+        | (static_cast<uint32_t>(buffer[6]) << 16) | (static_cast<uint32_t>(buffer[7]) << 24);
+    if (size > (32u << 20)) { disconnect(); return; }
+    buffer.resize(12 + size);
+    if (size && !readExactly(buffer.data() + 12, size)) return;
+    if (receiveCallback_) receiveCallback_(buffer);
 }
-

@@ -1,4 +1,5 @@
 import React from 'react';
+import FileExplorer from './FileExplorer.jsx';
 import TerminalTab from './TerminalTab.jsx';
 import CommandTab from './CommandTab.jsx';
 import FileTransferTab from './FileTransferTab.jsx';
@@ -24,6 +25,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
 
                     <button className={`tab-button ${activeTab === 'terminal' ? 'active' : ''}`} onClick={() => setActiveTab('terminal')}>Terminal</button>
 
+                    <button className={`tab-button ${activeTab === 'explorer' ? 'active' : ''}`} onClick={() => setActiveTab('explorer')}>File Explorer</button>
                     {/* File transfer tab button */}
                     <button 
                         className={`tab-button ${activeTab === 'files' ? 'active' : ''}`}
@@ -47,6 +49,7 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     <div hidden={activeTab !== 'terminal'}>
                         <TerminalTab agent={clients.find(client => client.IPAddress === selectedClient)} messages={messages} active={activeTab === 'terminal'} setStatus={setStatus} refreshMessages={refreshMessages} />
                     </div>
+                    {activeTab === 'explorer' && <FileExplorer key={clients.find(client => client.IPAddress === selectedClient).ID + selectedClient} agent={clients.find(client => client.IPAddress === selectedClient)} />}
                     {/* Commands tab content */}
                     {activeTab === 'commands' && (
                         <CommandTab 

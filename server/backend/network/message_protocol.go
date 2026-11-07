@@ -105,6 +105,8 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		Content:   string(msg.Data),
 	}
 
+	finishDirectoryRequest(client, msg)
+
 	// Route based on message type (must match C++ enums)
 	switch msg.Header.MessageType {
 	case models.MESSAGE_HANDSHAKE:
@@ -141,6 +143,9 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		log.Printf("File upload from client %s: %d bytes", client.ID, len(msg.Data))
 		utils.SaveUploadedFile(client.ID, msg.Data)
 
+	case models.MESSAGE_DIRECTORY_LISTING:
+		clientMessage.Type = "DIRECTORY_LISTING"
+		clientMessage.Content = "Directory listing received"
 	case models.MESSAGE_ERROR_REPORT:
 		clientMessage.Type = "ERROR_REPORT"
 		log.Printf("Error report from client %s: %s", client.ID, string(msg.Data))
@@ -184,6 +189,11 @@ This is the ONLY function that performs the actual network write.
 func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error {
 	clientsMutex.Lock()
 	conn, active := client.Conn, client.IsActive
+	browsing := directoryRequests[client.IPAddress]
+	if browsing != nil && (msg.Header.MessageType != models.MESSAGE_LIST_DIRECTORY || msg.Header.MessageID != browsing.ID) {
+		clientsMutex.Unlock()
+		return fmt.Errorf("a directory request is pending for this session")
+	}
 	clientsMutex.Unlock()
 	if conn == nil || !active {
 		return fmt.Errorf("session is offline")
@@ -264,6 +274,10 @@ func SendCommandToClient(clientAddr string, command string) error {
 	if current := clients[clientAddr]; current != nil && current.BasicInfoStatus == "collecting" {
 		clientsMutex.Unlock()
 		return fmt.Errorf("initial host information is being collected; wait for it to finish")
+	}
+	if _, browsing := directoryRequests[clientAddr]; browsing {
+		clientsMutex.Unlock()
+		return fmt.Errorf("a directory request is pending for this session")
 	}
 	if _, pending := pendingCommands[clientAddr]; pending {
 		clientsMutex.Unlock()

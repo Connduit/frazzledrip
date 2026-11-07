@@ -56,6 +56,7 @@ func RemoveClient(addr string) {
 	clientsMutex.Lock()
 	defer clientsMutex.Unlock()
 
+	cancelDirectoryRequest(addr)
 	delete(basicInfoQueues, addr)
 	delete(clients, addr)
 	delete(pendingCommands, addr)
@@ -69,6 +70,7 @@ func DisconnectClient(client *models.Client) {
 	if clients[client.IPAddress] != client {
 		return
 	}
+	cancelDirectoryRequest(client.IPAddress)
 	interruptBasicInfo(client)
 	client.IsActive = false
 	client.Conn = nil
@@ -126,6 +128,7 @@ func DisconnectSession(id string) error {
 		return fmt.Errorf("session no longer exists")
 	}
 	conn := selected.Conn
+	cancelDirectoryRequest(selected.IPAddress)
 	interruptBasicInfo(selected)
 	selected.IsActive = false
 	selected.Conn = nil

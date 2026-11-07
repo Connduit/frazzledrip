@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 const apiPaths = [
+    '/browse-files',
     '/stop-listener',
     '/listener-status',
     '/disconnect-session',
