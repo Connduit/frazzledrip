@@ -1,9 +1,9 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { moveTab, orderedTabs } from '../lib/workspaceTabs.js';
 
-const storageKey = 'frazzledrip.workspace-tab-order.v1';
+const defaultStorageKey = 'frazzledrip.workspace-tab-order.v1';
 
-function readOrder() {
+function readOrder(storageKey) {
     try {
         const saved = JSON.parse(localStorage.getItem(storageKey));
         if (Array.isArray(saved) && saved.every((id) => typeof id === 'string'))
@@ -14,9 +14,17 @@ function readOrder() {
     return [];
 }
 
-export default function WorkspaceTabs({ tabs, activeTab, onTabChange }) {
+export default function WorkspaceTabs({
+    tabs,
+    activeTab,
+    onTabChange,
+    label = 'Session workspace',
+    tabListLabel = 'Workspace views',
+    storageKey = defaultStorageKey,
+    className = '',
+}) {
     const id = useId();
-    const [order, setOrder] = useState(readOrder);
+    const [order, setOrder] = useState(() => readOrder(storageKey));
     const [dragging, setDragging] = useState(null);
     const [dropTarget, setDropTarget] = useState(null);
     const [announcement, setAnnouncement] = useState('');
@@ -29,7 +37,7 @@ export default function WorkspaceTabs({ tabs, activeTab, onTabChange }) {
         } catch {
             /* Reordering still works without persistence. */
         }
-    }, [order]);
+    }, [order, storageKey]);
 
     function reorder(source, target, position) {
         const next = moveTab(
@@ -87,13 +95,13 @@ export default function WorkspaceTabs({ tabs, activeTab, onTabChange }) {
 
     return (
         <section
-            className="panel workspace-tabs"
-            aria-label="Session workspace"
+            className={`panel workspace-tabs ${className}`}
+            aria-label={label}
         >
             <div
                 className="workspace-tab-list"
                 role="tablist"
-                aria-label="Workspace views"
+                aria-label={tabListLabel}
             >
                 {displayed.map((tab, index) => (
                     <button

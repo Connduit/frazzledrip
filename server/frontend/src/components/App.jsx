@@ -35,7 +35,9 @@ export default function App() {
     const [clientMessages, setClientMessages] = useState([]);
     const [messagesClient, setMessagesClient] = useState('');
     const [activeTab, setActiveTab] = useState('commands');
-    const [workspaceTab, setWorkspaceTab] = useState('console');
+    const [workspaceTab, setWorkspaceTab] = useState('events');
+    const [openWorkspaceTabs, setOpenWorkspaceTabs] = useState(['events']);
+    const [sessionView, setSessionView] = useState('sessions');
     const [showMap, setShowMap] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showAudit, setShowAudit] = useState(false);
@@ -136,6 +138,12 @@ export default function App() {
         } finally {
             setStarting(false);
         }
+    }
+    function openWorkspaceTab(id) {
+        setOpenWorkspaceTabs((current) =>
+            current.includes(id) ? current : [...current, id],
+        );
+        setWorkspaceTab(id);
     }
     async function disconnectSession(id) {
         setDisconnecting(true);
@@ -245,6 +253,28 @@ export default function App() {
                     </button>
                 </div>
             </header>
+            <nav
+                className="workspace-feature-actions"
+                aria-label="Workspace features"
+            >
+                <span>Open view</span>
+                {[
+                    { id: 'events', label: 'Event Viewer' },
+                    { id: 'console', label: 'Console' },
+                    { id: 'files', label: 'Files' },
+                    { id: 'listeners', label: 'Listeners' },
+                ].map((feature) => (
+                    <button
+                        type="button"
+                        key={feature.id}
+                        aria-label={`Open ${feature.label} tab`}
+                        aria-pressed={workspaceTab === feature.id}
+                        onClick={() => openWorkspaceTab(feature.id)}
+                    >
+                        {feature.label}
+                    </button>
+                ))}
+            </nav>
             <div className="workspace-context">
                 <span>
                     <strong>{clients.length}</strong> sessions{' '}
@@ -287,12 +317,34 @@ export default function App() {
                 </section>
             )}
             <WorkspaceLayout>
-                <div className="workspace-graph">
-                    <SessionGraph {...shared} />
-                </div>
-                <div className="workspace-sessions">
-                    <ClientList {...shared} />
-                </div>
+                <WorkspaceTabs
+                    label="Sessions window"
+                    tabListLabel="Session views"
+                    storageKey="frazzledrip.session-tab-order.v1"
+                    className="workspace-inventory"
+                    activeTab={sessionView}
+                    onTabChange={setSessionView}
+                    tabs={[
+                        {
+                            id: 'sessions',
+                            label: 'Session table',
+                            content: (
+                                <div className="workspace-sessions">
+                                    <ClientList {...shared} />
+                                </div>
+                            ),
+                        },
+                        {
+                            id: 'graph',
+                            label: 'Session graph',
+                            content: (
+                                <div className="workspace-graph">
+                                    <SessionGraph {...shared} />
+                                </div>
+                            ),
+                        },
+                    ]}
+                />
                 <WorkspaceTabs
                     activeTab={workspaceTab}
                     onTabChange={setWorkspaceTab}
@@ -404,7 +456,13 @@ export default function App() {
                                 />
                             ),
                         },
-                    ]}
+                    ]
+                        .filter((tab) => openWorkspaceTabs.includes(tab.id))
+                        .sort(
+                            (a, b) =>
+                                openWorkspaceTabs.indexOf(a.id) -
+                                openWorkspaceTabs.indexOf(b.id),
+                        )}
                 />
             </WorkspaceLayout>
             {status && (

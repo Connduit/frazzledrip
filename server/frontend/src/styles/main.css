@@ -1538,7 +1538,7 @@ svg .graph-caption {
 .resizable-workspace {
     position: relative;
     height: calc(100dvh - 165px);
-    grid-template-columns: var(--workspace-columns);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: var(--workspace-rows);
 }
 .workspace-divider {
@@ -1556,19 +1556,6 @@ svg .graph-caption {
 .workspace-divider:hover::after,
 .workspace-divider:focus-visible::after {
     background: #7cc9f5;
-}
-.divider-column {
-    top: 0;
-    bottom: 0;
-    width: 8px;
-    transform: translateX(-50%);
-    cursor: col-resize;
-}
-.divider-column::after {
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    left: 3px;
 }
 .divider-row {
     height: 8px;
@@ -1773,12 +1760,15 @@ svg .graph-caption {
         content: 'Status: ';
     }
     .listeners-table td:nth-child(4)::before {
-        content: 'Port: ';
+        content: 'Bind address: ';
     }
     .listeners-table td:nth-child(5)::before {
-        content: 'Last verified: ';
+        content: 'Port: ';
     }
     .listeners-table td:nth-child(6)::before {
+        content: 'Last verified: ';
+    }
+    .listeners-table td:nth-child(7)::before {
         content: 'Actions: ';
     }
     .listeners-table td {
@@ -1854,5 +1844,52 @@ svg .graph-caption {
 @media (max-width: 420px) {
     .listener-form-fields {
         grid-template-columns: 1fr;
+    }
+}
+
+.workspace-feature-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 8px 2px;
+    border-bottom: 1px solid #2b3544;
+}
+.workspace-feature-actions span {
+    font-size: 10px;
+    color: #8fa2bc;
+    margin-right: 4px;
+}
+.workspace-feature-actions button {
+    font-size: 11px;
+    padding: 5px 10px;
+}
+.workspace-feature-actions button[aria-pressed='true'] {
+    background: #21364c;
+    border-color: #6abbe8;
+}
+.resizable-workspace {
+    height: calc(100dvh - 207px);
+}
+@media (max-width: 1100px) {
+    .resizable-workspace {
+        height: auto;
+    }
+}
+
+.workspace-inventory {
+    grid-row: 1;
+}
+.workspace-inventory .workspace-tab-panel > .workspace-sessions,
+.workspace-inventory .workspace-tab-panel > .workspace-graph {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+@media (max-width: 1100px) {
+    .workspace-inventory {
+        grid-row: auto;
+        height: 340px;
     }
 }

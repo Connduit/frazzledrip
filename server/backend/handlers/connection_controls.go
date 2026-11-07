@@ -49,8 +49,8 @@ func listenerStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if !requireControlMethod(w, r, http.MethodGet) {
 		return
 	}
-	running, port := network.ListenerStatus()
-	json.NewEncoder(w).Encode(map[string]interface{}{"running": running, "port": port})
+	running, port, bindAddress := network.ListenerDetails()
+	json.NewEncoder(w).Encode(map[string]interface{}{"running": running, "port": port, "bind_address": bindAddress})
 }
 func disconnectSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if !requireControlMethod(w, r, http.MethodPost) {

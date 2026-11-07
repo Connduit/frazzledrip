@@ -33,7 +33,7 @@ func RegisterHandlers() {
 	// Stop accepting new TCP connections while preserving existing sessions.
 	http.HandleFunc("/stop-listener", stopListenerHandler)
 
-	// Report whether the TCP listener is running and which port it has bound.
+	// Report TCP listener status, bind address, and bound port.
 	http.HandleFunc("/listener-status", listenerStatusHandler)
 
 	// Close a selected session's connection while retaining its saved information.

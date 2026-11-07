@@ -212,6 +212,7 @@ export default function ListenersTab({
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Status</th>
+                                <th>Bind address</th>
                                 <th>Port</th>
                                 <th>Last verified</th>
                                 <th>Actions</th>
@@ -239,6 +240,14 @@ export default function ListenersTab({
                                                 : 'Stopped'}
                                         </small>
                                     )}
+                                </td>
+                                <td className="mono">
+                                    {status?.bind_address || '—'}
+                                    {status &&
+                                        !status.running &&
+                                        status.bind_address && (
+                                            <small>Configured; not bound</small>
+                                        )}
                                 </td>
                                 <td>{status?.running ? status.port : '—'}</td>
                                 <td>

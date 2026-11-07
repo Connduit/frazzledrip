@@ -85,12 +85,19 @@ func StopReverseTCPListener() error {
 }
 
 func ListenerStatus() (bool, int) {
+	running, port, _ := ListenerDetails()
+	return running, port
+}
+
+// ListenerDetails reports the bound address, or the configured address when stopped.
+func ListenerDetails() (bool, int, string) {
 	listenerMutex.Lock()
 	defer listenerMutex.Unlock()
 	if currentListener == nil {
-		return false, 0
+		return false, 0, "0.0.0.0"
 	}
-	return true, currentListener.Addr().(*net.TCPAddr).Port
+	address := currentListener.Addr().(*net.TCPAddr)
+	return true, address.Port, address.IP.String()
 }
 
 func IsListening() bool { running, _ := ListenerStatus(); return running }

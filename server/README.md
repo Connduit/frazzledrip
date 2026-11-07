@@ -287,18 +287,25 @@ The properties panel shows the same value.
 
 ### Workspace layout
 
-The desktop workspace shows the graph and session table above one shared window
-with **Console**, **Event Viewer**, **Files**, and **Listeners** tabs. Selecting a session updates
+The desktop workspace has two tabbed windows. The upper **Sessions** window
+contains **Session table** and **Session graph**, with the table selected by
+default. The lower feature window starts with **Event Viewer** as its only open
+tab. Toolbar buttons open
+**Console**, **Files**, and **Listeners** on demand, or activate an already-open
+tab without duplicating it. Reloading starts with Event Viewer again; saved tab
+order does not automatically open feature tabs. Selecting a session updates
 the Console and Files tabs. Switching tabs preserves console drafts, file paths,
 and event filters; the event feed continues refreshing while its tab is hidden
 unless paused. Drag tab headers to reorder them; the order is saved in this
 browser. Ctrl+Shift+Left/Right moves a focused tab. Arrow keys, Home, and End
 navigate the tabs.
 
-Drag the vertical divider to change graph/table widths, or the horizontal divider
-to resize the shared tabbed window. Keyboard arrow keys also resize focused
+Drag the horizontal divider between the Sessions and feature windows to resize
+them. Keyboard arrow keys also resize focused
 dividers. Sizes are saved in this browser; **Reset panel sizes** restores defaults.
-Narrow screens stack the graph, sessions, and tabbed window.
+Session and feature tab orders are saved independently. Switching session views
+preserves table filters, graph zoom, and the selected session. Narrow screens
+stack the two windows.
 
 Listener controls and disconnect remain in the toolbar/context strip.
 **Details & tools** opens host properties, saved-session linking, collected output,
@@ -307,9 +314,10 @@ and existing controls. **Map** opens session geography separately.
 ### Listener status
 
 Open **Listeners** to see the default TCP listener's backend-reported running or
-stopped state, actual bound port, and last verification time. The current server
+stopped state, bind address, actual bound port, and last verification time. The current server
 supports one listener. Both the toolbar and tab share the same status feed,
-refreshed every two seconds. **Refresh listener status** checks immediately.
+refreshed every two seconds. **Refresh listener status** checks immediately. While stopped, the bind address is
+marked as configured rather than currently bound.
 
 The existing **Start** and **Stop** actions query the backend status again before
 reporting success. A status-read failure shows **Unverified**, preserves the last

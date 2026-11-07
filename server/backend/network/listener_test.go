@@ -9,6 +9,29 @@ import (
 	"github.com/Connduit/frazzledrip/server/backend/models"
 )
 
+func TestListenerDetailsAddress(t *testing.T) {
+	if running, port, address := ListenerDetails(); running || port != 0 || address != "0.0.0.0" {
+		t.Fatalf("unexpected stopped details: %v %d %q", running, port, address)
+	}
+	if err := StartReverseTCPListener(0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { StopReverseTCPListener() })
+	listenerMutex.Lock()
+	bound := currentListener.Addr().(*net.TCPAddr)
+	wantIP, wantPort := bound.IP.String(), bound.Port
+	listenerMutex.Unlock()
+	if running, port, address := ListenerDetails(); !running || port != wantPort || address != wantIP {
+		t.Fatalf("details do not match socket: %v %d %q", running, port, address)
+	}
+	if err := StopReverseTCPListener(); err != nil {
+		t.Fatal(err)
+	}
+	if running, port, address := ListenerDetails(); running || port != 0 || address != "0.0.0.0" {
+		t.Fatalf("unexpected details after stop: %v %d %q", running, port, address)
+	}
+}
+
 func TestListenerStopAndDisconnect(t *testing.T) {
 	defer StopReverseTCPListener()
 	if err := StartReverseTCPListener(0); err != nil {
