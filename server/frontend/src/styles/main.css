@@ -1703,3 +1703,85 @@ svg .graph-caption {
         height: 500px;
     }
 }
+
+.workspace-tab-list button[draggable='true'] {
+    cursor: grab;
+}
+.workspace-tab-list button.workspace-tab-dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+.workspace-tab-list button[data-drop-position='before'] {
+    box-shadow: inset 3px 0 #7cc9f5;
+}
+.workspace-tab-list button[data-drop-position='after'] {
+    box-shadow: inset -3px 0 #7cc9f5;
+}
+
+.listeners-table {
+    overflow-x: auto;
+}
+.listeners-table table {
+    width: 100%;
+    table-layout: auto;
+}
+.listeners-table th,
+.listeners-table td {
+    padding: 10px;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+.listeners-table small {
+    display: block;
+    margin-top: 5px;
+    color: #8fa2bc;
+}
+.listener-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.workspace-listeners .workspace-panel-title {
+    flex-wrap: wrap;
+}
+.workspace-listeners .workspace-panel-title button {
+    margin-left: auto;
+    padding: 4px 8px;
+    font-size: 10px;
+}
+.workspace-tab-list {
+    flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+    .listeners-table table,
+    .listeners-table tbody,
+    .listeners-table tr,
+    .listeners-table td {
+        display: block;
+    }
+    .listeners-table thead {
+        display: none;
+    }
+    .listeners-table td:nth-child(1)::before {
+        content: 'Name: ';
+    }
+    .listeners-table td:nth-child(2)::before {
+        content: 'Type: ';
+    }
+    .listeners-table td:nth-child(3)::before {
+        content: 'Status: ';
+    }
+    .listeners-table td:nth-child(4)::before {
+        content: 'Port: ';
+    }
+    .listeners-table td:nth-child(5)::before {
+        content: 'Last verified: ';
+    }
+    .listeners-table td:nth-child(6)::before {
+        content: 'Actions: ';
+    }
+    .listeners-table td {
+        padding: 6px 0;
+    }
+}

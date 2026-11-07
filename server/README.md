@@ -288,10 +288,12 @@ The properties panel shows the same value.
 ### Workspace layout
 
 The desktop workspace shows the graph and session table above one shared window
-with **Console**, **Event Viewer**, and **Files** tabs. Selecting a session updates
+with **Console**, **Event Viewer**, **Files**, and **Listeners** tabs. Selecting a session updates
 the Console and Files tabs. Switching tabs preserves console drafts, file paths,
 and event filters; the event feed continues refreshing while its tab is hidden
-unless paused. Arrow keys, Home, and End navigate the tabs.
+unless paused. Drag tab headers to reorder them; the order is saved in this
+browser. Ctrl+Shift+Left/Right moves a focused tab. Arrow keys, Home, and End
+navigate the tabs.
 
 Drag the vertical divider to change graph/table widths, or the horizontal divider
 to resize the shared tabbed window. Keyboard arrow keys also resize focused
@@ -301,6 +303,17 @@ Narrow screens stack the graph, sessions, and tabbed window.
 Listener controls and disconnect remain in the toolbar/context strip.
 **Details & tools** opens host properties, saved-session linking, collected output,
 and existing controls. **Map** opens session geography separately.
+
+### Listener status
+
+Open **Listeners** to see the default TCP listener's backend-reported running or
+stopped state, actual bound port, and last verification time. The current server
+supports one listener. Both the toolbar and tab share the same status feed,
+refreshed every two seconds. **Refresh listener status** checks immediately.
+
+The existing **Start** and **Stop** actions query the backend status again before
+reporting success. A status-read failure shows **Unverified**, preserves the last
+known details, and retries automatically. Stopping the listener prevents new connections; existing sessions remain connected.
 
 ### Saved directory snapshots
 

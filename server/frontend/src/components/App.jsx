@@ -11,6 +11,8 @@ import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
 import WorkspaceLayout from './WorkspaceLayout.jsx';
 import WorkspaceTabs from './WorkspaceTabs.jsx';
+import ListenersTab from './ListenersTab.jsx';
+import useListenerStatus from '../lib/useListenerStatus.js';
 
 const locationKey = 'frazzledrip.session-locations.v1';
 function readLocations() {
@@ -43,7 +45,13 @@ export default function App() {
     const [refreshVersion, setRefreshVersion] = useState(0);
     const [messageVersion, setMessageVersion] = useState(0);
     const [starting, setStarting] = useState(false);
-    const [listenerState, setListenerState] = useState(null);
+    const {
+        status: listenerState,
+        error: listenerError,
+        checkedAt: listenerCheckedAt,
+        checking: listenerChecking,
+        refresh: refreshListener,
+    } = useListenerStatus();
     const [disconnecting, setDisconnecting] = useState(false);
 
     useEffect(() => {
@@ -51,14 +59,10 @@ export default function App() {
         let timer;
         async function poll() {
             try {
-                const [data, listener] = await Promise.all([
-                    apiService.getClients(),
-                    apiService.getListenerStatus(),
-                ]);
+                const data = await apiService.getClients();
                 if (!Array.isArray(data))
                     throw new Error('Unexpected session response');
                 if (cancelled) return;
-                setListenerState(listener);
                 setClients(data);
                 setLastRefresh(new Date());
                 setFetchError('');
@@ -120,8 +124,12 @@ export default function App() {
             const data = await (action === 'start'
                 ? apiService.startListener()
                 : apiService.stopListener());
-            setStatus(data.status);
-            setListenerState(await apiService.getListenerStatus());
+            const verified = await refreshListener();
+            setStatus(
+                verified.running === (action === 'start')
+                    ? data.status
+                    : 'Warning: backend listener status does not match the requested action. Check the Listeners tab.',
+            );
             setRefreshVersion((v) => v + 1);
         } catch (error) {
             setStatus('Error: ' + error.message);
@@ -183,23 +191,32 @@ export default function App() {
                 </div>
                 <div className="header-actions">
                     <span
-                        className={`badge ${listenerState?.running ? 'live' : ''}`}
+                        className={`badge ${listenerState?.running && !listenerError ? 'live' : ''}`}
                     >
                         <i />
-                        {listenerState == null
-                            ? 'Listener unknown'
+                        {listenerError || listenerState == null
+                            ? 'Listener unverified'
                             : listenerState.running
                               ? `Listening · ${listenerState.port}`
                               : 'Listener stopped'}
                     </span>
                     <button
-                        disabled={starting || listenerState?.running}
+                        disabled={
+                            starting ||
+                            !!listenerError ||
+                            !listenerState ||
+                            listenerState.running
+                        }
                         onClick={() => controlListener('start')}
                     >
                         Start listener
                     </button>
                     <button
-                        disabled={starting || !listenerState?.running}
+                        disabled={
+                            starting ||
+                            !!listenerError ||
+                            !listenerState?.running
+                        }
                         onClick={() => controlListener('stop')}
                     >
                         Stop listener
@@ -368,6 +385,23 @@ export default function App() {
                                         )}
                                     </div>
                                 </section>
+                            ),
+                        },
+                        {
+                            id: 'listeners',
+                            label: 'Listeners',
+                            content: (
+                                <ListenersTab
+                                    status={listenerState}
+                                    error={listenerError}
+                                    checkedAt={listenerCheckedAt}
+                                    checking={listenerChecking}
+                                    pending={starting}
+                                    onControl={controlListener}
+                                    onRefresh={() => {
+                                        refreshListener().catch(() => {});
+                                    }}
+                                />
                             ),
                         },
                     ]}
