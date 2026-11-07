@@ -157,6 +157,8 @@ void ClientSubsystem::setupEvents()
 		controller_->handleSystemInfo(msg);
 	});
     dispatcher_->registerHandler(MessageType::LIST_DIRECTORY, [&](const InternalMessage& msg) { controller_->handleListDirectory(msg); });
+    dispatcher_->registerHandler(MessageType::UPLOAD_FILE, [&](const InternalMessage& msg) { controller_->handleUpload(msg); });
+    dispatcher_->registerHandler(MessageType::DOWNLOAD_FILE, [&](const InternalMessage& msg) { controller_->handleDownload(msg); });
 }
 
 void ClientSubsystem::setupTasks()

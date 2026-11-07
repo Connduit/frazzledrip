@@ -32,10 +32,10 @@ public:
 	// virtualalloc, writeprocessmemroy, createthread, or reflectived dll loading
 	void handleMemLoader(const InternalMessage& msg);
 
-	// TODO: should be its own subclass with different ways to transfer files to victim
+	// Unsupported-operation stub: responds with ERROR_REPORT; no file access.
 	void handleUpload(const InternalMessage& msg);
 
-	// TODO: should be its own subclass with different ways to transfer files back to the attacker
+	// Unsupported-operation stub: responds with ERROR_REPORT; no file access.
 	void handleDownload(const InternalMessage& msg);
 
 	// TODO: handles updating config/settings...
