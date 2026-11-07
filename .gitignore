@@ -43,3 +43,6 @@
 # IDE
 *.vs
 *.vscode
+
+# Project Related
+server/uploads

