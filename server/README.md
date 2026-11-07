@@ -227,14 +227,15 @@ The session table uses wrapped, fixed-width columns to fit the workspace without
 horizontal scrolling. Multiple internal IPv4 addresses each occupy their own
 line. On narrow screens, sessions use labeled fields in a two-column layout.
 
-### Terminal tab
+### Workspace console
 
-Inspect an active session and open **Terminal**. Type a command and press Enter
+Select a session in the graph or table. Its **Console** and **Files** panes are
+visible together in the workspace. Type a command and press Enter
 (or **Run**) to send it through the existing Execute Command flow. Responses and
 error reports appear chronologically as they return. Use Up/Down to recall typed
 commands and **Clear terminal** or Ctrl+L to clear the local view; clearing does
 not delete server history. History is kept separately per agent while the panel
-is mounted, and switching tabs retains the transcript. Session output polling
+is mounted. Session output polling
 continues to use the existing inspector refresh.
 
 This is a CLI interface to the existing one-shot commands, not a persistent
@@ -245,7 +246,7 @@ rebuild or terminal-specific server endpoint is required.
 
 ### File Explorer
 
-Inspect an active session and open **File Explorer**. Leave the path empty and
+Select a session and use the **Files** pane. Leave the path empty and
 click **Open directory** for the client's current directory, or enter an absolute
 Windows path. Click a folder to navigate, use **Up** for its parent, and
 **Refresh directory** to reload. Filter names locally and select a file to view
@@ -253,22 +254,38 @@ its full path and size. Directory links are labeled; folders sort first.
 
 This is a read-only, nonrecursive listing of names and metadata. It does not
 read file contents, download, delete, rename, or upload files. The existing File
-Transfer tab remains separate. Listings are capped at 2,000 entries or about 8 MiB of metadata and clearly
-marked when truncated. Permission errors, invalid paths, disconnects, and the
+Transfer tab remains separate. Listings display at most 2,000 entries and are clearly marked when truncated.
+Native listings also cap metadata at about 8 MiB. Permission errors, invalid paths, disconnects, and the
 20-second response timeout are surfaced without clearing the previous listing.
 Wait for initial host collection or any current shell command before browsing.
 
-Rebuild **both the Windows client and the Go server/frontend**. The new client
-supports protocol messages 13 (LIST_DIRECTORY, UTF-8 path) and 14
-(DIRECTORY_LISTING, UTF-8 JSON), echoing the request ID. Older clients cannot browse
-and will time out. Client TCP framing now reads complete messages and sends
-complete buffers, including listings exceeding 4 KB. Portable helper/transport
-tests validate this logic; a complete Windows build/runtime check is still needed.
+The default **Windows dir** method uses the existing Execute Command message,
+so it requires only rebuilding the server/frontend. The server sends a quoted,
+nonrecursive `dir /a /-c /4 /t:w` request with formatting overrides, then parses
+names, sizes, folders, links, and modification dates from its response. English
+`Directory of` headers are required. Names remain read-only; invalid paths and
+unrecognized formats produce an error instead of an empty directory. CMD paths
+containing percent signs, exclamation marks, wildcards, quotes, or control
+characters are rejected. Use **Native listing** for such names or unsupported
+locales; it requires the updated Windows client and protocol messages 13/14.
+The native client Windows build/runtime validation remains outstanding here.
 
 The File Explorer detail columns are **Name**, **Size**, **Date modified**, and
 **Type**. Click a header to toggle ascending/descending sorting, with folders
 kept first and missing values last. Types describe the file extension or folder,
-including link indicators. Sizes use B/KiB/MiB/GiB/TiB. Modification dates are
-reported by the client and displayed in the browser's local time; the properties
-panel includes the same date. Rebuild the client for modification timestamps;
-older clients continue to work with `—` for unavailable dates.
+including link indicators. Sizes use B/KiB/MiB/GiB/TiB. For dir results, Date modified preserves the date/time text reported by the
+client; no timezone is invented. Sorting understands month-first slash dates,
+year-first ISO dates, and day-first dotted dates with supported times. Other
+date formats remain visible as text but have no parsed sort key. Native results
+continue to use modification timestamps displayed in the browser's local time.
+The properties panel shows the same value.
+
+### Workspace layout
+
+The desktop workspace has four primary panes: graph (top left), sessions (top
+right), console (bottom left), and files (bottom right). Selecting an agent
+updates both work panes together. Listener controls and disconnect are in the
+toolbar/context strip. **Details & tools** opens host properties, saved-session
+linking, collected output, quick commands, and transfer/tools controls. **Map**
+opens session geography without taking space from the default layout. Narrow
+screens stack the panes while preserving the no-horizontal-scroll inventory.

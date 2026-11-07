@@ -105,7 +105,7 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 		Content:   string(msg.Data),
 	}
 
-	finishDirectoryRequest(client, msg)
+	directoryResponse := finishDirectoryRequest(client, msg)
 
 	// Route based on message type (must match C++ enums)
 	switch msg.Header.MessageType {
@@ -154,9 +154,13 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 	// TODO: maybe only add messages to the buffer if they are a certain msg.Header.MessageType?
 
 	// Append to client's message history (max 100)
+	if directoryResponse && msg.Header.MessageType != models.MESSAGE_ERROR_REPORT {
+		clientMessage.Type = "DIRECTORY_LISTING"
+		clientMessage.Content = "Directory listing received"
+	}
 	advanceBasicInfo := false
 	clientsMutex.Lock()
-	if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT || msg.Header.MessageType == models.MESSAGE_ERROR_REPORT {
+	if !directoryResponse && (msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT || msg.Header.MessageType == models.MESSAGE_ERROR_REPORT) {
 		if pending, ok := pendingCommands[client.IPAddress]; ok && clients[client.IPAddress] == client && (msg.Header.MessageID == pending.ID || msg.Header.MessageID == 105) {
 			if msg.Header.MessageType == models.MESSAGE_COMMAND_RESULT {
 				client.SystemInfo = mergeCommandInfo(client.SystemInfo, pending.Command, string(msg.Data))
@@ -190,7 +194,11 @@ func sendBinaryMessage(client *models.Client, msg models.InternalMessage) error 
 	clientsMutex.Lock()
 	conn, active := client.Conn, client.IsActive
 	browsing := directoryRequests[client.IPAddress]
-	if browsing != nil && (msg.Header.MessageType != models.MESSAGE_LIST_DIRECTORY || msg.Header.MessageID != browsing.ID) {
+	expectedType := uint32(models.MESSAGE_LIST_DIRECTORY)
+	if browsing != nil && browsing.ViaDir {
+		expectedType = models.MESSAGE_EXECUTE_COMMAND
+	}
+	if browsing != nil && (msg.Header.MessageType != expectedType || msg.Header.MessageID != browsing.ID) {
 		clientsMutex.Unlock()
 		return fmt.Errorf("a directory request is pending for this session")
 	}

@@ -13,14 +13,15 @@ export function fileType(entry) {
     return `${extension ? `${extension} file` : 'File'}${entry.is_link ? ' · Link' : ''}`;
 }
 
-export function formatFileDate(milliseconds) {
+export function formatFileDate(milliseconds, reportedText) {
+    if (reportedText) return reportedText;
     if (typeof milliseconds !== 'number' || !Number.isFinite(milliseconds)) return '—';
     const date = new Date(milliseconds);
     return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
 }
 
 export function sortFiles(entries, field, direction) {
-    const value = entry => field === 'type' ? fileType(entry) : field === 'size' ? (entry.is_directory ? null : entry.size) : field === 'modified_ms' ? entry.modified_ms : entry.name;
+    const value = entry => field === 'type' ? fileType(entry) : field === 'size' ? (entry.is_directory ? null : entry.size) : field === 'modified_ms' ? (entry.modified_sort || (Number.isFinite(entry.modified_ms) && !Number.isNaN(new Date(entry.modified_ms).getTime()) ? new Date(entry.modified_ms).toISOString() : null)) : entry.name;
     return entries.slice().sort((a, b) => {
         const foldersFirst = Number(Boolean(b.is_directory)) - Number(Boolean(a.is_directory));
         if (foldersFirst) return foldersFirst;

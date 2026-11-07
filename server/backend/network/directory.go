@@ -11,12 +11,14 @@ import (
 )
 
 type DirectoryEntry struct {
-	ModifiedMS  *int64  `json:"modified_ms,omitempty"`
-	Name        string  `json:"name"`
-	Path        string  `json:"path"`
-	IsDirectory bool    `json:"is_directory"`
-	IsLink      bool    `json:"is_link"`
-	Size        *uint64 `json:"size,omitempty"`
+	ModifiedText string  `json:"modified_text,omitempty"`
+	ModifiedSort string  `json:"modified_sort,omitempty"`
+	ModifiedMS   *int64  `json:"modified_ms,omitempty"`
+	Name         string  `json:"name"`
+	Path         string  `json:"path"`
+	IsDirectory  bool    `json:"is_directory"`
+	IsLink       bool    `json:"is_link"`
+	Size         *uint64 `json:"size,omitempty"`
 }
 type DirectoryListing struct {
 	Path      string           `json:"path"`
@@ -29,6 +31,7 @@ type directoryResult struct {
 	Err     error
 }
 type directoryRequest struct {
+	ViaDir bool
 	ID     uint32
 	Client *models.Client
 	Result chan directoryResult
@@ -38,8 +41,24 @@ type directoryRequest struct {
 var directoryRequests = make(map[string]*directoryRequest)
 
 func BrowseDirectory(ctx context.Context, addr, path string) (*DirectoryListing, error) {
+	return browseDirectory(ctx, addr, path, false)
+}
+func BrowseDirectoryViaDir(ctx context.Context, addr, path string) (*DirectoryListing, error) {
+	return browseDirectory(ctx, addr, path, true)
+}
+func browseDirectory(ctx context.Context, addr, path string, viaDir bool) (*DirectoryListing, error) {
 	if len(path) > 2048 || strings.ContainsRune(path, 0) {
 		return nil, fmt.Errorf("invalid directory path")
+	}
+	payload := path
+	messageType := uint32(models.MESSAGE_LIST_DIRECTORY)
+	if viaDir {
+		var err error
+		payload, err = dirCommand(path)
+		if err != nil {
+			return nil, err
+		}
+		messageType = models.MESSAGE_EXECUTE_COMMAND
 	}
 	clientsMutex.Lock()
 	client := clients[addr]
@@ -55,7 +74,7 @@ func BrowseDirectory(ctx context.Context, addr, path string) (*DirectoryListing,
 		clientsMutex.Unlock()
 		return nil, fmt.Errorf("wait for the current command or initial host queries to finish")
 	}
-	request := &directoryRequest{ID: utils.GenerateMessageID(), Client: client, Result: make(chan directoryResult, 1)}
+	request := &directoryRequest{ViaDir: viaDir, ID: utils.GenerateMessageID(), Client: client, Result: make(chan directoryResult, 1)}
 	directoryRequests[addr] = request
 	clientsMutex.Unlock()
 	defer func() {
@@ -65,7 +84,7 @@ func BrowseDirectory(ctx context.Context, addr, path string) (*DirectoryListing,
 		}
 		clientsMutex.Unlock()
 	}()
-	message := models.InternalMessage{Header: models.MessageHeader{MessageType: models.MESSAGE_LIST_DIRECTORY, MessageID: request.ID, DataSize: uint32(len(path))}, Data: []byte(path)}
+	message := models.InternalMessage{Header: models.MessageHeader{MessageType: messageType, MessageID: request.ID, DataSize: uint32(len(payload))}, Data: []byte(payload)}
 	if err := sendBinaryMessage(client, message); err != nil {
 		return nil, err
 	}
@@ -73,25 +92,30 @@ func BrowseDirectory(ctx context.Context, addr, path string) (*DirectoryListing,
 	case result := <-request.Result:
 		return result.Listing, result.Err
 	case <-ctx.Done():
-		return nil, fmt.Errorf("directory request timed out or was cancelled; the client must support directory browsing: %w", ctx.Err())
+		return nil, fmt.Errorf("directory request timed out or was cancelled: %w", ctx.Err())
 	}
 }
 
-func finishDirectoryRequest(client *models.Client, message *models.InternalMessage) {
-	if message.Header.MessageType != models.MESSAGE_DIRECTORY_LISTING && message.Header.MessageType != models.MESSAGE_ERROR_REPORT {
-		return
-	}
+func finishDirectoryRequest(client *models.Client, message *models.InternalMessage) bool {
 	clientsMutex.Lock()
 	request := directoryRequests[client.IPAddress]
-	if request == nil || request.Client != client || message.Header.MessageID != request.ID {
+	if request == nil || request.Client != client {
 		clientsMutex.Unlock()
-		return
+		return false
+	}
+	expected := message.Header.MessageID == request.ID || (request.ViaDir && message.Header.MessageID == 105)
+	validType := message.Header.MessageType == models.MESSAGE_ERROR_REPORT || (!request.ViaDir && message.Header.MessageType == models.MESSAGE_DIRECTORY_LISTING) || (request.ViaDir && message.Header.MessageType == models.MESSAGE_COMMAND_RESULT)
+	if !expected || !validType {
+		clientsMutex.Unlock()
+		return false
 	}
 	delete(directoryRequests, client.IPAddress)
 	clientsMutex.Unlock()
 	result := directoryResult{}
 	if message.Header.MessageType == models.MESSAGE_ERROR_REPORT {
 		result.Err = fmt.Errorf("%s", string(message.Data))
+	} else if request.ViaDir {
+		result.Listing, result.Err = parseDirOutput(string(message.Data))
 	} else {
 		var listing DirectoryListing
 		if err := json.Unmarshal(message.Data, &listing); err != nil || listing.Path == "" || len(listing.Entries) > 2000 {
@@ -104,6 +128,7 @@ func finishDirectoryRequest(client *models.Client, message *models.InternalMessa
 		}
 	}
 	request.Result <- result
+	return true
 }
 
 // Call with clientsMutex held. Wake pending HTTP requests on disconnect/removal.

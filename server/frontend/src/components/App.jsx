@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
+import TerminalTab from './TerminalTab.jsx';
+import FileExplorer from './FileExplorer.jsx';
 import SessionLink from './SessionLink.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
@@ -26,6 +28,8 @@ export default function App() {
     const [clientMessages, setClientMessages] = useState([]);
     const [messagesClient, setMessagesClient] = useState('');
     const [activeTab, setActiveTab] = useState('commands');
+    const [showMap, setShowMap] = useState(false);
+    const [showTools, setShowTools] = useState(false);
     const [locations, setLocations] = useState(readLocations);
     const [lastRefresh, setLastRefresh] = useState(null);
     const [fetchError, setFetchError] = useState('');
@@ -96,31 +100,47 @@ export default function App() {
     const active = clients.filter(c => c.IsActive).length;
     const hosts = new Set(clients.map(c => systemOf(c).hostname).filter(Boolean)).size;
     const shared = { clients, selectedClient, onClientSelect: address => { selectedAgentID.current = clients.find(c => c.IPAddress === address)?.ID || ''; setSelectedClient(address); } };
-    return <div className="container">
-        <header className="app-header"><div><span className="eyebrow">FRAZZLEDRIP / CONTROLLER</span><h1>Session workspace</h1><p className="muted">Session inventory, topology, and geography.</p></div>
-            <div className="header-actions"><button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button><span className={`badge ${listenerState?.running ? 'live' : ''}`}><i />{listenerState == null ? 'Listener unknown' : listenerState.running ? `Listening · ${listenerState.port}` : 'Listener stopped'}</span>
-                <button className="primary" disabled={starting || listenerState?.running} onClick={() => controlListener('start')}>Start listener</button>
-                <button disabled={starting || !listenerState?.running} onClick={() => controlListener('stop')}>Stop listener</button></div></header>
-        <div className="summary-grid"><div className="metric"><span>Known sessions</span><strong>{clients.length.toString().padStart(2, '0')}</strong></div>
-            <div className="metric"><span>Active sessions</span><strong className="accent">{active.toString().padStart(2, '0')}</strong></div>
-            <div className="metric"><span>Reported hosts</span><strong>{hosts.toString().padStart(2, '0')}</strong></div>
-            <div className="metric"><span>Session feed</span><strong className="feed-state">{fetchError ? 'Unavailable' : lastRefresh ? 'Connected' : 'Connecting…'}</strong><small>{lastRefresh ? `Last update ${lastRefresh.toLocaleTimeString()}` : 'Waiting for first update'}</small></div></div>
+    const selectedName = selected ? systemOf(selected).hostname || selected.ID : 'No session selected';
+    const messages = messagesClient === selectedClient ? clientMessages : [];
+    return <div className="container workspace-shell">
+        <header className="workspace-toolbar">
+            <div className="workspace-brand"><span className="brand-mark">F</span><strong>frazzledrip</strong><span className="muted">/ workspace</span></div>
+            <div className="header-actions"><span className={`badge ${listenerState?.running ? 'live' : ''}`}><i />{listenerState == null ? 'Listener unknown' : listenerState.running ? `Listening · ${listenerState.port}` : 'Listener stopped'}</span>
+                <button disabled={starting || listenerState?.running} onClick={() => controlListener('start')}>Start listener</button>
+                <button disabled={starting || !listenerState?.running} onClick={() => controlListener('stop')}>Stop listener</button>
+                <button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button>
+                <button aria-expanded={showMap} onClick={() => setShowMap(value => !value)}>Map</button>
+                <button aria-expanded={showTools} onClick={() => setShowTools(value => !value)}>Details &amp; tools</button>
+            </div>
+        </header>
+        <div className="workspace-context"><span><strong>{clients.length}</strong> sessions <span className="context-divider">/</span> <strong className="accent">{active}</strong> active <span className="context-divider">/</span> {hosts} hosts</span>
+            <span className="workspace-selection">{selected ? `${selectedName} · ${selected.IsActive ? 'Active' : 'Offline'}` : 'Select a session in the table or graph'}
+                {selected?.IsActive && <button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button>}</span>
+            <span className="muted">{fetchError ? 'Feed unavailable' : lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Connecting…'}</span></div>
         {fetchError && <div className="status error" role="alert">Session refresh failed: {fetchError}. Displayed sessions may be stale; retrying automatically.</div>}
-        <ClientList {...shared} locations={locations} />
-        <div className="visual-grid"><SessionGraph {...shared} /><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>
-        {selected ? <><section className="panel section"><span className="eyebrow">SESSION INSPECTOR</span><h2>{systemOf(selected).hostname || selectedClient}</h2><p className="mono muted">{selected.ID} · {selectedClient}</p>
-            {selected.IsActive && <SessionLink key={selected.ID} live={selected} clients={clients} onLinked={saved => {
-                const savedLocation = locations[hostOf(saved.IPAddress)];
-                if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
-                setStatus('Saved session linked.');
-                setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
-            }} />}
-            {selected.IsActive && <div className="inspector-actions"><button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button></div>}
-            {selected.BasicInfoStatus && <p className="muted" role="status">{({ collecting: 'Collecting basic host information…', complete: 'Initial host queries complete.', interrupted: 'Initial host queries interrupted by disconnect.', failed: 'Initial host queries failed; use the command tabs to collect missing information.' })[selected.BasicInfoStatus]}</p>}
-            <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
-            {selected.IsActive ? <TabContainer messages={messagesClient === selectedClient ? clientMessages : []} activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
-            : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}
-        {status && <div role="status" className={`status ${utils.getStatusClass(status)}`}>{status}</div>}
-        <footer className="app-footer">FRAZZLEDRIP <span>Session inventory reflects the current server registry. Offline sessions retain their collected information while the server is running.</span></footer>
+        <main className="workspace-grid">
+            <div className="workspace-graph"><SessionGraph {...shared} /></div>
+            <div className="workspace-sessions"><ClientList {...shared} /></div>
+            <section className="panel workspace-console" aria-label="Console pane"><div className="workspace-panel-title"><strong>Console</strong><span>{selectedName}</span>{selected?.BasicInfoStatus === 'collecting' && <span className="accent">Collecting initial host info…</span>}</div>
+                {selected ? <TerminalTab agent={selected} messages={messages} active={true} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="empty-state"><strong>No session selected</strong><p>Select an agent to open its command prompt and output.</p></div>}
+            </section>
+            <section className="panel workspace-files" aria-label="Files pane"><div className="workspace-panel-title"><strong>Files</strong><span>{selectedName}</span><span className="muted">Read only</span></div>
+                <div className="workspace-panel-body">{selected ? <FileExplorer key={selected.ID} agent={selected} /> : <div className="empty-state"><strong>No session selected</strong><p>Select an agent to browse its directories and file metadata.</p></div>}</div>
+            </section>
+        </main>
+        {status && <div role="status" className={`workspace-notice ${utils.getStatusClass(status)}`}>{status}</div>}
+        {showMap && <div className="workspace-map"><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>}
+        {showTools && <section className="panel section workspace-tools" aria-label="Session details and tools"><h2>{selectedName}</h2>
+            {selected ? <>
+                {selected.IsActive && <SessionLink key={selected.ID} live={selected} clients={clients} onLinked={saved => {
+                    const savedLocation = locations[hostOf(saved.IPAddress)];
+                    if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
+                    setStatus('Saved session linked.'); setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
+                }} />}
+                <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><MessageList messages={messages} />
+                {selected.IsActive && <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} />}
+            </> : <p className="muted">Select a session to inspect its details and tools.</p>}
+        </section>}
+        <footer className="workspace-footer"><span>FRAZZLEDRIP</span><span>Offline sessions retain collected information while the server is running.</span></footer>
     </div>;
 }
