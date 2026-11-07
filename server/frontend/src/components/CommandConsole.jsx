@@ -18,6 +18,7 @@ export default function CommandConsole({
     active,
     setStatus,
     refreshMessages,
+    autoFocus = true,
 }) {
     const [sessions, setSessions] = useState({});
     const [sending, setSending] = useState(false);
@@ -59,11 +60,12 @@ export default function CommandConsole({
     useEffect(() => {
         navigation.current = { index: -1, draft: '' };
         followOutput.current = true;
-        if (active) input.current?.focus({ preventScroll: true });
-    }, [agent.ID, active]);
+        if (active && autoFocus) input.current?.focus({ preventScroll: true });
+    }, [agent.ID, active, autoFocus]);
     useEffect(() => {
-        if (active && !sending) input.current?.focus({ preventScroll: true });
-    }, [sending, active, agent.ID]);
+        if (active && autoFocus && !sending)
+            input.current?.focus({ preventScroll: true });
+    }, [sending, active, agent.ID, autoFocus]);
     useEffect(() => {
         if (active && followOutput.current && output.current)
             output.current.scrollTop = output.current.scrollHeight;

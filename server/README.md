@@ -251,7 +251,7 @@ removing shell entry from the console does not disable it globally.
 
 ### File Explorer
 
-Select a session and use the **Files** pane. Leave the path empty and
+Select a session and open the **Files** tab. Leave the path empty and
 click **Open directory** for the client's current directory, or enter an absolute
 Windows path. Click a folder to navigate, use **Up** for its parent, and
 **Refresh directory** to reload. Filter names locally and select a file to view
@@ -287,13 +287,20 @@ The properties panel shows the same value.
 
 ### Workspace layout
 
-The desktop workspace has four primary panes: graph (top left), sessions (top
-right), console (bottom left), and files (bottom right). Selecting an agent
-updates both work panes together. Listener controls and disconnect are in the
-toolbar/context strip. **Details & tools** opens host properties, saved-session
-linking, collected output, quick commands, and transfer/tools controls. **Map**
-opens session geography without taking space from the default layout. Narrow
-screens stack the panes while preserving the no-horizontal-scroll inventory.
+The desktop workspace shows the graph and session table above one shared window
+with **Console**, **Event Viewer**, and **Files** tabs. Selecting a session updates
+the Console and Files tabs. Switching tabs preserves console drafts, file paths,
+and event filters; the event feed continues refreshing while its tab is hidden
+unless paused. Arrow keys, Home, and End navigate the tabs.
+
+Drag the vertical divider to change graph/table widths, or the horizontal divider
+to resize the shared tabbed window. Keyboard arrow keys also resize focused
+dividers. Sizes are saved in this browser; **Reset panel sizes** restores defaults.
+Narrow screens stack the graph, sessions, and tabbed window.
+
+Listener controls and disconnect remain in the toolbar/context strip.
+**Details & tools** opens host properties, saved-session linking, collected output,
+and existing controls. **Map** opens session geography separately.
 
 ### Saved directory snapshots
 

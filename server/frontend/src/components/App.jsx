@@ -10,6 +10,7 @@ import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
 import WorkspaceLayout from './WorkspaceLayout.jsx';
+import WorkspaceTabs from './WorkspaceTabs.jsx';
 
 const locationKey = 'frazzledrip.session-locations.v1';
 function readLocations() {
@@ -32,6 +33,7 @@ export default function App() {
     const [clientMessages, setClientMessages] = useState([]);
     const [messagesClient, setMessagesClient] = useState('');
     const [activeTab, setActiveTab] = useState('commands');
+    const [workspaceTab, setWorkspaceTab] = useState('console');
     const [showMap, setShowMap] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showAudit, setShowAudit] = useState(false);
@@ -271,73 +273,105 @@ export default function App() {
                 <div className="workspace-graph">
                     <SessionGraph {...shared} />
                 </div>
-                <EventViewer
-                    clients={clients.map((client) =>
-                        client.ID === selected?.ID &&
-                        messagesClient === selectedClient
-                            ? { ...client, Messages: messages }
-                            : client,
-                    )}
-                />
                 <div className="workspace-sessions">
                     <ClientList {...shared} />
                 </div>
-                <section
-                    className="panel workspace-console"
-                    aria-label="Console pane"
-                >
-                    <div className="workspace-panel-title">
-                        <strong>Console</strong>
-                        <span>{selectedName}</span>
-                        {selected?.BasicInfoStatus === 'collecting' && (
-                            <span className="accent">
-                                Collecting initial host info…
-                            </span>
-                        )}
-                    </div>
-                    {selected ? (
-                        <CommandConsole
-                            agent={selected}
-                            messages={messages}
-                            active={true}
-                            setStatus={setStatus}
-                            refreshMessages={() =>
-                                setMessageVersion((v) => v + 1)
-                            }
-                        />
-                    ) : (
-                        <div className="empty-state">
-                            <strong>No session selected</strong>
-                            <p>
-                                Select an agent to use its custom-message
-                                console.
-                            </p>
-                        </div>
-                    )}
-                </section>
-                <section
-                    className="panel workspace-files"
-                    aria-label="Files pane"
-                >
-                    <div className="workspace-panel-title">
-                        <strong>Files</strong>
-                        <span>{selectedName}</span>
-                        <span className="muted">Read only</span>
-                    </div>
-                    <div className="workspace-panel-body">
-                        {selected ? (
-                            <FileExplorer key={selected.ID} agent={selected} />
-                        ) : (
-                            <div className="empty-state">
-                                <strong>No session selected</strong>
-                                <p>
-                                    Select an agent to browse its directories
-                                    and file metadata.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </section>
+                <WorkspaceTabs
+                    activeTab={workspaceTab}
+                    onTabChange={setWorkspaceTab}
+                    tabs={[
+                        {
+                            id: 'console',
+                            label: 'Console',
+                            content: (
+                                <section
+                                    className="panel workspace-console"
+                                    aria-label="Console pane"
+                                >
+                                    <div className="workspace-panel-title">
+                                        <strong>Console</strong>
+                                        <span>{selectedName}</span>
+                                        {selected?.BasicInfoStatus ===
+                                            'collecting' && (
+                                            <span className="accent">
+                                                Collecting initial host info…
+                                            </span>
+                                        )}
+                                    </div>
+                                    {selected ? (
+                                        <CommandConsole
+                                            agent={selected}
+                                            messages={messages}
+                                            active={workspaceTab === 'console'}
+                                            autoFocus={false}
+                                            setStatus={setStatus}
+                                            refreshMessages={() =>
+                                                setMessageVersion((v) => v + 1)
+                                            }
+                                        />
+                                    ) : (
+                                        <div className="empty-state">
+                                            <strong>No session selected</strong>
+                                            <p>
+                                                Select an agent to use its
+                                                custom-message console.
+                                            </p>
+                                        </div>
+                                    )}
+                                </section>
+                            ),
+                        },
+                        {
+                            id: 'events',
+                            label: 'Event Viewer',
+                            content: (
+                                <EventViewer
+                                    clients={clients.map((client) =>
+                                        client.ID === selected?.ID &&
+                                        messagesClient === selectedClient
+                                            ? { ...client, Messages: messages }
+                                            : client,
+                                    )}
+                                />
+                            ),
+                        },
+                        {
+                            id: 'files',
+                            label: 'Files',
+                            content: (
+                                <section
+                                    className="panel workspace-files"
+                                    aria-label="Files pane"
+                                >
+                                    <div className="workspace-panel-title">
+                                        <strong>Files</strong>
+                                        <span>{selectedName}</span>
+                                        <span className="muted">Read only</span>
+                                    </div>
+                                    <div className="workspace-panel-body">
+                                        {selected ? (
+                                            <FileExplorer
+                                                key={selected.ID}
+                                                agent={selected}
+                                            />
+                                        ) : (
+                                            <div className="empty-state">
+                                                <strong>
+                                                    No session selected
+                                                </strong>
+                                                <p>
+                                                    Select an agent to browse
+                                                    its directories and file
+                                                    metadata.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            ),
+                        },
+                    ]}
+                />
             </WorkspaceLayout>
             {status && (
                 <div

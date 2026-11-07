@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const storageKey = 'frazzledrip.workspace-sizes.v1';
-const defaults = { column: 0.34, firstRow: 0.25, upperRows: 0.475 };
+const storageKey = 'frazzledrip.workspace-sizes.v2';
+const defaults = { column: 0.34, upperRows: 0.475 };
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 function readSizes() {
@@ -9,14 +9,11 @@ function readSizes() {
         const saved = JSON.parse(localStorage.getItem(storageKey));
         if (
             saved &&
-            [saved.column, saved.firstRow, saved.upperRows].every(
-                Number.isFinite,
-            ) &&
+            [saved.column, saved.upperRows].every(Number.isFinite) &&
             saved.column >= 0.18 &&
             saved.column <= 0.78 &&
-            saved.firstRow >= 0.12 &&
-            saved.upperRows <= 0.78 &&
-            saved.upperRows - saved.firstRow >= 0.12
+            saved.upperRows >= 0.2 &&
+            saved.upperRows <= 0.78
         )
             return saved;
     } catch {
@@ -42,10 +39,9 @@ export default function WorkspaceLayout({ children }) {
     function update(kind, value) {
         const bounds = grid.current.getBoundingClientRect();
         const width = Math.max(1, bounds.width - 8);
-        const height = Math.max(1, bounds.height - 16);
-        const minTop = Math.max(0.12, 100 / height);
-        const minMiddle = Math.max(0.12, 100 / height);
-        const maxUpper = Math.min(0.78, 1 - 180 / height);
+        const height = Math.max(1, bounds.height - 8);
+        const minUpper = Math.max(0.2, 180 / height);
+        const maxUpper = Math.min(0.78, 1 - 220 / height);
         setSizes((current) => {
             if (kind === 'column')
                 return {
@@ -56,18 +52,9 @@ export default function WorkspaceLayout({ children }) {
                         Math.min(0.78, 1 - 280 / width),
                     ),
                 };
-            if (kind === 'firstRow')
-                return {
-                    ...current,
-                    firstRow: clamp(
-                        value,
-                        minTop,
-                        current.upperRows - minMiddle,
-                    ),
-                };
             return {
                 ...current,
-                upperRows: clamp(value, current.firstRow + minMiddle, maxUpper),
+                upperRows: clamp(value, minUpper, maxUpper),
             };
         });
     }
@@ -80,9 +67,7 @@ export default function WorkspaceLayout({ children }) {
         const boundary =
             kind === 'column'
                 ? bounds.left + sizes.column * (bounds.width - 8) + 4
-                : bounds.top +
-                  sizes[kind] * (bounds.height - 16) +
-                  (kind === 'firstRow' ? 4 : 12);
+                : bounds.top + sizes[kind] * (bounds.height - 8) + 4;
         drag.current = {
             kind,
             offset:
@@ -99,11 +84,8 @@ export default function WorkspaceLayout({ children }) {
             kind === 'column'
                 ? (event.clientX - offset - bounds.left - 4) /
                   (bounds.width - 8)
-                : (event.clientY -
-                      offset -
-                      bounds.top -
-                      (kind === 'firstRow' ? 4 : 12)) /
-                  (bounds.height - 16);
+                : (event.clientY - offset - bounds.top - 4) /
+                  (bounds.height - 8);
         update(kind, value);
     }
 
@@ -167,22 +149,18 @@ export default function WorkspaceLayout({ children }) {
                 className={`workspace-grid resizable-workspace ${dragging ? 'workspace-resizing' : ''}`}
                 style={{
                     '--workspace-columns': `${sizes.column}fr ${1 - sizes.column}fr`,
-                    '--workspace-rows': `${sizes.firstRow}fr ${sizes.upperRows - sizes.firstRow}fr ${1 - sizes.upperRows}fr`,
+                    '--workspace-rows': `${sizes.upperRows}fr ${1 - sizes.upperRows}fr`,
                 }}
             >
                 {children}
                 {divider('column', 'Resize left and right panels', {
                     left: columnPosition,
-                })}
-                {divider('firstRow', 'Resize events and sessions', {
-                    left: columnPosition,
-                    right: 0,
-                    top: `calc(${sizes.firstRow * 100}% + ${4 - sizes.firstRow * 16}px)`,
+                    height: `calc(${sizes.upperRows * 100}% - ${sizes.upperRows * 8}px)`,
                 })}
                 {divider('upperRows', 'Resize upper and lower panels', {
                     left: 0,
                     right: 0,
-                    top: `calc(${sizes.upperRows * 100}% + ${12 - sizes.upperRows * 16}px)`,
+                    top: `calc(${sizes.upperRows * 100}% + ${4 - sizes.upperRows * 8}px)`,
                 })}
             </main>
         </>
