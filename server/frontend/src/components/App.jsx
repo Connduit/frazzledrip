@@ -24,6 +24,7 @@ export default function App() {
     const selectedAgentID = useRef('');
     const [clientInfo, setClientInfo] = useState(null);
     const [clientMessages, setClientMessages] = useState([]);
+    const [messagesClient, setMessagesClient] = useState('');
     const [activeTab, setActiveTab] = useState('commands');
     const [locations, setLocations] = useState(readLocations);
     const [lastRefresh, setLastRefresh] = useState(null);
@@ -54,12 +55,12 @@ export default function App() {
     useEffect(() => {
         let cancelled = false;
         let timer;
-        setClientInfo(null); setClientMessages([]);
+        setClientInfo(null); setClientMessages([]); setMessagesClient('');
         if (!selectedClient) return;
         async function poll() {
             try {
                 const [info, messages] = await Promise.all([apiService.getClientInfo(selectedClient), apiService.getClientMessages(selectedClient)]);
-                if (!cancelled) { setClientInfo(info); setClientMessages(messages.messages || []); }
+                if (!cancelled) { setClientInfo(info); setClientMessages(messages.messages || []); setMessagesClient(selectedClient); }
             } catch (error) { if (!cancelled) setStatus('Error: ' + error.message); }
             finally { if (!cancelled) timer = setTimeout(poll, 2000); }
         }
@@ -117,7 +118,7 @@ export default function App() {
             {selected.IsActive && <div className="inspector-actions"><button disabled={disconnecting} onClick={() => disconnectSession(selected.ID)}>{disconnecting ? 'Disconnecting…' : 'Disconnect session'}</button></div>}
             {selected.BasicInfoStatus && <p className="muted" role="status">{({ collecting: 'Collecting basic host information…', complete: 'Initial host queries complete.', interrupted: 'Initial host queries interrupted by disconnect.', failed: 'Initial host queries failed; use the command tabs to collect missing information.' })[selected.BasicInfoStatus]}</p>}
             <ClientInfo clientInfo={clientInfo} /><CommandResults results={selected.CommandResults || []} /><div className="panel-heading"><h3>Messages</h3><button onClick={() => setMessageVersion(v => v + 1)}>Refresh messages</button></div><MessageList messages={clientMessages} /></section>
-            {selected.IsActive ? <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
+            {selected.IsActive ? <TabContainer messages={messagesClient === selectedClient ? clientMessages : []} activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="status warning">This session is offline. Collected information is retained; commands require an active connection.</div>}</>
             : <section className="panel empty-state"><strong>Select a session to inspect</strong><p>Use the session table, connection graph, or map to open its details.</p></section>}
         {status && <div role="status" className={`status ${utils.getStatusClass(status)}`}>{status}</div>}
         <footer className="app-footer">FRAZZLEDRIP <span>Session inventory reflects the current server registry. Offline sessions retain their collected information while the server is running.</span></footer>

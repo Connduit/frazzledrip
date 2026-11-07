@@ -226,3 +226,19 @@ No Windows client rebuild is required.
 The session table uses wrapped, fixed-width columns to fit the workspace without
 horizontal scrolling. Multiple internal IPv4 addresses each occupy their own
 line. On narrow screens, sessions use labeled fields in a two-column layout.
+
+### Terminal tab
+
+Inspect an active session and open **Terminal**. Type a command and press Enter
+(or **Run**) to send it through the existing Execute Command flow. Responses and
+error reports appear chronologically as they return. Use Up/Down to recall typed
+commands and **Clear terminal** or Ctrl+L to clear the local view; clearing does
+not delete server history. History is kept separately per agent while the panel
+is mounted, and switching tabs retains the transcript. Session output polling
+continues to use the existing inspector refresh.
+
+This is a CLI interface to the existing one-shot commands, not a persistent
+shell: each invocation starts separately. Working-directory changes and shell
+variables do not carry over, and interactive stdin or Ctrl+C is unsupported.
+The server still allows only one shell command in flight per session. No client
+rebuild or terminal-specific server endpoint is required.

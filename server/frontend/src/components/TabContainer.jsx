@@ -1,11 +1,12 @@
 import React from 'react';
+import TerminalTab from './TerminalTab.jsx';
 import CommandTab from './CommandTab.jsx';
 import FileTransferTab from './FileTransferTab.jsx';
 import ShellcodeTab from './ShellcodeTab.jsx';
 
 // Main tab container that renders different C2 interface components
 // depending on which tab is currently active.
-function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClientSelect, setStatus, refreshMessages }) {
+function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClientSelect, setStatus, refreshMessages, messages }) {
     return (
         <div className="section">
             <div className="tab-container">
@@ -20,6 +21,8 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                     >
                         📝 Commands
                     </button>
+
+                    <button className={`tab-button ${activeTab === 'terminal' ? 'active' : ''}`} onClick={() => setActiveTab('terminal')}>Terminal</button>
 
                     {/* File transfer tab button */}
                     <button 
@@ -41,6 +44,9 @@ function TabContainer({ activeTab, setActiveTab, selectedClient, clients, onClie
                 {/* ---- TAB CONTENT AREA ---- */}
                 <div className="tab-content">
 
+                    <div hidden={activeTab !== 'terminal'}>
+                        <TerminalTab agent={clients.find(client => client.IPAddress === selectedClient)} messages={messages} active={activeTab === 'terminal'} setStatus={setStatus} refreshMessages={refreshMessages} />
+                    </div>
                     {/* Commands tab content */}
                     {activeTab === 'commands' && (
                         <CommandTab 
