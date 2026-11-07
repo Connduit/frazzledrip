@@ -42,6 +42,7 @@ func SaveUploadedFile(clientID string, data []byte) error {
 		return err
 	}
 
+	// TODO: filename should be the same as what it was on the client machine
 	filename := filepath.Join(
 		uploadDir,
 		fmt.Sprintf("upload-%s-%d.bin", clientID, time.Now().UnixNano()),
