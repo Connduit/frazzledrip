@@ -55,10 +55,10 @@ export default function FileExplorer({ agent }) {
         downloadRequest.current?.abort();
         const controller = new AbortController(); downloadRequest.current = controller;
         setContextMenu(null); menuOrigin.current?.focus();
-        setNotice('Contacting server placeholder…');
+        setNotice('Sending download request…');
         try {
-            await apiService.downloadFilePlaceholder(agent.ID, entry.path, controller.signal);
-            if (!controller.signal.aborted) setNotice('Placeholder response received. No file transfer was performed.');
+            const result = await apiService.downloadFilePlaceholder(agent.ID, entry.path, controller.signal);
+            if (!controller.signal.aborted) setNotice(result.status || 'Request acknowledged. File receipt has not been confirmed.');
         } catch (err) {
             if (!controller.signal.aborted) setNotice(err.message);
         }

@@ -5,6 +5,7 @@ import TerminalTab from './TerminalTab.jsx';
 import FileExplorer from './FileExplorer.jsx';
 import DetailsTools from './DetailsTools.jsx';
 import HistoryPanel from './HistoryPanel.jsx';
+import EventViewer from './EventViewer.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
@@ -120,6 +121,7 @@ export default function App() {
         {showAudit && <section className="panel section workspace-tools"><HistoryPanel audit /></section>}
         <main className="workspace-grid">
             <div className="workspace-graph"><SessionGraph {...shared} /></div>
+            <EventViewer />
             <div className="workspace-sessions"><ClientList {...shared} /></div>
             <section className="panel workspace-console" aria-label="Console pane"><div className="workspace-panel-title"><strong>Console</strong><span>{selectedName}</span>{selected?.BasicInfoStatus === 'collecting' && <span className="accent">Collecting initial host info…</span>}</div>
                 {selected ? <TerminalTab agent={selected} messages={messages} active={true} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} /> : <div className="empty-state"><strong>No session selected</strong><p>Select an agent to open its command prompt and output.</p></div>}

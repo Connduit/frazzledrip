@@ -17,8 +17,8 @@ import (
 //	POST /download-file
 //
 // =========================
-// Returns HTTP 501 Not Implemented for the download-to-server placeholder.
-// Looks up session metadata only; performs no client messaging or file operations.
+// Reports whether the download-to-server request was sent.
+// Sending a request does not confirm that the file has been received.
 func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 	if !requireControlMethod(w, r, http.MethodPost) {
 		return
@@ -49,10 +49,6 @@ func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	clientAddr := selectedClient.IPAddress
-	status := "offline"
-	if selectedClient.IsActive {
-		status = "active"
-	}
 
 	// Attempt to send upload request to active agent
 	if err := network.SendUploadRequestToClient(clientAddr, request.Path); err != nil {
@@ -62,7 +58,11 @@ func downloadFilePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controlError(w, http.StatusNotImplemented, fmt.Sprintf("Download to server is not implemented for %q from session %q at %q (%s). No request was sent to the client.", request.Path, selectedClient.ID, clientAddr, status))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": fmt.Sprintf("Download request sent for %q. File receipt has not been confirmed.", request.Path),
+	})
 }
 
 // =========================
