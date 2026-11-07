@@ -52,6 +52,11 @@ export default function FileExplorer({ agent }) {
         setContextMenu({ entry, x: Math.max(8, Math.min(event.clientX || bounds.left, window.innerWidth - 256)), y: Math.max(8, Math.min(event.clientY || bounds.bottom, window.innerHeight - 132)) });
     }
     async function requestDownloadPlaceholder(entry) {
+        if (entry.is_directory) {
+            setContextMenu(null); menuOrigin.current?.focus();
+            setNotice(`“${entry.name}” is a folder, not a file. Folder downloads are not implemented yet and need to be added in the future. No download request was sent.`);
+            return;
+        }
         downloadRequest.current?.abort();
         const controller = new AbortController(); downloadRequest.current = controller;
         setContextMenu(null); menuOrigin.current?.focus();
@@ -116,7 +121,7 @@ export default function FileExplorer({ agent }) {
         {selected && <div className="system-info"><strong>{selected.name}</strong><span className="mono">{selected.path}</span><span>Size: {formatFileSize(selected.size)}</span><span>Date modified: {formatFileDate(selected.modified_ms, selected.modified_text)}</span><span>Type: {fileType(selected)}</span></div>}
         {contextMenu && <div ref={menuRef} className="file-context-menu" aria-label={`Actions for ${contextMenu.entry.name}`} style={{ left: contextMenu.x, top: contextMenu.y }}>
             <strong>{contextMenu.entry.name}</strong>
-            <button type="button" disabled={contextMenu.entry.is_directory} onClick={() => requestDownloadPlaceholder(contextMenu.entry)}>Download to server</button>
+            <button type="button" onClick={() => requestDownloadPlaceholder(contextMenu.entry)}>Download to server</button>
             <button type="button" onClick={() => { setContextMenu(null); menuOrigin.current?.focus(); }}>Close</button>
         </div>}
     </section>;
