@@ -264,3 +264,11 @@ supports protocol messages 13 (LIST_DIRECTORY, UTF-8 path) and 14
 and will time out. Client TCP framing now reads complete messages and sends
 complete buffers, including listings exceeding 4 KB. Portable helper/transport
 tests validate this logic; a complete Windows build/runtime check is still needed.
+
+The File Explorer detail columns are **Name**, **Size**, **Date modified**, and
+**Type**. Click a header to toggle ascending/descending sorting, with folders
+kept first and missing values last. Types describe the file extension or folder,
+including link indicators. Sizes use B/KiB/MiB/GiB/TiB. Modification dates are
+reported by the client and displayed in the browser's local time; the properties
+panel includes the same date. Rebuild the client for modification timestamps;
+older clients continue to work with `—` for unavailable dates.

@@ -36,7 +36,7 @@ func TestBrowseDirectoryCorrelation(t *testing.T) {
 	if err := SendCommandToClient(client.IPAddress, "whoami"); err == nil {
 		t.Fatal("shell command accepted while browsing")
 	}
-	payload := []byte(`{"path":"C:\\Lab","parent":"C:\\","entries":[{"name":"hello.txt","path":"C:\\Lab\\hello.txt","is_directory":false,"size":5}]}`)
+	payload := []byte(`{"path":"C:\\Lab","parent":"C:\\","entries":[{"name":"hello.txt","path":"C:\\Lab\\hello.txt","is_directory":false,"size":5,"modified_ms":1700000000000}]}`)
 	processClientMessage(client, &models.InternalMessage{Header: models.MessageHeader{MessageType: models.MESSAGE_DIRECTORY_LISTING, MessageID: request.Header.MessageID + 1}, Data: payload})
 	select {
 	case <-result:
@@ -45,7 +45,7 @@ func TestBrowseDirectoryCorrelation(t *testing.T) {
 	}
 	processClientMessage(client, &models.InternalMessage{Header: models.MessageHeader{MessageType: models.MESSAGE_DIRECTORY_LISTING, MessageID: request.Header.MessageID}, Data: payload})
 	got := <-result
-	if got.Err != nil || got.Listing.Path != `C:\Lab` || len(got.Listing.Entries) != 1 || *got.Listing.Entries[0].Size != 5 {
+	if got.Err != nil || got.Listing.Path != `C:\Lab` || len(got.Listing.Entries) != 1 || *got.Listing.Entries[0].Size != 5 || got.Listing.Entries[0].ModifiedMS == nil || *got.Listing.Entries[0].ModifiedMS != 1700000000000 {
 		t.Fatalf("listing not returned: %+v", got)
 	}
 }

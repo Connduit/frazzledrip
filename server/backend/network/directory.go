@@ -11,6 +11,7 @@ import (
 )
 
 type DirectoryEntry struct {
+	ModifiedMS  *int64  `json:"modified_ms,omitempty"`
 	Name        string  `json:"name"`
 	Path        string  `json:"path"`
 	IsDirectory bool    `json:"is_directory"`

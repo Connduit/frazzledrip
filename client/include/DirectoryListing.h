@@ -6,6 +6,11 @@
 #include <string>
 #include <system_error>
 #include <stdexcept>
+#include <chrono>
+#include <cstdint>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace directory_listing {
 inline std::string jsonString(const std::string& value) {
@@ -19,6 +24,22 @@ inline std::string jsonString(const std::string& value) {
     }
     out << '"';
     return out.str();
+}
+
+inline void metadata(std::ostream& out, const std::filesystem::directory_entry& entry) {
+#ifdef _WIN32
+    WIN32_FILE_ATTRIBUTE_DATA data{};
+    if (!GetFileAttributesExW(entry.path().c_str(), GetFileExInfoStandard, &data)) return;
+    const std::uint64_t ticks = (static_cast<std::uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) | data.ftLastWriteTime.dwLowDateTime;
+    if (ticks >= 116444736000000000ULL) out << ",\"modified_ms\":" << (ticks - 116444736000000000ULL) / 10000;
+#else
+    std::error_code error;
+    const auto modified = entry.last_write_time(error);
+    if (!error) {
+        const auto time = std::chrono::time_point_cast<std::chrono::milliseconds>(modified - decltype(modified)::clock::now() + std::chrono::system_clock::now());
+        out << ",\"modified_ms\":" << time.time_since_epoch().count();
+    }
+#endif
 }
 
 // Nonrecursive listing: no file contents are opened and no filesystem changes are made.
@@ -47,6 +68,7 @@ inline std::string list(const std::string& requested) {
             const auto size = entry.file_size(error);
             if (!error) entries << ",\"size\":" << size;
         }
+        metadata(entries, entry);
         entries << '}';
     }
     return "{\"path\":" + jsonString(path.u8string()) + ",\"parent\":" + jsonString(path.parent_path().u8string())
