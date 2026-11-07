@@ -360,3 +360,28 @@ The Windows client is unchanged. `client/test/fixtures/mock_agent.py` provides
 TEST-only responses without executing commands or reading files. See its adjacent
 README for an isolated test workflow. Rebuild the server/frontend for this phase;
 no production client changes or rebuild are required.
+
+## Details & tools and placeholder catalog
+
+**Details & tools** opens a modal session workspace with a session picker and
+Overview, Task history, Attacks & scripts, Commands & transfers, and Messages
+sections. Close it with its Close button or Escape. The modal keeps keyboard
+focus inside and returns focus to its opener. Overview includes saved-session
+linking; offline sessions retain their inspectable history.
+
+The Attacks & scripts catalog is development scaffolding only. Discovery,
+privilege assessment, credential-access assessment, lateral-movement exercise,
+persistence exercise, defense-validation, and script/report-template entries
+have no executable implementation. Search or filter by category/kind, optionally
+add a note, and choose **Simulate task**. The server writes a completed simulation
+task and its audit events, with a synthetic TEST result. There is no client
+contact, shell command, script execution, filesystem operation, or host change.
+Simulation tasks have `simulation: true`, origin `simulation`, and a
+`[SIMULATION]` command label; the history UI also shows a Simulation badge.
+
+`GET /tool-catalog` returns the fixed catalog. `POST /simulate-tool` accepts only
+`agent_id`, a whitelisted `tool_id`, and an optional note up to 500 characters.
+Unknown fields (including commands and scripts) are rejected. The target session
+must exist, but may be offline because simulation runs only on the server.
+Existing command/transfer controls retain their previous behavior and are
+separate from these placeholders. No production client changes are required.

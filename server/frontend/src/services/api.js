@@ -12,6 +12,13 @@ async function controlRequest(path, body) {
 
 // API service functions for communicating with the backend
 export const apiService = {
+    async toolCatalog() {
+        const response = await fetch(`${API_BASE}/tool-catalog`);
+        const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Catalog unavailable'); return data;
+    },
+    async simulateTool(agentID, toolID, note) {
+        return controlRequest('/simulate-tool', { agent_id: agentID, tool_id: toolID, note });
+    },
     async taskHistory(agentID) {
         const response = await fetch(`${API_BASE}/task-history?agent=${encodeURIComponent(agentID)}`);
         const data = await response.json(); if (!response.ok) throw new Error(data.error || 'History unavailable'); return data;

@@ -3,15 +3,11 @@ import { apiService, utils } from '../services/api.js';
 import { systemOf, validLocation, hostOf } from '../lib/sessions.js';
 import TerminalTab from './TerminalTab.jsx';
 import FileExplorer from './FileExplorer.jsx';
+import DetailsTools from './DetailsTools.jsx';
 import HistoryPanel from './HistoryPanel.jsx';
-import SessionLink from './SessionLink.jsx';
 import ClientList from './ClientList.jsx';
 import SessionGraph from './SessionGraph.jsx';
 import SessionMap from './SessionMap.jsx';
-import CommandResults from './CommandResults.jsx';
-import ClientInfo from './ClientInfo.jsx';
-import MessageList from './MessageList.jsx';
-import TabContainer from './TabContainer.jsx';
 
 const locationKey = 'frazzledrip.session-locations.v1';
 function readLocations() {
@@ -113,7 +109,7 @@ export default function App() {
                 <button onClick={() => setRefreshVersion(v => v + 1)}>Refresh sessions</button>
                 <button aria-expanded={showAudit} onClick={() => setShowAudit(value => !value)}>Audit</button>
                 <button aria-expanded={showMap} onClick={() => setShowMap(value => !value)}>Map</button>
-                <button aria-expanded={showTools} onClick={() => setShowTools(value => !value)}>Details &amp; tools</button>
+                <button aria-haspopup="dialog" aria-expanded={showTools} onClick={() => setShowTools(value => !value)}>Details &amp; tools</button>
             </div>
         </header>
         <div className="workspace-context"><span><strong>{clients.length}</strong> sessions <span className="context-divider">/</span> <strong className="accent">{active}</strong> active <span className="context-divider">/</span> {hosts} hosts</span>
@@ -134,17 +130,11 @@ export default function App() {
         </main>
         {status && <div role="status" className={`workspace-notice ${utils.getStatusClass(status)}`}>{status}</div>}
         {showMap && <div className="workspace-map"><SessionMap {...shared} locations={locations} onSaveLocation={saveLocation} /></div>}
-        {showTools && <section className="panel section workspace-tools" aria-label="Session details and tools"><h2>{selectedName}</h2>
-            {selected ? <>
-                {selected.IsActive && <SessionLink key={selected.ID} live={selected} clients={clients} onLinked={saved => {
-                    const savedLocation = locations[hostOf(saved.IPAddress)];
-                    if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
-                    setStatus('Saved session linked.'); setRefreshVersion(v => v + 1); setMessageVersion(v => v + 1);
-                }} />}
-                <ClientInfo clientInfo={clientInfo} /><HistoryPanel agentID={selected.ID} /><CommandResults results={selected.CommandResults || []} /><MessageList messages={messages} />
-                {selected.IsActive && <TabContainer activeTab={activeTab} setActiveTab={setActiveTab} {...shared} setStatus={setStatus} refreshMessages={() => setMessageVersion(v => v + 1)} />}
-            </> : <p className="muted">Select a session to inspect its details and tools.</p>}
-        </section>}
+        {showTools && <DetailsTools agent={selected} clients={clients} clientInfo={messagesClient === selectedClient ? clientInfo : null} messages={messages} shared={shared} activeTab={activeTab} setActiveTab={setActiveTab} setStatus={setStatus} refreshMessages={() => setMessageVersion(value => value + 1)} onClose={() => setShowTools(false)} onLinked={saved => {
+            const savedLocation = locations[hostOf(saved.IPAddress)];
+            if (savedLocation && !locations[hostOf(selected.IPAddress)]) saveLocation(hostOf(selected.IPAddress), savedLocation);
+            setStatus('Saved session linked.'); setRefreshVersion(value => value + 1); setMessageVersion(value => value + 1);
+        }} />}
         <footer className="workspace-footer"><span>FRAZZLEDRIP</span><span>Session facts, task history, and audit events are saved on the server.</span></footer>
     </div>;
 }

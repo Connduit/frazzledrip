@@ -21,6 +21,7 @@ var schemaBucket = []byte("schema")
 
 type Store struct{ db *bolt.DB }
 type Task struct {
+	Simulation      bool      `json:"simulation,omitempty"`
 	ID              string    `json:"id"`
 	AgentID         string    `json:"agent_id"`
 	RequestID       uint32    `json:"request_id"`
@@ -161,7 +162,7 @@ func (store *Store) NewTask(agentID, command, origin string, requestID uint32) (
 	if _, err := rand.Read(id[:]); err != nil {
 		return "", err
 	}
-	task := Task{ID: "task-" + hex.EncodeToString(id[:]), AgentID: agentID, Command: command, Origin: origin, RequestID: requestID, Status: "queued", CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()}
+	task := Task{Simulation: origin == "simulation", ID: "task-" + hex.EncodeToString(id[:]), AgentID: agentID, Command: command, Origin: origin, RequestID: requestID, Status: "queued", CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()}
 	err := store.db.Update(func(tx *bolt.Tx) error {
 		if err := put(tx.Bucket(taskBucket), []byte(task.ID), task); err != nil {
 			return err

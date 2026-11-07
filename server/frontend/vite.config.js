@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 
 const apiPaths = [
+    '/tool-catalog',
+    '/simulate-tool',
     '/task-history',
     '/audit-history',
     '/browse-files',
