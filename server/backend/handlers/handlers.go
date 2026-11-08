@@ -11,94 +11,94 @@ import (
 func RegisterHandlers() {
 
 	// Placeholder for SCREENSHOT: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/screenshot", screenshotPlaceholderHandler)
+	http.HandleFunc("/commands/screenshot", screenshotHandler)
 
 	// Placeholder for CD: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/cd", cdPlaceholderHandler)
+	http.HandleFunc("/commands/cd", cdHandler)
 
 	// Placeholder for CP: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/cp", cpPlaceholderHandler)
+	http.HandleFunc("/commands/cp", cpHandler)
 
 	// Placeholder for DRIVES: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/drives", drivesPlaceholderHandler)
+	http.HandleFunc("/commands/drives", drivesHandler)
 
 	// Placeholder for EXIT: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/exit", exitPlaceholderHandler)
+	http.HandleFunc("/commands/exit", exitHandler)
 
 	// Placeholder for GETPRIVS: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/getprivs", getprivsPlaceholderHandler)
+	http.HandleFunc("/commands/getprivs", getprivsHandler)
 
 	// Placeholder for GETUID: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/getuid", getuidPlaceholderHandler)
+	http.HandleFunc("/commands/getuid", getuidHandler)
 
 	// Placeholder for KERBEROS_CCACHE_USE: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/kerberos-ccache-use", kerberosCcacheUsePlaceholderHandler)
+	http.HandleFunc("/commands/kerberos-ccache-use", kerberosCcacheUseHandler)
 
 	// Placeholder for KERBEROS_TICKET_PURGE: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/kerberos-ticket-purge", kerberosTicketPurgePlaceholderHandler)
+	http.HandleFunc("/commands/kerberos-ticket-purge", kerberosTicketPurgeHandler)
 
 	// Placeholder for KERBEROS_TICKET_USE: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/kerberos-ticket-use", kerberosTicketUsePlaceholderHandler)
+	http.HandleFunc("/commands/kerberos-ticket-use", kerberosTicketUseHandler)
 
 	// Placeholder for JOBKILL: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/jobkill", jobkillPlaceholderHandler)
+	http.HandleFunc("/commands/jobkill", jobkillHandler)
 
 	// Placeholder for KILL: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/kill", killPlaceholderHandler)
+	http.HandleFunc("/commands/kill", killHandler)
 
 	// Placeholder for LINK: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/link", linkPlaceholderHandler)
+	http.HandleFunc("/commands/link", linkHandler)
 
 	// Placeholder for LS: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/ls", lsPlaceholderHandler)
+	http.HandleFunc("/commands/ls", lsHandler)
 
 	// Placeholder for MAKE_TOKEN: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/make-token", makeTokenPlaceholderHandler)
+	http.HandleFunc("/commands/make-token", makeTokenHandler)
 
 	// Placeholder for MKDIR: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/mkdir", mkdirPlaceholderHandler)
+	http.HandleFunc("/commands/mkdir", mkdirHandler)
 
 	// Placeholder for MV: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/mv", mvPlaceholderHandler)
+	http.HandleFunc("/commands/mv", mvHandler)
 
 	// Placeholder for PPID: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/ppid", ppidPlaceholderHandler)
+	http.HandleFunc("/commands/ppid", ppidHandler)
 
 	// Placeholder for PS: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/ps", psPlaceholderHandler)
+	http.HandleFunc("/commands/ps", psHandler)
 
 	// Placeholder for PWD: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/pwd", pwdPlaceholderHandler)
+	http.HandleFunc("/commands/pwd", pwdHandler)
 
 	// Placeholder for REG_QUERY: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/reg-query", regQueryPlaceholderHandler)
+	http.HandleFunc("/commands/reg-query", regQueryHandler)
 
 	// Placeholder for REG_QUERYV: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/reg-queryv", regQueryvPlaceholderHandler)
+	http.HandleFunc("/commands/reg-queryv", regQueryvHandler)
 
 	// Placeholder for REV2SELF: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/rev2self", rev2selfPlaceholderHandler)
+	http.HandleFunc("/commands/rev2self", rev2selfHandler)
 
 	// Placeholder for RM: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/rm", rmPlaceholderHandler)
+	http.HandleFunc("/commands/rm", rmHandler)
 
 	// Placeholder for RPORTFWD: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/rportfwd", rportfwdPlaceholderHandler)
+	http.HandleFunc("/commands/rportfwd", rportfwdHandler)
 
 	// Placeholder for SETENV: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/setenv", setenvPlaceholderHandler)
+	http.HandleFunc("/commands/setenv", setenvHandler)
 
 	// Placeholder for SOCKS: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/socks", socksPlaceholderHandler)
+	http.HandleFunc("/commands/socks", socksHandler)
 
 	// Placeholder for STEAL_TOKEN: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/steal-token", stealTokenPlaceholderHandler)
+	http.HandleFunc("/commands/steal-token", stealTokenHandler)
 
 	// Placeholder for TIMESTOMP: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/timestomp", timestompPlaceholderHandler)
+	http.HandleFunc("/commands/timestomp", timestompHandler)
 
 	// Placeholder for UNLINK: return HTTP 501 without contacting a client.
-	http.HandleFunc("/commands/unlink", unlinkPlaceholderHandler)
+	http.HandleFunc("/commands/unlink", unlinkHandler)
 
 	// List the non-executable attack and script placeholders available in the tools catalog.
 	http.HandleFunc("/tool-catalog", toolCatalogHandler)
