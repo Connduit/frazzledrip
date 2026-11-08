@@ -9,6 +9,97 @@ import (
 
 // RegisterHandlers connects frontend API routes to their backend handlers.
 func RegisterHandlers() {
+
+	// Placeholder for SCREENSHOT: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/screenshot", screenshotPlaceholderHandler)
+
+	// Placeholder for CD: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/cd", cdPlaceholderHandler)
+
+	// Placeholder for CP: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/cp", cpPlaceholderHandler)
+
+	// Placeholder for DRIVES: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/drives", drivesPlaceholderHandler)
+
+	// Placeholder for EXIT: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/exit", exitPlaceholderHandler)
+
+	// Placeholder for GETPRIVS: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/getprivs", getprivsPlaceholderHandler)
+
+	// Placeholder for GETUID: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/getuid", getuidPlaceholderHandler)
+
+	// Placeholder for KERBEROS_CCACHE_USE: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/kerberos-ccache-use", kerberosCcacheUsePlaceholderHandler)
+
+	// Placeholder for KERBEROS_TICKET_PURGE: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/kerberos-ticket-purge", kerberosTicketPurgePlaceholderHandler)
+
+	// Placeholder for KERBEROS_TICKET_USE: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/kerberos-ticket-use", kerberosTicketUsePlaceholderHandler)
+
+	// Placeholder for JOBKILL: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/jobkill", jobkillPlaceholderHandler)
+
+	// Placeholder for KILL: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/kill", killPlaceholderHandler)
+
+	// Placeholder for LINK: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/link", linkPlaceholderHandler)
+
+	// Placeholder for LS: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/ls", lsPlaceholderHandler)
+
+	// Placeholder for MAKE_TOKEN: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/make-token", makeTokenPlaceholderHandler)
+
+	// Placeholder for MKDIR: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/mkdir", mkdirPlaceholderHandler)
+
+	// Placeholder for MV: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/mv", mvPlaceholderHandler)
+
+	// Placeholder for PPID: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/ppid", ppidPlaceholderHandler)
+
+	// Placeholder for PS: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/ps", psPlaceholderHandler)
+
+	// Placeholder for PWD: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/pwd", pwdPlaceholderHandler)
+
+	// Placeholder for REG_QUERY: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/reg-query", regQueryPlaceholderHandler)
+
+	// Placeholder for REG_QUERYV: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/reg-queryv", regQueryvPlaceholderHandler)
+
+	// Placeholder for REV2SELF: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/rev2self", rev2selfPlaceholderHandler)
+
+	// Placeholder for RM: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/rm", rmPlaceholderHandler)
+
+	// Placeholder for RPORTFWD: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/rportfwd", rportfwdPlaceholderHandler)
+
+	// Placeholder for SETENV: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/setenv", setenvPlaceholderHandler)
+
+	// Placeholder for SOCKS: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/socks", socksPlaceholderHandler)
+
+	// Placeholder for STEAL_TOKEN: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/steal-token", stealTokenPlaceholderHandler)
+
+	// Placeholder for TIMESTOMP: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/timestomp", timestompPlaceholderHandler)
+
+	// Placeholder for UNLINK: return HTTP 501 without contacting a client.
+	http.HandleFunc("/commands/unlink", unlinkPlaceholderHandler)
+
 	// List the non-executable attack and script placeholders available in the tools catalog.
 	http.HandleFunc("/tool-catalog", toolCatalogHandler)
 

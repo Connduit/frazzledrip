@@ -110,6 +110,96 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 
 	// Route based on message type (must match C++ enums)
 	switch msg.Header.MessageType {
+	case models.MESSAGE_SCREENSHOT:
+		recordNotImplementedMessage(&clientMessage, "SCREENSHOT")
+
+	case models.MESSAGE_CD:
+		recordNotImplementedMessage(&clientMessage, "CD")
+
+	case models.MESSAGE_CP:
+		recordNotImplementedMessage(&clientMessage, "CP")
+
+	case models.MESSAGE_DRIVES:
+		recordNotImplementedMessage(&clientMessage, "DRIVES")
+
+	case models.MESSAGE_EXIT:
+		recordNotImplementedMessage(&clientMessage, "EXIT")
+
+	case models.MESSAGE_GETPRIVS:
+		recordNotImplementedMessage(&clientMessage, "GETPRIVS")
+
+	case models.MESSAGE_GETUID:
+		recordNotImplementedMessage(&clientMessage, "GETUID")
+
+	case models.MESSAGE_KERBEROS_CCACHE_USE:
+		recordNotImplementedMessage(&clientMessage, "KERBEROS_CCACHE_USE")
+
+	case models.MESSAGE_KERBEROS_TICKET_PURGE:
+		recordNotImplementedMessage(&clientMessage, "KERBEROS_TICKET_PURGE")
+
+	case models.MESSAGE_KERBEROS_TICKET_USE:
+		recordNotImplementedMessage(&clientMessage, "KERBEROS_TICKET_USE")
+
+	case models.MESSAGE_JOBKILL:
+		recordNotImplementedMessage(&clientMessage, "JOBKILL")
+
+	case models.MESSAGE_KILL:
+		recordNotImplementedMessage(&clientMessage, "KILL")
+
+	case models.MESSAGE_LINK:
+		recordNotImplementedMessage(&clientMessage, "LINK")
+
+	case models.MESSAGE_LS:
+		recordNotImplementedMessage(&clientMessage, "LS")
+
+	case models.MESSAGE_MAKE_TOKEN:
+		recordNotImplementedMessage(&clientMessage, "MAKE_TOKEN")
+
+	case models.MESSAGE_MKDIR:
+		recordNotImplementedMessage(&clientMessage, "MKDIR")
+
+	case models.MESSAGE_MV:
+		recordNotImplementedMessage(&clientMessage, "MV")
+
+	case models.MESSAGE_PPID:
+		recordNotImplementedMessage(&clientMessage, "PPID")
+
+	case models.MESSAGE_PS:
+		recordNotImplementedMessage(&clientMessage, "PS")
+
+	case models.MESSAGE_PWD:
+		recordNotImplementedMessage(&clientMessage, "PWD")
+
+	case models.MESSAGE_REG_QUERY:
+		recordNotImplementedMessage(&clientMessage, "REG_QUERY")
+
+	case models.MESSAGE_REG_QUERYV:
+		recordNotImplementedMessage(&clientMessage, "REG_QUERYV")
+
+	case models.MESSAGE_REV2SELF:
+		recordNotImplementedMessage(&clientMessage, "REV2SELF")
+
+	case models.MESSAGE_RM:
+		recordNotImplementedMessage(&clientMessage, "RM")
+
+	case models.MESSAGE_RPORTFWD:
+		recordNotImplementedMessage(&clientMessage, "RPORTFWD")
+
+	case models.MESSAGE_SETENV:
+		recordNotImplementedMessage(&clientMessage, "SETENV")
+
+	case models.MESSAGE_SOCKS:
+		recordNotImplementedMessage(&clientMessage, "SOCKS")
+
+	case models.MESSAGE_STEAL_TOKEN:
+		recordNotImplementedMessage(&clientMessage, "STEAL_TOKEN")
+
+	case models.MESSAGE_TIMESTOMP:
+		recordNotImplementedMessage(&clientMessage, "TIMESTOMP")
+
+	case models.MESSAGE_UNLINK:
+		recordNotImplementedMessage(&clientMessage, "UNLINK")
+
 	case models.MESSAGE_HANDSHAKE:
 		clientMessage.Type = "HANDSHAKE"
 		log.Printf("Handshake from client %s", client.ID)
@@ -191,6 +281,13 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 	if advanceBasicInfo {
 		sendNextBasicInfo(client)
 	}
+}
+
+// recordNotImplementedMessage labels unsupported incoming command types for history.
+// It neither interprets the payload nor sends a response to the client.
+func recordNotImplementedMessage(message *models.ClientMessage, command string) {
+	message.Type = "NOT_IMPLEMENTED"
+	message.Content = command + " is not implemented on the server."
 }
 
 /*

@@ -438,3 +438,17 @@ Unknown fields (including commands and scripts) are rejected. The target session
 must exist, but may be offline because simulation runs only on the server.
 Existing command/transfer controls retain their previous behavior and are
 separate from these placeholders. No production client changes are required.
+
+### Command placeholders
+
+The 30 reserved command types (IDs 15–44) have server-only placeholder endpoints
+under `/commands/`. The path uses the lowercase enum name with underscores
+replaced by hyphens: for example, `POST /commands/screenshot`, `/commands/ps`,
+and `/commands/kerberos-ticket-use`. These endpoints return HTTP 501 with a JSON
+`error` explaining that the command is not implemented and no client request was
+sent. They accept POST (and CORS OPTIONS); GET returns HTTP 405.
+
+Incoming messages with these reserved types are labeled `NOT_IMPLEMENTED` in
+session message history. Their payloads are not interpreted. No outgoing client
+message or executable operation is added. Existing implemented routes, including
+upload/download and native system information, are preserved.

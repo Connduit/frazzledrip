@@ -308,3 +308,312 @@ func getClientInfoHandler(w http.ResponseWriter, r *http.Request) {
 	// Return system information directly
 	json.NewEncoder(w).Encode(client.SystemInfo) // TODO: remove?
 }
+
+// notImplementedCommand reports unsupported commands without processing their payload
+// or dispatching any client message.
+func notImplementedCommand(w http.ResponseWriter, r *http.Request, command string) {
+	if !requireControlMethod(w, r, http.MethodPost) {
+		return
+	}
+	controlError(w, http.StatusNotImplemented, command+" is not implemented. No request was sent to the client.")
+}
+
+// =========================
+//
+// POST /commands/screenshot
+//
+// =========================
+// Returns a not-implemented response for SCREENSHOT; no client operation is performed.
+func screenshotPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "SCREENSHOT")
+}
+
+// =========================
+//
+// POST /commands/cd
+//
+// =========================
+// Returns a not-implemented response for CD; no client operation is performed.
+func cdPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "CD")
+}
+
+// =========================
+//
+// POST /commands/cp
+//
+// =========================
+// Returns a not-implemented response for CP; no client operation is performed.
+func cpPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "CP")
+}
+
+// =========================
+//
+// POST /commands/drives
+//
+// =========================
+// Returns a not-implemented response for DRIVES; no client operation is performed.
+func drivesPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "DRIVES")
+}
+
+// =========================
+//
+// POST /commands/exit
+//
+// =========================
+// Returns a not-implemented response for EXIT; no client operation is performed.
+func exitPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "EXIT")
+}
+
+// =========================
+//
+// POST /commands/getprivs
+//
+// =========================
+// Returns a not-implemented response for GETPRIVS; no client operation is performed.
+func getprivsPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "GETPRIVS")
+}
+
+// =========================
+//
+// POST /commands/getuid
+//
+// =========================
+// Returns a not-implemented response for GETUID; no client operation is performed.
+func getuidPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "GETUID")
+}
+
+// =========================
+//
+// POST /commands/kerberos-ccache-use
+//
+// =========================
+// Returns a not-implemented response for KERBEROS_CCACHE_USE; no client operation is performed.
+func kerberosCcacheUsePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "KERBEROS_CCACHE_USE")
+}
+
+// =========================
+//
+// POST /commands/kerberos-ticket-purge
+//
+// =========================
+// Returns a not-implemented response for KERBEROS_TICKET_PURGE; no client operation is performed.
+func kerberosTicketPurgePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "KERBEROS_TICKET_PURGE")
+}
+
+// =========================
+//
+// POST /commands/kerberos-ticket-use
+//
+// =========================
+// Returns a not-implemented response for KERBEROS_TICKET_USE; no client operation is performed.
+func kerberosTicketUsePlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "KERBEROS_TICKET_USE")
+}
+
+// =========================
+//
+// POST /commands/jobkill
+//
+// =========================
+// Returns a not-implemented response for JOBKILL; no client operation is performed.
+func jobkillPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "JOBKILL")
+}
+
+// =========================
+//
+// POST /commands/kill
+//
+// =========================
+// Returns a not-implemented response for KILL; no client operation is performed.
+func killPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "KILL")
+}
+
+// =========================
+//
+// POST /commands/link
+//
+// =========================
+// Returns a not-implemented response for LINK; no client operation is performed.
+func linkPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "LINK")
+}
+
+// =========================
+//
+// POST /commands/ls
+//
+// =========================
+// Returns a not-implemented response for LS; no client operation is performed.
+func lsPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "LS")
+}
+
+// =========================
+//
+// POST /commands/make-token
+//
+// =========================
+// Returns a not-implemented response for MAKE_TOKEN; no client operation is performed.
+func makeTokenPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "MAKE_TOKEN")
+}
+
+// =========================
+//
+// POST /commands/mkdir
+//
+// =========================
+// Returns a not-implemented response for MKDIR; no client operation is performed.
+func mkdirPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "MKDIR")
+}
+
+// =========================
+//
+// POST /commands/mv
+//
+// =========================
+// Returns a not-implemented response for MV; no client operation is performed.
+func mvPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "MV")
+}
+
+// =========================
+//
+// POST /commands/ppid
+//
+// =========================
+// Returns a not-implemented response for PPID; no client operation is performed.
+func ppidPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "PPID")
+}
+
+// =========================
+//
+// POST /commands/ps
+//
+// =========================
+// Returns a not-implemented response for PS; no client operation is performed.
+func psPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "PS")
+}
+
+// =========================
+//
+// POST /commands/pwd
+//
+// =========================
+// Returns a not-implemented response for PWD; no client operation is performed.
+func pwdPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "PWD")
+}
+
+// =========================
+//
+// POST /commands/reg-query
+//
+// =========================
+// Returns a not-implemented response for REG_QUERY; no client operation is performed.
+func regQueryPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "REG_QUERY")
+}
+
+// =========================
+//
+// POST /commands/reg-queryv
+//
+// =========================
+// Returns a not-implemented response for REG_QUERYV; no client operation is performed.
+func regQueryvPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "REG_QUERYV")
+}
+
+// =========================
+//
+// POST /commands/rev2self
+//
+// =========================
+// Returns a not-implemented response for REV2SELF; no client operation is performed.
+func rev2selfPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "REV2SELF")
+}
+
+// =========================
+//
+// POST /commands/rm
+//
+// =========================
+// Returns a not-implemented response for RM; no client operation is performed.
+func rmPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "RM")
+}
+
+// =========================
+//
+// POST /commands/rportfwd
+//
+// =========================
+// Returns a not-implemented response for RPORTFWD; no client operation is performed.
+func rportfwdPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "RPORTFWD")
+}
+
+// =========================
+//
+// POST /commands/setenv
+//
+// =========================
+// Returns a not-implemented response for SETENV; no client operation is performed.
+func setenvPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "SETENV")
+}
+
+// =========================
+//
+// POST /commands/socks
+//
+// =========================
+// Returns a not-implemented response for SOCKS; no client operation is performed.
+func socksPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "SOCKS")
+}
+
+// =========================
+//
+// POST /commands/steal-token
+//
+// =========================
+// Returns a not-implemented response for STEAL_TOKEN; no client operation is performed.
+func stealTokenPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "STEAL_TOKEN")
+}
+
+// =========================
+//
+// POST /commands/timestomp
+//
+// =========================
+// Returns a not-implemented response for TIMESTOMP; no client operation is performed.
+func timestompPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "TIMESTOMP")
+}
+
+// =========================
+//
+// POST /commands/unlink
+//
+// =========================
+// Returns a not-implemented response for UNLINK; no client operation is performed.
+func unlinkPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
+	notImplementedCommand(w, r, "UNLINK")
+}
