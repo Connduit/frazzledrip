@@ -506,6 +506,32 @@ func ppidPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 // Returns a not-implemented response for PS; no client operation is performed.
 func psPlaceholderHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "PS")
+	//utils.EnableCORS(&w, r)
+
+	// Handle preflight request
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	// Decode JSON request body
+	var cmdReq models.CommandRequest
+	if err := json.NewDecoder(r.Body).Decode(&cmdReq); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Attempt to send command to active agent
+	if err := network.SendCommandToClient(cmdReq.Client, cmdReq.Command); err != nil {
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": "❌ Failed to send command: " + err.Error(),
+		})
+		return
+	}
+
+	// Success
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "✅ Command sent to " + cmdReq.Client,
+	})
 }
 
 // =========================
