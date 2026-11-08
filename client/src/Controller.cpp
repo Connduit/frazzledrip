@@ -303,6 +303,7 @@ void Controller::handleEstablishPersistence(const InternalMessage& msg)
 
 
 // TODO: need to resolve all api calls used in this function
+// Purpose: Send a client-side file to the server.
 void Controller::handleUpload(const InternalMessage& msg)
 {
 	std::cout << "Controller::handleUpload()" << std::endl;
@@ -353,6 +354,7 @@ void Controller::handleUpload(const InternalMessage& msg)
 
 // TODO: need to resolve all api calls used in this function
 // TODO: we shouldn't be opening/creating files with fopen... use virtualalloc/write, etc functions
+// Purpose: Receive a file from the server and save it on the client.
 void Controller::handleDownload(const InternalMessage& msg)
 {
     bool success = false;
@@ -444,151 +446,181 @@ void Controller::sendNotImplemented(const InternalMessage& msg, const char* comm
     messageHandler_->sendMessage(response);
 }
 
+// Intended purpose: Capture an image of the client desktop.
 void Controller::handleScreenshot(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "SCREENSHOT");
 }
 
+// Intended purpose: Change the client working directory for later relative paths.
 void Controller::handleCd(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "cd");
 }
 
+// Intended purpose: Copy a file or directory to another client-side path.
 void Controller::handleCp(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "cp");
 }
 
+// Intended purpose: List the drives and mounted volumes visible to the client.
 void Controller::handleDrives(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "drives");
 }
 
+// Intended purpose: Stop the client and close its session.
 void Controller::handleExit(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "exit");
 }
 
+// Intended purpose: Inspect privileges available to the current security context.
 void Controller::handleGetPrivs(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "getprivs");
 }
 
+// Intended purpose: Report the user identity under which the client is running.
 void Controller::handleGetUid(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "getuid");
 }
 
+// Intended purpose: Use a supplied Kerberos credential cache for authentication.
 void Controller::handleKerberosCcacheUse(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "kerberos_ccache_use");
 }
 
+// Intended purpose: Remove Kerberos tickets from the selected logon context.
 void Controller::handleKerberosTicketPurge(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "kerberos_ticket_purge");
 }
 
+// Intended purpose: Use a supplied Kerberos ticket for authentication.
 void Controller::handleKerberosTicketUse(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "kerberos_ticket_use");
 }
 
+// Intended purpose: Stop a background job tracked by the client.
 void Controller::handleJobKill(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "jobkill");
 }
 
+// Intended purpose: Terminate a selected process on the client.
 void Controller::handleKill(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "kill");
 }
 
+// Intended purpose: Associate another client session with the selected session.
 void Controller::handleLink(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "link");
 }
 
+// Intended purpose: List the files and directories at a client-side path.
 void Controller::handleLs(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "ls");
 }
 
+// Intended purpose: Create a security context from supplied logon credentials.
 void Controller::handleMakeToken(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "make_token");
 }
 
+// Intended purpose: Create a directory on the client.
 void Controller::handleMkdir(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "mkdir");
 }
 
+// Intended purpose: Move or rename a file or directory on the client.
 void Controller::handleMv(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "mv");
 }
 
+// Intended purpose: Select a parent process ID for future process launches.
 void Controller::handlePpid(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "ppid");
 }
 
+// Intended purpose: List processes running on the client.
 void Controller::handlePs(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "ps");
 }
 
+// Intended purpose: Report the client working directory.
 void Controller::handlePwd(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "pwd");
 }
 
+// Intended purpose: List the subkeys and values of a Windows registry key.
 void Controller::handleRegQuery(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "reg query");
 }
 
+// Intended purpose: Read a specified value from a Windows registry key.
 void Controller::handleRegQueryv(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "reg queryv");
 }
 
+// Intended purpose: Restore the original client security context after impersonation.
 void Controller::handleRev2Self(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "rev2self");
 }
 
+// Intended purpose: Remove a file or directory from the client.
 void Controller::handleRm(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "rm");
 }
 
+// Intended purpose: Forward connections from a client-side port to another endpoint.
 void Controller::handleRportfwd(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "rportfwd");
 }
 
+// Intended purpose: Set an environment variable for the client execution context.
 void Controller::handleSetEnv(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "setenv");
 }
 
+// Intended purpose: Provide a SOCKS proxy through the selected client session.
 void Controller::handleSocks(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "socks");
 }
 
+// Intended purpose: Adopt another process security token for impersonation.
 void Controller::handleStealToken(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "steal_token");
 }
 
+// Intended purpose: Change the filesystem timestamps associated with a file.
 void Controller::handleTimeStomp(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "timestomp");
 }
 
+// Intended purpose: Remove the association between linked client sessions.
 void Controller::handleUnlink(const InternalMessage& msg)
 {
     sendNotImplemented(msg, "unlink");

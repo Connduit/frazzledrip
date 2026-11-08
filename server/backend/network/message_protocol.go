@@ -110,93 +110,123 @@ func processClientMessage(client *models.Client, msg *models.InternalMessage) {
 
 	// Route based on message type (must match C++ enums)
 	switch msg.Header.MessageType {
+	// Intended purpose: Capture an image of the client desktop.
 	case models.MESSAGE_SCREENSHOT:
 		recordNotImplementedMessage(&clientMessage, "SCREENSHOT")
 
+	// Intended purpose: Change the client working directory for later relative paths.
 	case models.MESSAGE_CD:
 		recordNotImplementedMessage(&clientMessage, "CD")
 
+	// Intended purpose: Copy a file or directory to another client-side path.
 	case models.MESSAGE_CP:
 		recordNotImplementedMessage(&clientMessage, "CP")
 
+	// Intended purpose: List the drives and mounted volumes visible to the client.
 	case models.MESSAGE_DRIVES:
 		recordNotImplementedMessage(&clientMessage, "DRIVES")
 
+	// Intended purpose: Stop the client and close its session.
 	case models.MESSAGE_EXIT:
 		recordNotImplementedMessage(&clientMessage, "EXIT")
 
+	// Intended purpose: Inspect privileges available to the current security context.
 	case models.MESSAGE_GETPRIVS:
 		recordNotImplementedMessage(&clientMessage, "GETPRIVS")
 
+	// Intended purpose: Report the user identity under which the client is running.
 	case models.MESSAGE_GETUID:
 		recordNotImplementedMessage(&clientMessage, "GETUID")
 
+	// Intended purpose: Use a supplied Kerberos credential cache for authentication.
 	case models.MESSAGE_KERBEROS_CCACHE_USE:
 		recordNotImplementedMessage(&clientMessage, "KERBEROS_CCACHE_USE")
 
+	// Intended purpose: Remove Kerberos tickets from the selected logon context.
 	case models.MESSAGE_KERBEROS_TICKET_PURGE:
 		recordNotImplementedMessage(&clientMessage, "KERBEROS_TICKET_PURGE")
 
+	// Intended purpose: Use a supplied Kerberos ticket for authentication.
 	case models.MESSAGE_KERBEROS_TICKET_USE:
 		recordNotImplementedMessage(&clientMessage, "KERBEROS_TICKET_USE")
 
+	// Intended purpose: Stop a background job tracked by the client.
 	case models.MESSAGE_JOBKILL:
 		recordNotImplementedMessage(&clientMessage, "JOBKILL")
 
+	// Intended purpose: Terminate a selected process on the client.
 	case models.MESSAGE_KILL:
 		recordNotImplementedMessage(&clientMessage, "KILL")
 
+	// Intended purpose: Associate another client session with the selected session.
 	case models.MESSAGE_LINK:
 		recordNotImplementedMessage(&clientMessage, "LINK")
 
+	// Intended purpose: List the files and directories at a client-side path.
 	case models.MESSAGE_LS:
 		recordNotImplementedMessage(&clientMessage, "LS")
 
+	// Intended purpose: Create a security context from supplied logon credentials.
 	case models.MESSAGE_MAKE_TOKEN:
 		recordNotImplementedMessage(&clientMessage, "MAKE_TOKEN")
 
+	// Intended purpose: Create a directory on the client.
 	case models.MESSAGE_MKDIR:
 		recordNotImplementedMessage(&clientMessage, "MKDIR")
 
+	// Intended purpose: Move or rename a file or directory on the client.
 	case models.MESSAGE_MV:
 		recordNotImplementedMessage(&clientMessage, "MV")
 
+	// Intended purpose: Select a parent process ID for future process launches.
 	case models.MESSAGE_PPID:
 		recordNotImplementedMessage(&clientMessage, "PPID")
 
+	// Intended purpose: List processes running on the client.
 	case models.MESSAGE_PS:
 		recordNotImplementedMessage(&clientMessage, "PS")
 
+	// Intended purpose: Report the client working directory.
 	case models.MESSAGE_PWD:
 		recordNotImplementedMessage(&clientMessage, "PWD")
 
+	// Intended purpose: List the subkeys and values of a Windows registry key.
 	case models.MESSAGE_REG_QUERY:
 		recordNotImplementedMessage(&clientMessage, "REG_QUERY")
 
+	// Intended purpose: Read a specified value from a Windows registry key.
 	case models.MESSAGE_REG_QUERYV:
 		recordNotImplementedMessage(&clientMessage, "REG_QUERYV")
 
+	// Intended purpose: Restore the original client security context after impersonation.
 	case models.MESSAGE_REV2SELF:
 		recordNotImplementedMessage(&clientMessage, "REV2SELF")
 
+	// Intended purpose: Remove a file or directory from the client.
 	case models.MESSAGE_RM:
 		recordNotImplementedMessage(&clientMessage, "RM")
 
+	// Intended purpose: Forward connections from a client-side port to another endpoint.
 	case models.MESSAGE_RPORTFWD:
 		recordNotImplementedMessage(&clientMessage, "RPORTFWD")
 
+	// Intended purpose: Set an environment variable for the client execution context.
 	case models.MESSAGE_SETENV:
 		recordNotImplementedMessage(&clientMessage, "SETENV")
 
+	// Intended purpose: Provide a SOCKS proxy through the selected client session.
 	case models.MESSAGE_SOCKS:
 		recordNotImplementedMessage(&clientMessage, "SOCKS")
 
+	// Intended purpose: Adopt another process security token for impersonation.
 	case models.MESSAGE_STEAL_TOKEN:
 		recordNotImplementedMessage(&clientMessage, "STEAL_TOKEN")
 
+	// Intended purpose: Change the filesystem timestamps associated with a file.
 	case models.MESSAGE_TIMESTOMP:
 		recordNotImplementedMessage(&clientMessage, "TIMESTOMP")
 
+	// Intended purpose: Remove the association between linked client sessions.
 	case models.MESSAGE_UNLINK:
 		recordNotImplementedMessage(&clientMessage, "UNLINK")
 

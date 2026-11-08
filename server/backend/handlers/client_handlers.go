@@ -324,6 +324,7 @@ func notImplementedCommand(w http.ResponseWriter, r *http.Request, command strin
 //
 // =========================
 // Returns a not-implemented response for SCREENSHOT; no client operation is performed.
+// Intended purpose: Capture an image of the client desktop.
 func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "SCREENSHOT")
 }
@@ -334,6 +335,7 @@ func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for CD; no client operation is performed.
+// Intended purpose: Change the client working directory for later relative paths.
 func cdHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "CD")
 }
@@ -344,6 +346,7 @@ func cdHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for CP; no client operation is performed.
+// Intended purpose: Copy a file or directory to another client-side path.
 func cpHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "CP")
 }
@@ -354,6 +357,7 @@ func cpHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for DRIVES; no client operation is performed.
+// Intended purpose: List the drives and mounted volumes visible to the client.
 func drivesHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "DRIVES")
 }
@@ -364,6 +368,7 @@ func drivesHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for EXIT; no client operation is performed.
+// Intended purpose: Stop the client and close its session.
 func exitHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "EXIT")
 }
@@ -374,6 +379,7 @@ func exitHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for GETPRIVS; no client operation is performed.
+// Intended purpose: Inspect privileges available to the current security context.
 func getprivsHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "GETPRIVS")
 }
@@ -384,6 +390,7 @@ func getprivsHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for GETUID; no client operation is performed.
+// Intended purpose: Report the user identity under which the client is running.
 func getuidHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "GETUID")
 }
@@ -394,6 +401,7 @@ func getuidHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for KERBEROS_CCACHE_USE; no client operation is performed.
+// Intended purpose: Use a supplied Kerberos credential cache for authentication.
 func kerberosCcacheUseHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "KERBEROS_CCACHE_USE")
 }
@@ -404,6 +412,7 @@ func kerberosCcacheUseHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for KERBEROS_TICKET_PURGE; no client operation is performed.
+// Intended purpose: Remove Kerberos tickets from the selected logon context.
 func kerberosTicketPurgeHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "KERBEROS_TICKET_PURGE")
 }
@@ -414,6 +423,7 @@ func kerberosTicketPurgeHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for KERBEROS_TICKET_USE; no client operation is performed.
+// Intended purpose: Use a supplied Kerberos ticket for authentication.
 func kerberosTicketUseHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "KERBEROS_TICKET_USE")
 }
@@ -424,6 +434,7 @@ func kerberosTicketUseHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for JOBKILL; no client operation is performed.
+// Intended purpose: Stop a background job tracked by the client.
 func jobkillHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "JOBKILL")
 }
@@ -434,6 +445,7 @@ func jobkillHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for KILL; no client operation is performed.
+// Intended purpose: Terminate a selected process on the client.
 func killHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "KILL")
 }
@@ -444,6 +456,7 @@ func killHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for LINK; no client operation is performed.
+// Intended purpose: Associate another client session with the selected session.
 func linkHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "LINK")
 }
@@ -454,6 +467,7 @@ func linkHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for LS; no client operation is performed.
+// Intended purpose: List the files and directories at a client-side path.
 func lsHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "LS")
 }
@@ -464,6 +478,7 @@ func lsHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for MAKE_TOKEN; no client operation is performed.
+// Intended purpose: Create a security context from supplied logon credentials.
 func makeTokenHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "MAKE_TOKEN")
 }
@@ -474,6 +489,7 @@ func makeTokenHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for MKDIR; no client operation is performed.
+// Intended purpose: Create a directory on the client.
 func mkdirHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "MKDIR")
 }
@@ -484,6 +500,7 @@ func mkdirHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for MV; no client operation is performed.
+// Intended purpose: Move or rename a file or directory on the client.
 func mvHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "MV")
 }
@@ -494,6 +511,7 @@ func mvHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for PPID; no client operation is performed.
+// Intended purpose: Select a parent process ID for future process launches.
 func ppidHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "PPID")
 }
@@ -504,6 +522,7 @@ func ppidHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for PS; no client operation is performed.
+// Intended purpose: List processes running on the client.
 func psHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "PS")
 	//utils.EnableCORS(&w, r)
@@ -540,6 +559,7 @@ func psHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for PWD; no client operation is performed.
+// Intended purpose: Report the client working directory.
 func pwdHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "PWD")
 }
@@ -550,6 +570,7 @@ func pwdHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for REG_QUERY; no client operation is performed.
+// Intended purpose: List the subkeys and values of a Windows registry key.
 func regQueryHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "REG_QUERY")
 }
@@ -560,6 +581,7 @@ func regQueryHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for REG_QUERYV; no client operation is performed.
+// Intended purpose: Read a specified value from a Windows registry key.
 func regQueryvHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "REG_QUERYV")
 }
@@ -570,6 +592,7 @@ func regQueryvHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for REV2SELF; no client operation is performed.
+// Intended purpose: Restore the original client security context after impersonation.
 func rev2selfHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "REV2SELF")
 }
@@ -580,6 +603,7 @@ func rev2selfHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for RM; no client operation is performed.
+// Intended purpose: Remove a file or directory from the client.
 func rmHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "RM")
 }
@@ -590,6 +614,7 @@ func rmHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for RPORTFWD; no client operation is performed.
+// Intended purpose: Forward connections from a client-side port to another endpoint.
 func rportfwdHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "RPORTFWD")
 }
@@ -600,6 +625,7 @@ func rportfwdHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for SETENV; no client operation is performed.
+// Intended purpose: Set an environment variable for the client execution context.
 func setenvHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "SETENV")
 }
@@ -610,6 +636,7 @@ func setenvHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for SOCKS; no client operation is performed.
+// Intended purpose: Provide a SOCKS proxy through the selected client session.
 func socksHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "SOCKS")
 }
@@ -620,6 +647,7 @@ func socksHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for STEAL_TOKEN; no client operation is performed.
+// Intended purpose: Adopt another process security token for impersonation.
 func stealTokenHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "STEAL_TOKEN")
 }
@@ -630,6 +658,7 @@ func stealTokenHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for TIMESTOMP; no client operation is performed.
+// Intended purpose: Change the filesystem timestamps associated with a file.
 func timestompHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "TIMESTOMP")
 }
@@ -640,6 +669,7 @@ func timestompHandler(w http.ResponseWriter, r *http.Request) {
 //
 // =========================
 // Returns a not-implemented response for UNLINK; no client operation is performed.
+// Intended purpose: Remove the association between linked client sessions.
 func unlinkHandler(w http.ResponseWriter, r *http.Request) {
 	notImplementedCommand(w, r, "UNLINK")
 }
